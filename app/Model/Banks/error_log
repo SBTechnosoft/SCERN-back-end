@@ -1,0 +1,4 @@
+[23-Mar-2018 18:15:38 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Banks/BankModel.php on line 12
+[24-Mar-2018 09:25:31 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Banks/BankModel.php on line 12
+[25-Mar-2018 20:51:35 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Banks/BankModel.php on line 12
+[03-Apr-2018 14:26:12 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Banks/BankModel.php on line 12

@@ -1,0 +1,2 @@
+[24-Mar-2018 23:20:35 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/ProductGroups/ProductGroupModel.php on line 13
+[25-Mar-2018 20:52:04 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/ProductGroups/ProductGroupModel.php on line 13

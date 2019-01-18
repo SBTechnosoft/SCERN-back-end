@@ -1,0 +1,3 @@
+[22-Mar-2018 00:09:29 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\UpdatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Settings/Templates/Entities/Template.php on line 12
+[22-Mar-2018 00:10:07 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Companies\Services\CompanyService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Settings/Templates/Entities/EncodeData.php on line 12
+[22-Mar-2018 00:10:55 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Companies\Services\CompanyService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Settings/Templates/Entities/EncodeAllData.php on line 12

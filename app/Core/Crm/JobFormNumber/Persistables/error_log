@@ -1,0 +1,1 @@
+[24-Mar-2018 22:48:04 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\NamePropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Crm/JobFormNumber/Persistables/JobFormNumberPersistable.php on line 17

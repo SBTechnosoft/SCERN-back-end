@@ -1,0 +1,12 @@
+[23-Mar-2018 16:03:34 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\CreatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Users/Entities/User.php on line 12
+[24-Mar-2018 09:41:46 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\CreatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Users/Entities/User.php on line 12
+[24-Mar-2018 10:08:22 America/Chicago] PHP Fatal error:  Class 'ERP\Core\States\Services\StateService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Users/Entities/EncodeData.php on line 14
+[24-Mar-2018 10:16:11 America/Chicago] PHP Fatal error:  Class 'ERP\Core\States\Services\StateService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Users/Entities/EncodeAllData.php on line 14
+[25-Mar-2018 21:37:30 America/Chicago] PHP Fatal error:  Class 'ERP\Core\States\Services\StateService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Users/Entities/EncodeAllData.php on line 14
+[25-Mar-2018 21:37:31 America/Chicago] PHP Fatal error:  Class 'ERP\Core\States\Services\StateService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Users/Entities/EncodeData.php on line 14
+[25-Mar-2018 21:37:33 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\CreatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Users/Entities/User.php on line 12
+[28-Mar-2018 11:41:14 America/Chicago] PHP Fatal error:  Class 'ERP\Core\States\Services\StateService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Users/Entities/EncodeAllData.php on line 14
+[28-Mar-2018 16:47:41 America/Chicago] PHP Fatal error:  Class 'ERP\Core\States\Services\StateService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Users/Entities/EncodeData.php on line 14
+[03-Apr-2018 14:40:22 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\CreatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Users/Entities/User.php on line 12
+[03-Apr-2018 15:08:28 America/Chicago] PHP Fatal error:  Class 'ERP\Core\States\Services\StateService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Users/Entities/EncodeData.php on line 14
+[03-Apr-2018 15:16:47 America/Chicago] PHP Fatal error:  Class 'ERP\Core\States\Services\StateService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Users/Entities/EncodeAllData.php on line 14

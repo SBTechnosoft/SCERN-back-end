@@ -1,0 +1,8 @@
+[24-Mar-2018 09:59:01 America/Chicago] PHP Fatal error:  Class 'Illuminate\Routing\Controller' not found in /home/prabandhakur/public_html/ERP/back-end/app/Debug/Support/BaseController.php on line 10
+[24-Mar-2018 10:18:26 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Support\Providers\RouteServiceProvider' not found in /home/prabandhakur/public_html/ERP/back-end/app/Debug/Support/RouteServiceProvider.php on line 14
+[24-Mar-2018 14:10:43 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Support\Providers\RouteServiceProvider' not found in /home/prabandhakur/public_html/ERP/back-end/app/Debug/Support/RouteServiceProvider.php on line 14
+[24-Mar-2018 23:20:13 America/Chicago] PHP Fatal error:  Class 'Illuminate\Routing\Controller' not found in /home/prabandhakur/public_html/ERP/back-end/app/Debug/Support/BaseController.php on line 10
+[25-Mar-2018 20:50:38 America/Chicago] PHP Fatal error:  Class 'Illuminate\Routing\Controller' not found in /home/prabandhakur/public_html/ERP/back-end/app/Debug/Support/BaseController.php on line 10
+[25-Mar-2018 20:50:40 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Support\Providers\RouteServiceProvider' not found in /home/prabandhakur/public_html/ERP/back-end/app/Debug/Support/RouteServiceProvider.php on line 14
+[03-Apr-2018 15:01:32 America/Chicago] PHP Fatal error:  Class 'Illuminate\Routing\Controller' not found in /home/prabandhakur/public_html/ERP/back-end/app/Debug/Support/BaseController.php on line 10
+[03-Apr-2018 15:17:37 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Support\Providers\RouteServiceProvider' not found in /home/prabandhakur/public_html/ERP/back-end/app/Debug/Support/RouteServiceProvider.php on line 14

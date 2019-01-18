@@ -1,0 +1,2 @@
+[25-Mar-2018 21:30:17 America/Chicago] PHP Fatal error:  Class 'ERP\Model\Companies\CompanyModel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Companies/Validations/CompanyValidate.php on line 14
+[28-Mar-2018 17:37:41 America/Chicago] PHP Fatal error:  Class 'ERP\Model\Companies\CompanyModel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Companies/Validations/CompanyValidate.php on line 14

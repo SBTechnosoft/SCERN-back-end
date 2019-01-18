@@ -1,0 +1,2 @@
+[24-Mar-2018 23:24:07 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Crm/JobFormNumber/JobFormNumberModel.php on line 13
+[25-Mar-2018 21:38:41 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Crm/JobFormNumber/JobFormNumberModel.php on line 13

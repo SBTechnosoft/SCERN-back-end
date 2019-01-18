@@ -1,0 +1,2 @@
+[23-Mar-2018 06:17:08 America/Chicago] PHP Fatal error:  Class 'ERP\Model\Clients\ClientModel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Clients/Validations/ClientValidate.php on line 14
+[25-Mar-2018 21:29:05 America/Chicago] PHP Fatal error:  Class 'ERP\Model\Clients\ClientModel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Clients/Validations/ClientValidate.php on line 14

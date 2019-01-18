@@ -1,0 +1,1 @@
+[22-Mar-2018 00:07:58 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\NamePropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Settings/Templates/Persistables/TemplatePersistable.php on line 16

@@ -1,0 +1,2 @@
+[23-Mar-2018 15:44:38 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Support\Service\AbstractService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Products/Services/ProductService.php on line 20
+[25-Mar-2018 21:34:12 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Support\Service\AbstractService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Products/Services/ProductService.php on line 20

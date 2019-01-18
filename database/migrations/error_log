@@ -1,0 +1,4 @@
+[21-Mar-2018 18:14:54 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Migrations\Migration' not found in /home/prabandhakur/public_html/ERP/back-end/database/migrations/2014_10_12_000000_create_users_table.php on line 7
+[23-Mar-2018 18:00:30 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Migrations\Migration' not found in /home/prabandhakur/public_html/ERP/back-end/database/migrations/2014_10_12_100000_create_password_resets_table.php on line 7
+[25-Mar-2018 20:40:49 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Migrations\Migration' not found in /home/prabandhakur/public_html/ERP/back-end/database/migrations/2014_10_12_000000_create_users_table.php on line 7
+[25-Mar-2018 20:40:50 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Migrations\Migration' not found in /home/prabandhakur/public_html/ERP/back-end/database/migrations/2014_10_12_100000_create_password_resets_table.php on line 7

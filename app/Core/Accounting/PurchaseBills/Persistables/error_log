@@ -1,0 +1,1 @@
+[23-Mar-2018 18:02:11 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Accounting\Bills\Properties\ProductArrayPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Accounting/PurchaseBills/Persistables/PurchaseBillPersistable.php on line 36

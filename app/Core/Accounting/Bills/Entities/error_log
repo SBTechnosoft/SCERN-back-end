@@ -1,0 +1,5 @@
+[22-Mar-2018 13:30:05 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Clients\Services\ClientService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Accounting/Bills/Entities/EncodeAllData.php on line 14
+[22-Mar-2018 13:30:46 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Clients\Services\ClientService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Accounting/Bills/Entities/EncodeData.php on line 13
+[22-Mar-2018 13:49:41 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\CreatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Accounting/Bills/Entities/Bill.php on line 13
+[22-Mar-2018 13:57:15 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Clients\Services\ClientService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Accounting/Bills/Entities/EncodeAllDraftData.php on line 14
+[22-Mar-2018 16:09:40 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Accounting\Bills\Entities\CurrencyToWordConversion' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Accounting/Bills/Entities/BillMpdf.php on line 19

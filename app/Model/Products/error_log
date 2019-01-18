@@ -1,0 +1,4 @@
+[22-Mar-2018 14:16:10 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Products/ProductModel.php on line 18
+[24-Mar-2018 09:54:41 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Products/ProductModel.php on line 18
+[25-Mar-2018 20:52:06 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Products/ProductModel.php on line 18
+[03-Apr-2018 14:55:17 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Products/ProductModel.php on line 18

@@ -1,0 +1,4 @@
+[22-Mar-2018 22:28:00 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\CreatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/States/Entities/State.php on line 12
+[24-Mar-2018 09:53:11 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\CreatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/States/Entities/State.php on line 12
+[25-Mar-2018 21:37:05 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\CreatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/States/Entities/State.php on line 12
+[03-Apr-2018 14:52:42 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\CreatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/States/Entities/State.php on line 12

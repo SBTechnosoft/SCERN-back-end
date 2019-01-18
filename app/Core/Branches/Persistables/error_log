@@ -1,0 +1,2 @@
+[23-Mar-2018 05:20:23 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\NamePropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Branches/Persistables/BranchPersistable.php on line 22
+[25-Mar-2018 21:27:51 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\NamePropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Branches/Persistables/BranchPersistable.php on line 22

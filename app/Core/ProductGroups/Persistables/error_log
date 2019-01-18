@@ -1,0 +1,2 @@
+[23-Mar-2018 14:31:57 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\NamePropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/ProductGroups/Persistables/ProductGroupPersistable.php on line 17
+[25-Mar-2018 21:31:48 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\NamePropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/ProductGroups/Persistables/ProductGroupPersistable.php on line 17

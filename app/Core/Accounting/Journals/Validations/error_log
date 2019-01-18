@@ -1,0 +1,1 @@
+[23-Mar-2018 01:59:52 America/Chicago] PHP Fatal error:  Class 'ERP\Model\Accounting\Ledgers\LedgerModel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Accounting/Journals/Validations/BuisnessLogic.php on line 18

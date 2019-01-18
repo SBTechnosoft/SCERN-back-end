@@ -1,0 +1,2 @@
+[23-Mar-2018 04:23:38 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Support\Service\AbstractService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Branches/Services/BranchService.php on line 17
+[25-Mar-2018 21:27:56 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Support\Service\AbstractService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Branches/Services/BranchService.php on line 17

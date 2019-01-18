@@ -1,0 +1,2 @@
+[24-Mar-2018 14:10:38 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Authenticate\Services\AuthenticateService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Entities/AuthenticationClass/TokenAuthentication.php on line 14
+[25-Mar-2018 20:50:41 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Authenticate\Services\AuthenticateService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Entities/AuthenticationClass/TokenAuthentication.php on line 14

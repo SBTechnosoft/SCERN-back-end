@@ -1,0 +1,2 @@
+[25-Mar-2018 22:48:21 America/Chicago] PHP Fatal error:  Interface 'ERP\Support\Interfaces\RouteRegistrarInterface' not found in /home/prabandhakur/public_html/ERP/back-end/app/Api/V1_0/Authenticate/Routes/Authenticate.php on line 12
+[26-Mar-2018 07:23:52 America/Chicago] PHP Fatal error:  Interface 'ERP\Support\Interfaces\RouteRegistrarInterface' not found in /home/prabandhakur/public_html/ERP/back-end/app/Api/V1_0/Authenticate/Routes/Authenticate.php on line 12

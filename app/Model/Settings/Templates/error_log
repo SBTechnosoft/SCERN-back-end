@@ -1,0 +1,2 @@
+[25-Mar-2018 08:30:45 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Settings/Templates/TemplateModel.php on line 13
+[25-Mar-2018 21:38:53 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Settings/Templates/TemplateModel.php on line 13

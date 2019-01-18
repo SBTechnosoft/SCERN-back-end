@@ -1,0 +1,4 @@
+[23-Mar-2018 15:37:04 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Accounting/Bills/BillModel.php on line 24
+[24-Mar-2018 10:14:31 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Accounting/Bills/BillModel.php on line 24
+[25-Mar-2018 21:38:11 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Accounting/Bills/BillModel.php on line 24
+[03-Apr-2018 15:13:57 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Accounting/Bills/BillModel.php on line 24

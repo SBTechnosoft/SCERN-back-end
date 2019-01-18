@@ -1,0 +1,3 @@
+[22-Mar-2018 15:32:21 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\NamePropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Companies/Persistables/CompanyPersistable.php on line 37
+[23-Mar-2018 07:47:56 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\NamePropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Companies/Persistables/CompanyPersistable.php on line 37
+[25-Mar-2018 21:29:14 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\NamePropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Companies/Persistables/CompanyPersistable.php on line 37

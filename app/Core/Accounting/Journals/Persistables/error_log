@@ -1,0 +1,2 @@
+[24-Mar-2018 14:11:37 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Accounting\Journals\Properties\JfIdPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Accounting/Journals/Persistables/JournalPersistable.php on line 21
+[26-Mar-2018 01:25:07 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Accounting\Journals\Properties\JfIdPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Accounting/Journals/Persistables/JournalPersistable.php on line 21

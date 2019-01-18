@@ -1,0 +1,2 @@
+[23-Mar-2018 20:20:26 America/Chicago] PHP Fatal error:  Class 'Ascope\Libraries\Permissions\AbstractActionsPermissions' not found in /home/prabandhakur/public_html/ERP/back-end/app/Debug/Controllers/Permissions/LinkPermissions.php on line 9
+[25-Mar-2018 21:38:02 America/Chicago] PHP Fatal error:  Class 'Ascope\Libraries\Permissions\AbstractActionsPermissions' not found in /home/prabandhakur/public_html/ERP/back-end/app/Debug/Controllers/Permissions/LinkPermissions.php on line 9

@@ -1,0 +1,2 @@
+[24-Mar-2018 23:20:42 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Support\Service\AbstractService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Accounting/Ledgers/Services/LedgerService.php on line 18
+[29-Mar-2018 19:37:14 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Support\Service\AbstractService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Accounting/Ledgers/Services/LedgerService.php on line 18

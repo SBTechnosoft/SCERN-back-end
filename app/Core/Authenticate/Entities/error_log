@@ -1,0 +1,6 @@
+[22-Mar-2018 23:14:05 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\CreatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Authenticate/Entities/Authenticate.php on line 12
+[23-Mar-2018 12:05:12 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Users\Services\UserService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Authenticate/Entities/EncodeAllData.php on line 11
+[23-Mar-2018 13:54:55 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Users\Services\UserService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Authenticate/Entities/EncodeData.php on line 11
+[25-Mar-2018 21:26:54 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\CreatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Authenticate/Entities/Authenticate.php on line 12
+[25-Mar-2018 21:26:56 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Users\Services\UserService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Authenticate/Entities/EncodeAllData.php on line 11
+[25-Mar-2018 21:26:58 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Users\Services\UserService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Authenticate/Entities/EncodeData.php on line 11

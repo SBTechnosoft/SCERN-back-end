@@ -1,0 +1,2 @@
+[30-Mar-2018 00:08:49 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\UpdatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Settings/Professions/Entities/Profession.php on line 12
+[01-Apr-2018 23:17:43 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Settings\Professions\Entities\Profession' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Settings/Professions/Entities/EncodeData.php on line 11

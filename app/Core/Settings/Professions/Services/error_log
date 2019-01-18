@@ -1,0 +1,1 @@
+[30-Mar-2018 12:39:13 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Support\Service\AbstractService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Settings/Professions/Services/ProfessionService.php on line 16

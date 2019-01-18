@@ -1,0 +1,2 @@
+[23-Mar-2018 16:01:16 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\States\Properties\StateNamePropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/States/Persistables/StatePersistable.php on line 15
+[25-Mar-2018 21:37:07 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\States\Properties\StateNamePropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/States/Persistables/StatePersistable.php on line 15

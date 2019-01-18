@@ -1,0 +1,5 @@
+[23-Mar-2018 16:18:41 America/Chicago] PHP Fatal error:  Class 'ERP\Core\States\Services\StateService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Crm/JobForm/Entities/EncodeData.php on line 15
+[23-Mar-2018 16:22:28 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\CreatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Crm/JobForm/Entities/Branch.php on line 12
+[24-Mar-2018 01:25:42 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\CreatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Crm/JobForm/Entities/JobForm.php on line 12
+[24-Mar-2018 23:20:41 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\CreatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Crm/JobForm/Entities/JobForm.php on line 12
+[24-Mar-2018 23:21:21 America/Chicago] PHP Fatal error:  Class 'ERP\Core\States\Services\StateService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Crm/JobForm/Entities/EncodeAllData.php on line 15

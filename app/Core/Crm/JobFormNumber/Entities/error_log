@@ -1,0 +1,3 @@
+[30-Mar-2018 18:42:25 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\CreatedAtPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Crm/JobFormNumber/Entities/JobFormNumber.php on line 12
+[30-Mar-2018 19:35:23 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Companies\Services\CompanyService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Crm/JobFormNumber/Entities/EncodeAllData.php on line 12
+[30-Mar-2018 19:39:10 America/Chicago] PHP Fatal error:  Class 'ERP\Core\Companies\Services\CompanyService' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Crm/JobFormNumber/Entities/EncodeData.php on line 12

@@ -1,0 +1,2 @@
+[23-Mar-2018 18:39:59 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Products\Properties\ProductTypeTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Products/Persistables/ProductPersistable.php on line 61
+[25-Mar-2018 21:32:20 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Products\Properties\ProductTypeTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Products/Persistables/ProductPersistable.php on line 61

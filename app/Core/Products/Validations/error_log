@@ -1,0 +1,2 @@
+[23-Mar-2018 14:32:25 America/Chicago] PHP Fatal error:  Class 'ERP\Model\Products\ProductModel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Products/Validations/ProductValidate.php on line 14
+[25-Mar-2018 21:34:15 America/Chicago] PHP Fatal error:  Class 'ERP\Model\Products\ProductModel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Products/Validations/ProductValidate.php on line 14

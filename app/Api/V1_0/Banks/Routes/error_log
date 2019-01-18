@@ -1,0 +1,4 @@
+[24-Mar-2018 09:52:56 America/Chicago] PHP Fatal error:  Interface 'ERP\Support\Interfaces\RouteRegistrarInterface' not found in /home/prabandhakur/public_html/ERP/back-end/app/Api/V1_0/Banks/Routes/Bank.php on line 12
+[24-Mar-2018 23:18:06 America/Chicago] PHP Fatal error:  Interface 'ERP\Support\Interfaces\RouteRegistrarInterface' not found in /home/prabandhakur/public_html/ERP/back-end/app/Api/V1_0/Banks/Routes/Bank.php on line 12
+[25-Mar-2018 22:48:38 America/Chicago] PHP Fatal error:  Interface 'ERP\Support\Interfaces\RouteRegistrarInterface' not found in /home/prabandhakur/public_html/ERP/back-end/app/Api/V1_0/Banks/Routes/Bank.php on line 12
+[03-Apr-2018 14:49:52 America/Chicago] PHP Fatal error:  Interface 'ERP\Support\Interfaces\RouteRegistrarInterface' not found in /home/prabandhakur/public_html/ERP/back-end/app/Api/V1_0/Banks/Routes/Bank.php on line 12

@@ -1,0 +1,7 @@
+[23-Mar-2018 19:55:25 America/Chicago] PHP Fatal error:  Class 'ERP\Http\Controllers\Controller' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Controllers/Auth/AuthController.php on line 14
+[25-Mar-2018 08:30:19 America/Chicago] PHP Fatal error:  Class 'ERP\Http\Controllers\Controller' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Controllers/Auth/PasswordController.php on line 11
+[25-Mar-2018 08:31:20 America/Chicago] PHP Fatal error:  Class 'ERP\Http\Controllers\Controller' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Controllers/Auth/AuthController.php on line 14
+[25-Mar-2018 21:38:04 America/Chicago] PHP Fatal error:  Class 'ERP\Http\Controllers\Controller' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Controllers/Auth/AuthController.php on line 14
+[25-Mar-2018 21:38:06 America/Chicago] PHP Fatal error:  Class 'ERP\Http\Controllers\Controller' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Controllers/Auth/PasswordController.php on line 11
+[28-Mar-2018 12:03:51 America/Chicago] PHP Fatal error:  Class 'ERP\Http\Controllers\Controller' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Controllers/Auth/PasswordController.php on line 11
+[29-Mar-2018 18:12:59 America/Chicago] PHP Fatal error:  Class 'ERP\Http\Controllers\Controller' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Controllers/Auth/AuthController.php on line 14

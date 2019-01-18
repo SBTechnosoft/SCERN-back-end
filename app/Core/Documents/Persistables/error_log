@@ -1,0 +1,2 @@
+[23-Mar-2018 07:05:45 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Documents\Properties\DocumentNamePropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Documents/Persistables/DocumentPersistable.php on line 13
+[25-Mar-2018 21:31:01 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Documents\Properties\DocumentNamePropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Documents/Persistables/DocumentPersistable.php on line 13

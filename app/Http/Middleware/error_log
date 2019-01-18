@@ -1,0 +1,8 @@
+[24-Mar-2018 10:08:31 America/Chicago] PHP Fatal error:  Class 'Illuminate\Cookie\Middleware\EncryptCookies' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Middleware/EncryptCookies.php on line 10
+[24-Mar-2018 10:10:31 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Http\Middleware\VerifyCsrfToken' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Middleware/VerifyCsrfToken.php on line 10
+[24-Mar-2018 23:18:27 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Http\Middleware\VerifyCsrfToken' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Middleware/VerifyCsrfToken.php on line 10
+[24-Mar-2018 23:21:22 America/Chicago] PHP Fatal error:  Class 'Illuminate\Cookie\Middleware\EncryptCookies' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Middleware/EncryptCookies.php on line 10
+[25-Mar-2018 20:51:00 America/Chicago] PHP Fatal error:  Class 'Illuminate\Cookie\Middleware\EncryptCookies' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Middleware/EncryptCookies.php on line 10
+[25-Mar-2018 20:51:05 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Http\Middleware\VerifyCsrfToken' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Middleware/VerifyCsrfToken.php on line 10
+[03-Apr-2018 15:08:02 America/Chicago] PHP Fatal error:  Class 'Illuminate\Cookie\Middleware\EncryptCookies' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Middleware/EncryptCookies.php on line 10
+[03-Apr-2018 15:10:37 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Http\Middleware\VerifyCsrfToken' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Middleware/VerifyCsrfToken.php on line 10

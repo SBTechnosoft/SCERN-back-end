@@ -1,0 +1,2 @@
+[23-Mar-2018 13:13:18 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Authenticate\Properties\UserIdPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Authenticate/Persistables/AuthenticatePersistable.php on line 11
+[25-Mar-2018 21:27:00 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Authenticate\Properties\UserIdPropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Authenticate/Persistables/AuthenticatePersistable.php on line 11

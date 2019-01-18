@@ -1,0 +1,1 @@
+[24-Mar-2018 14:10:34 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Accounting\Ledgers\Properties\bankIdTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Accounting/Ledgers/Persistables/LedgerPersistable.php on line 42

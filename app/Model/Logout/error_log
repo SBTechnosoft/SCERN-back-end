@@ -1,0 +1,4 @@
+[24-Mar-2018 09:40:16 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Logout/LogoutModel.php on line 13
+[24-Mar-2018 14:08:31 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Logout/LogoutModel.php on line 13
+[25-Mar-2018 20:51:58 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Logout/LogoutModel.php on line 13
+[03-Apr-2018 14:41:52 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Logout/LogoutModel.php on line 13

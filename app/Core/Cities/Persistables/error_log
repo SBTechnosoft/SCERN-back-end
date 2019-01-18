@@ -1,0 +1,2 @@
+[23-Mar-2018 06:47:24 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\NamePropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Cities/Persistables/CityPersistable.php on line 16
+[25-Mar-2018 21:28:08 America/Chicago] PHP Fatal error:  Trait 'ERP\Core\Shared\Properties\NamePropertyTrait' not found in /home/prabandhakur/public_html/ERP/back-end/app/Core/Cities/Persistables/CityPersistable.php on line 16

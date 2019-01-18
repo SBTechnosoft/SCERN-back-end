@@ -1,0 +1,2 @@
+[24-Mar-2018 23:24:32 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Accounting/LedgerGroups/LedgerGroupModel.php on line 12
+[25-Mar-2018 21:38:18 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/prabandhakur/public_html/ERP/back-end/app/Model/Accounting/LedgerGroups/LedgerGroupModel.php on line 12

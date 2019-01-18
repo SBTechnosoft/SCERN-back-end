@@ -1,0 +1,4 @@
+[23-Mar-2018 13:35:41 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Exceptions\Handler' not found in /home/prabandhakur/public_html/ERP/back-end/app/Exceptions/Handler.php on line 15
+[24-Mar-2018 09:16:36 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Exceptions\Handler' not found in /home/prabandhakur/public_html/ERP/back-end/app/Exceptions/Handler.php on line 15
+[25-Mar-2018 20:39:34 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Exceptions\Handler' not found in /home/prabandhakur/public_html/ERP/back-end/app/Exceptions/Handler.php on line 15
+[03-Apr-2018 14:17:32 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Exceptions\Handler' not found in /home/prabandhakur/public_html/ERP/back-end/app/Exceptions/Handler.php on line 15
