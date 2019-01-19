@@ -45,6 +45,7 @@ class SettingTransformer
 			$data['product_frame_no_status'] = trim($request->input('productFrameNoStatus'));
 			$data['product_mrp_require_status'] = trim($request->input('productMrpRequireStatus'));
 			$data['product_margin_status'] = trim($request->input('productMarginStatus'));
+			$data['product_variant_status'] = trim($request->input('productVariantStatus'));
 		}
 		else if(array_key_exists('clientAddressStatus',$request->input()))
 		{
@@ -229,6 +230,5 @@ class SettingTransformer
 			}
 			return $tSettingArray;
 		}
-		
 	}
 }

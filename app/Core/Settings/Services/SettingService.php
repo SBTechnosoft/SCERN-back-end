@@ -140,22 +140,24 @@ class SettingService extends AbstractService
 				{
 					if ($settingSingleData->productAdvanceMouStatus == 'enable') {
 						$setting_advanceMou = true;
-					} else {
-						if ($settingSingleData->productColorStatus == 'enable') {
-							$setting_color = true;
-						}
-						if ($settingSingleData->productSizeStatus == 'enable') {
-							$setting_size = true;
-						}
-						if ($settingSingleData->productFrameNoStatus == 'enable') {
-							$setting_frameNo = true;
-						}
-						if ($settingSingleData->productMrpRequireStatus == 'enable') {
-							$setting_mrp = true;
-						}
-						if ($settingSingleData->productMarginStatus == 'enable') {
-							$setting_margin = true;
-						}
+					}
+					if ($settingSingleData->productColorStatus == 'enable') {
+						$setting_color = true;
+					}
+					if ($settingSingleData->productSizeStatus == 'enable') {
+						$setting_size = true;
+					}
+					if ($settingSingleData->productFrameNoStatus == 'enable') {
+						$setting_frameNo = true;
+					}
+					if ($settingSingleData->productMrpRequireStatus == 'enable') {
+						$setting_mrp = true;
+					}
+					if ($settingSingleData->productMarginStatus == 'enable') {
+						$setting_margin = true;
+					}
+					if ($settingSingleData->productVariantStatus == 'enable') {
+						$setting_variant = true;
 					}
 					break;
 				}
@@ -169,36 +171,33 @@ class SettingService extends AbstractService
 		{
 			$htmlTh = "<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;' colspan='3' rowspan='2'><strong>MOU</strong></td>";
 		}
-		else
+		$color_size_colspan = 3;
+		if($setting_frameNo == true){
+			$color_size_colspan = 2;
+		}
+
+		if ($setting_color == true && $setting_size == true )
 		{
-			$color_size_colspan = 3;
-			if($setting_frameNo == true){
-				$color_size_colspan = 2;
-			}
+			$htmlTh .= "<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;' colspan='".$color_size_colspan."' rowspan='2'><strong>Color | Size</strong></td>";
+		} 
+		else if ($setting_color == true) 
+		{
+			$htmlTh .= "<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;' colspan='".$color_size_colspan."' rowspan='2'><strong>Color</strong></td>";
+		} 
+		else if ($setting_size == true)
+		{
+			$htmlTh .= "<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;' colspan='".$color_size_colspan."' rowspan='2'><strong>Size</strong></td>";
+		}
 
-			if ($setting_color == true && $setting_size == true )
+		if ($setting_frameNo == true)
+		{
+			if ($setting_color == true || $setting_size == true) 
 			{
-				$htmlTh = "<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;' colspan='".$color_size_colspan."' rowspan='2'><strong>Color | Size</strong></td>";
-			} 
-			else if ($setting_color == true) 
-			{
-				$htmlTh = "<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;' colspan='".$color_size_colspan."' rowspan='2'><strong>Color</strong></td>";
-			} 
-			else if ($setting_size == true)
-			{
-				$htmlTh = "<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;' colspan='".$color_size_colspan."' rowspan='2'><strong>Size</strong></td>";
+				$htmlTh .= "<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;' colspan='1' rowspan='2'><strong>Frame No</strong></td>";
 			}
-
-			if ($setting_frameNo == true)
+			else
 			{
-				if ($setting_color == true || $setting_size == true) 
-				{
-					$htmlTh .= "<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;' colspan='1' rowspan='2'><strong>Frame No</strong></td>";
-				}
-				else
-				{
-					$htmlTh = "<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;' colspan='3' rowspan='2'><strong>Frame No</strong></td>";
-				}
+				$htmlTh = "<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;' colspan='3' rowspan='2'><strong>Frame No</strong></td>";
 			}
 		}
 
