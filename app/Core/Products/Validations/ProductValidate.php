@@ -52,7 +52,8 @@ class ProductValidate extends ProductModel
 			'vat'=> 'regex:/^[0-9 .]+$/', 
 			'mrp'=> $mrpValidate.'regex:/^[0-9 .]+$/', 
 			'color'=> 'required', 
-			'size'=> 'required', 
+			'size'=> 'required',
+			'variant'=> 'required',
 			'minimum_stock_level'=> 'regex:/^[0-9]+$/', 
 		);
 		$messages = [
@@ -183,7 +184,8 @@ class ProductValidate extends ProductModel
 				'vat'=> 'regex:/^[0-9 .]+$/', 
 				'mrp'=> $mrpValidate.'regex:/^[0-9 .]+$/', 
 				'color'=> 'required', 
-				'size'=> 'required', 
+				'size'=> 'required',
+				'variant'=> 'required',
 				'minimum_stock_level'=> 'regex:/^[0-9]+$/',
 			);
 		$rules =array();

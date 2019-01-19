@@ -70,7 +70,7 @@ class ProductController extends BaseController implements ContainerInterface
 			{
 				$processor = new ProductProcessor();
 				$productPersistable = new ProductPersistable();		
-				$productService= new ProductService();		
+				$productService= new ProductService();
 				$productPersistable = $processor->createPersistable($this->request);
 				if($productPersistable[0][0]=='[')
 				{

@@ -37,6 +37,7 @@ use ERP\Core\Products\Properties\AdditionalTaxPropertyTrait;
 use ERP\Core\Products\Properties\ProductDescriptionPropertyTrait;
 use ERP\Core\Products\Properties\ColorPropertyTrait;
 use ERP\Core\Products\Properties\SizePropertyTrait;
+use ERP\Core\Products\Properties\VariantPropertyTrait;
 use ERP\Core\Products\Properties\ProductCodePropertyTrait;
 use ERP\Core\Products\Properties\StockLevelPropertyTrait;
 use ERP\Core\Products\Properties\IgstPropertyTrait;
@@ -142,6 +143,7 @@ class productPersistable
 	use ProductDescriptionPropertyTrait;
 	use ColorPropertyTrait;
 	use SizePropertyTrait;
+	use VariantPropertyTrait;
 	use ProductCodePropertyTrait;
 	use WholeSaleMarginFlatPropertyTrait;
 	use MarginFlatPropertyTrait;

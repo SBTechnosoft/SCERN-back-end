@@ -90,6 +90,7 @@ class EncodeAllData extends ProductCategoryService
 			$hsn[$decodedData] = $decodedJson[$decodedData]['hsn'];
 			$color[$decodedData] = $decodedJson[$decodedData]['color'];
 			$size[$decodedData] = $decodedJson[$decodedData]['size'];
+			$variant[$decodedData] = $decodedJson[$decodedData]['variant'];
 			$productDescription[$decodedData] = $decodedJson[$decodedData]['product_description'];
 			$additionalTax[$decodedData] = $decodedJson[$decodedData]['additional_tax'];
 			$minimumStockLevel[$decodedData] = $decodedJson[$decodedData]['minimum_stock_level'];
@@ -297,6 +298,7 @@ class EncodeAllData extends ProductCategoryService
 				'hsn' => $hsn[$decodedData],
 				'color' => $color[$decodedData],
 				'size' => $size[$decodedData],
+				'variant' => $variant[$decodedData],
 				'productDescription' => $productDescription[$decodedData],
 				'additionalTax' => $additionalTax[$decodedData],
 				'minimumStockLevel' => $minimumStockLevel[$decodedData],

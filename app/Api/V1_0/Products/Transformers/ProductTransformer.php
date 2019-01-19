@@ -65,6 +65,7 @@ class ProductTransformer extends ExceptionMessage
 		$tPrimaryMeasureUnit = trim($request->input('primaryMeasureUnit'));
 		$tColor = trim($request->input('color'));
 		$tSize = trim($request->input('size'));
+		$tVariant = trim($request->input('variant'));
 		$tIsDisplay = trim($request->input('isDisplay'));
 		$tHighestPurchasePrice = trim($request->input('highestPurchasePrice'));
 		$tHigherPurchasePrice = trim($request->input('higherPurchasePrice'));
@@ -266,6 +267,7 @@ class ProductTransformer extends ExceptionMessage
 			$data['primary_measure_unit'] = $tPrimaryMeasureUnit;
 			$data['color'] = $tColor;
 			$data['size'] = $tSize;
+			$data['variant'] = $tVariant;
 			$data['is_display'] = $tIsDisplay;
 			$data['highest_purchase_price'] = $tHighestPurchasePrice;
 
@@ -367,6 +369,7 @@ class ProductTransformer extends ExceptionMessage
 				$tMeasUnit = trim($inputRequestData[$arrayData]['measurementUnit']);
 				$tColor = array_key_exists("color",$inputRequestData[$arrayData]) ? trim($inputRequestData[$arrayData]['color']) : "XX";
 				$tSize = array_key_exists("size",$inputRequestData[$arrayData]) ? trim($inputRequestData[$arrayData]['size']) : "ZZ";
+				$tVariant = array_key_exists("variant",$inputRequestData[$arrayData]) ? trim($inputRequestData[$arrayData]['variant']) : "YY";
 				// $tIsDisplay = trim($inputRequestData[$arrayData]['isDisplay']);
 				$tPurchasePrice = trim($inputRequestData[$arrayData]['purchasePrice']);
 				$tWholeSaleMargin = trim($inputRequestData[$arrayData]['wholesaleMargin']);
@@ -506,6 +509,7 @@ class ProductTransformer extends ExceptionMessage
 					$errorArray[$errorIndex]['measurementUnit'] = $tMeasUnit;
 					$errorArray[$errorIndex]['color'] = $tColor;
 					$errorArray[$errorIndex]['size'] = $tSize;
+					$errorArray[$errorIndex]['variant'] = $tVariant;
 					$errorArray[$errorIndex]['isDisplay'] = $tIsDisplay;
 					$errorArray[$errorIndex]['purchasePrice'] = $tPurchasePrice;
 					$errorArray[$errorIndex]['wholesaleMargin'] = $tWholeSaleMargin;
@@ -581,6 +585,7 @@ class ProductTransformer extends ExceptionMessage
 					$data[$dataIndex]['measurement_unit'] = $tMeasUnit;
 					$data[$dataIndex]['color'] = $tColor;
 					$data[$dataIndex]['size'] = $tSize;
+					$data[$dataIndex]['variant'] = $tVariant;
 					$data[$dataIndex]['is_display'] = $tIsDisplay;
 					$data[$dataIndex]['purchase_price'] = $tPurchasePrice;
 					$data[$dataIndex]['wholesale_margin'] = $tWholeSaleMargin;

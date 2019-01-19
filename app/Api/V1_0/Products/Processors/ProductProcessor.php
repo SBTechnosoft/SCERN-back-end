@@ -93,6 +93,10 @@ class ProductProcessor extends BaseProcessor
 				{
 					$tRequest['size'] = "ZZ";
 				}
+				if($tRequest['variant']=="")
+				{
+					$tRequest['variant'] = "YY";
+				}
 				if ($tRequest['product_code'] == '' || $tRequest['product_code'] == null) {
 					//make a product_code and validate it with other codes
 					//get company_name 
@@ -111,6 +115,7 @@ class ProductProcessor extends BaseProcessor
 					$decodedCategoryData = json_decode($categoryData);
 					$color = preg_replace('/[^A-Za-z0-9\-]/', '', $tRequest['color']);
 					$size = preg_replace('/[^A-Za-z0-9\-]/', '', $tRequest['size']);
+					$variant = preg_replace('/[^A-Za-z0-9\-]/', '', $tRequest['variant']);
 					$product_name = preg_replace('/[^A-Za-z0-9]/', '', $tRequest['product_name']);
 					$company_name = preg_replace('/[^A-Za-z0-9]/', '', $decodedCompanyData[0]->company_name);
 					$group_name = preg_replace('/[^A-Za-z0-9]/', '', $decodedGroupData[0]->product_group_name);
@@ -134,11 +139,18 @@ class ProductProcessor extends BaseProcessor
 					$size1 = substr($size,0,1);
 					$size2 = substr($size,$sizeLength-1,1);
 					$convertedSize = $size1.$size2;
+
+					$variantLength = strlen($variant);
+					$variant1 = substr($variant,0,1);
+					$variant2 = substr($variant,$variantLength-1,1);
+					$convertedVariant = $variant1.$variant2;
+
 					$tRequest['product_code'] = $convertedCompanyName.
 												$convertedCategoryName.
 												$convertedGroupName.
 												$convertedProductName.
 												$convertedColor.
+												$convertedVariant.
 												$convertedSize;
 					//convert string to upper-case
 					$convertedProductCode = strtoupper($tRequest['product_code']);
@@ -288,8 +300,13 @@ class ProductProcessor extends BaseProcessor
 					{
 						$tRequest['size'] = "ZZ";
 					}
+					if($tRequest['variant']=="")
+					{
+						$tRequest['variant'] = "YY";
+					}
 					$color = preg_replace('/[^A-Za-z0-9\-]/', '', $tRequest['color']);
 					$size = preg_replace('/[^A-Za-z0-9\-]/', '', $tRequest['size']);
+					$variant = preg_replace('/[^A-Za-z0-9\-]/', '', $tRequest['variant']);
 					$product_name = preg_replace('/[^A-Za-z0-9]/', '', $tRequest['product_name']);
 					$company_name = preg_replace('/[^A-Za-z0-9]/', '', $decodedCompanyData[0]->company_name);
 					$group_name = preg_replace('/[^A-Za-z0-9]/', '', $decodedGroupData[0]->product_group_name);
@@ -313,11 +330,18 @@ class ProductProcessor extends BaseProcessor
 					$size1 = substr($size,0,1);
 					$size2 = substr($size,$sizeLength-1,1);
 					$convertedSize = $size1.$size2;
+
+					$variantLength = strlen($variant);
+					$variant1 = substr($variant,0,1);
+					$variant2 = substr($variant,$variantLength-1,1);
+					$convertedVariant = $variant1.$variant2;
+
 					$tRequest['product_code'] = $convertedCompanyName.
 											$convertedCategoryName.
 											$convertedGroupName.
 											$convertedProductName.
 											$convertedColor.
+											$convertedVariant.
 											$convertedSize;
 					// convert string to upper-case
 					$convertedProductCode = strtoupper($tRequest['product_code']);
@@ -379,6 +403,7 @@ class ProductProcessor extends BaseProcessor
 						$trimData['errorArray'][$totalErrorArray]['measurementUnit'] = $trimData['dataArray'][$dataArray]['measurement_unit'];
 						$trimData['errorArray'][$totalErrorArray]['color'] = $trimData['dataArray'][$dataArray]['color'];
 						$trimData['errorArray'][$totalErrorArray]['size'] = $trimData['dataArray'][$dataArray]['size'];
+						$trimData['errorArray'][$totalErrorArray]['variant'] = $trimData['dataArray'][$dataArray]['variant'];
 						$trimData['errorArray'][$totalErrorArray]['isDisplay'] = $trimData['dataArray'][$dataArray]['is_display'];
 						$trimData['errorArray'][$totalErrorArray]['purchasePrice'] = $trimData['dataArray'][$dataArray]['purchase_price'];
 						$trimData['errorArray'][$totalErrorArray]['wholesaleMargin'] = $trimData['dataArray'][$dataArray]['wholesale_margin'];
@@ -586,7 +611,8 @@ class ProductProcessor extends BaseProcessor
 				//product-code validation
 				if(array_key_exists('companyId',$request->input()) || array_key_exists('productGroupId',$request->input()) || 
 				array_key_exists('productCategoryId',$request->input()) || array_key_exists('color',$request->input()) || 
-				array_key_exists('size',$request->input()) || array_key_exists('productName',$request->input()))
+				array_key_exists('size',$request->input()) || array_key_exists('variant',$request->input()) || 
+				array_key_exists('productName',$request->input()))
 				{
 					if(!array_key_exists('companyId',$request->input()))
 					{
@@ -752,6 +778,7 @@ class ProductProcessor extends BaseProcessor
 		$groupFlag=0;
 		$colorFlag=0;
 		$sizeFlag=0;
+		$variantFlag=0;
 		$productNameFlag=0;
 		$productValidate = new ProductValidate();
 		
@@ -812,6 +839,18 @@ class ProductProcessor extends BaseProcessor
 					$size = $tRequest[$arrayData]['size'];
 				}
 			}
+			if(array_key_exists('variant',$tRequest[$arrayData]))
+			{
+				$variantFlag=1;
+				if($tRequest[$arrayData]['variant']=="")
+				{
+					$tRequest[$arrayData]['variant']="YY";
+				}
+				else
+				{
+					$variant = $tRequest[$arrayData]['variant'];
+				}
+			}
 			if(array_key_exists('product_name',$tRequest[$arrayData]))
 			{
 				$productNameFlag=1;
@@ -844,12 +883,17 @@ class ProductProcessor extends BaseProcessor
 		{
 			$size = $decodedProductData[0]->size;
 		}
+		if($variantFlag==0)
+		{
+			$variant = $decodedProductData[0]->variant;
+		}
 		if($productNameFlag==0)
 		{
 			$productName = $decodedProductData[0]->product_name;
 		}
 		$color = preg_replace('/[^A-Za-z0-9]/', '', $color);
 		$size = preg_replace('/[^A-Za-z0-9]/', '', $size);
+		$variant = preg_replace('/[^A-Za-z0-9]/', '', $variant);
 		$product_name = preg_replace('/[^A-Za-z0-9]/', '', $productName);
 		$company_name = preg_replace('/[^A-Za-z0-9]/', '', $companyResult);
 		$group_name = preg_replace('/[^A-Za-z0-9]/', '', $groupData);
@@ -873,6 +917,11 @@ class ProductProcessor extends BaseProcessor
 		$size1 = substr($size,0,1);
 		$size2 = substr($size,$sizeLength-1,1);
 		$convertedSize = $size1.$size2;
+
+		$variantLength = strlen($variant);
+		$variant1 = substr($variant,0,1);
+		$variant2 = substr($variant,$variantLength-1,1);
+		$convertedVariant = $variant1.$variant2;
 		
 		$totalCount = count($tRequest);
 		$tRequest[$totalCount]['product_code']=$convertedCompanyName.
@@ -880,6 +929,7 @@ class ProductProcessor extends BaseProcessor
 												$convertedGroupName.
 												$convertedProductName.
 												$convertedColor.
+												$convertedVariant.
 												$convertedSize;
 		//convert string to upper-case
 		$convertedProductCode = strtoupper($tRequest[$totalCount]['product_code']);

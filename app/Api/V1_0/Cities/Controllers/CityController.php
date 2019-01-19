@@ -69,7 +69,9 @@ class CityController extends BaseController implements ContainerInterface
 		// }
 		echo "endd";
 		exit;
-		
+		// script to add Variant
+		DB::beginTransaction();
+		$raw = DB::statement('ALTER TABLE `product_mst` ADD `variant` VARCHAR(30) NULL DEFAULT NULL AFTER `size`;');
 		// for($)
 		
 		echo "aaa";
