@@ -14,6 +14,7 @@ class ProductArray
 		$productArray[2] = "productgroupid";
 		$productArray[3] = "color";
 		$productArray[4] = "size";
+		$productArray[4] = "variant";
 		return $productArray;
 	}
 	
@@ -25,6 +26,7 @@ class ProductArray
 		$productArray[2] = "product_group_id";
 		$productArray[3] = "color";
 		$productArray[4] = "size";
+		$productArray[4] = "variant";
 		return $productArray;
 	}
 }
