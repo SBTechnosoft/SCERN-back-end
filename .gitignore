@@ -14,8 +14,7 @@
 # /vendor/laravel/framework/src/Illuminate/Http/*
 
 .env
-/config/*
-!/config/database.php
+/config/database.php
 /bootstrap
 /public/Storage
 # /public/front-end
