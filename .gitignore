@@ -1,10 +1,21 @@
 #Ignore All Vendors except for Request file for Routing
-
-!/vendor/laravel/framework/src/Illuminate/Http/Request.php
+# /vendor
+# !/vendor/laravel
 /vendor/*
+# !/vendor/laravel/framework
+# /vendor/laravel/*
+# !/vendor/laravel/framework/src
+# /vendor/laravel/framework/*
+# !/vendor/laravel/framework/src/Illuminate
+# /vendor/laravel/framework/src/*
+# !/vendor/laravel/framework/src/Illuminate/Http
+# /vendor/laravel/framework/src/Illuminate/*
+!/vendor/laravel/framework/src/Illuminate/Http/Request.php
+# /vendor/laravel/framework/src/Illuminate/Http/*
+
 .env
-!/config/database.php
 /config/*
+!/config/database.php
 /bootstrap
 /public/Storage
 # /public/front-end
