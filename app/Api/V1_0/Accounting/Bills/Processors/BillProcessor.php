@@ -759,7 +759,8 @@ class BillProcessor extends BaseProcessor
 				}
 			}
 		}
-		
+		// print_r($dataArray);
+		// exit();
 
 		// Staff Commission Calculations Ends
 		//make data array for journal sale entry

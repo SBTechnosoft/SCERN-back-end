@@ -17,7 +17,7 @@ class LedgerArray
 		// $ledgerGeneralArray[4] = "sales";
 		$ledgerGeneralArray[4] = "purchase";
 		$ledgerGeneralArray[5] = "bank";
-		$ledgerGeneralArray[6] = "tax(income)";
+		$ledgerGeneralArray[6] = "tax(output)";
 		$ledgerGeneralArray[7] = "tax(expense)";
 		$ledgerGeneralArray[8] = "discount(income)";
 		$ledgerGeneralArray[9] = "discount(expense)";
@@ -41,9 +41,8 @@ class LedgerArray
 	public function billLedgerArray()
 	{
 		$ledgerGeneralArray = array();
-		
 		// $ledgerGeneralArray[0] = "sales";
-		$ledgerGeneralArray[0] = "tax(income)";
+		$ledgerGeneralArray[0] = "tax(output)";
 		$ledgerGeneralArray[1] = "discount(expense)";
 		return $ledgerGeneralArray;
 	}
@@ -64,7 +63,7 @@ class LedgerArray
 		// $ledgerGeneralArray[4] = 28;
 		$ledgerGeneralArray[4] = 26;
 		$ledgerGeneralArray[5] = 9;
-		$ledgerGeneralArray[6] = 17;
+		$ledgerGeneralArray[6] = 18;
 		$ledgerGeneralArray[7] = 16;
 		$ledgerGeneralArray[8] = 17;
 		$ledgerGeneralArray[9] = 16;
