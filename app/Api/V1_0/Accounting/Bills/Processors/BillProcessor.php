@@ -360,275 +360,63 @@ class BillProcessor extends BaseProcessor
 		// $discountTotal = $discountTotal+$totalDiscount;
 		$totalSaleAmount = $discountTotal+$tRequest['total'];
 		$totalDebitAmount = $tRequest['tax']+$tRequest['total'];
-		if($discountTotal==0)
-		{
-			//make data array for journal entry
-			if($tRequest['tax']!=0)
-			{
-				if($request->input()['advance']!="" && $tRequest['advance']!=0)
-				{
-					if($tRequest['total']==$tRequest['advance'])
-					{
-						$dataArray[0]=array(
-							"amount"=>$tRequest['advance'],
-							"amountType"=>$amountTypeArray['debitType'],
-							"ledgerId"=>$paymentLedgerId,
-						);
-						$dataArray[1]=array(
-							"amount"=>$tRequest['tax'],
-							"amountType"=>$amountTypeArray['creditType'],
-							"ledgerId"=>$ledgerTaxAcId,
-						);
-						$dataArray[2]=array(
-							"amount"=>$tRequest['total']-$tRequest['tax'],
-							"amountType"=>$amountTypeArray['creditType'],
-							"ledgerId"=>$ledgerSaleAcId,
-						);
-					}
-					else
-					{
-						$dataArray[0]=array(
-							"amount"=>$tRequest['advance'],
-							"amountType"=>$amountTypeArray['debitType'],
-							"ledgerId"=>$paymentLedgerId,
-						);
-						$dataArray[1]=array(
-							"amount"=>$tRequest['total']-$tRequest['advance'],
-							"amountType"=>$amountTypeArray['debitType'],
-							"ledgerId"=>$ledgerId,
-						);
-						$dataArray[2]=array(
-							"amount"=>$tRequest['tax'],
-							"amountType"=>$amountTypeArray['creditType'],
-							"ledgerId"=>$ledgerTaxAcId,
-						);
-						$dataArray[3]=array(
-							"amount"=>$tRequest['total']-$tRequest['tax'],
-							"amountType"=>$amountTypeArray['creditType'],
-							"ledgerId"=>$ledgerSaleAcId,
-						);
-					}					
-				}
-				else
-				{
-					$dataArray[0]=array(
-						"amount"=>$tRequest['total'],
-						"amountType"=>$amountTypeArray['debitType'],
-						"ledgerId"=>$ledgerId,
-					);
-					$dataArray[1]=array(
-						"amount"=>$tRequest['tax'],
-						"amountType"=>$amountTypeArray['creditType'],
-						"ledgerId"=>$ledgerTaxAcId,
-					);
-					$dataArray[2]=array(
-						"amount"=>$tRequest['total']-$tRequest['tax'],
-						"amountType"=>$amountTypeArray['creditType'],
-						"ledgerId"=>$ledgerSaleAcId,
-					);
-				}
-			}
-			else
-			{
-				if($tRequest['advance']!="" && $tRequest['advance']!=0)
-				{
-					if($tRequest['total']==$tRequest['advance'])
-					{
-						$dataArray[0]=array(
-							"amount"=>$tRequest['advance'],
-							"amountType"=>$amountTypeArray['debitType'],
-							"ledgerId"=>$paymentLedgerId,
-						);
-						$dataArray[1]=array(
-							"amount"=>$tRequest['total'],
-							"amountType"=>$amountTypeArray['creditType'],
-							"ledgerId"=>$ledgerSaleAcId,
-						);
-					}
-					else
-					{
-						$dataArray[0]=array(
-							"amount"=>$tRequest['advance'],
-							"amountType"=>$amountTypeArray['debitType'],
-							"ledgerId"=>$paymentLedgerId,
-						);
-						$dataArray[1]=array(
-							"amount"=>$tRequest['total']-$tRequest['advance'],
-							"amountType"=>$amountTypeArray['debitType'],
-							"ledgerId"=>$ledgerId,
-						);
-						$dataArray[2]=array(
-							"amount"=>$tRequest['total'],
-							"amountType"=>$amountTypeArray['creditType'],
-							"ledgerId"=>$ledgerSaleAcId,
-						);
-					}
-				}
-				else
-				{
-					$dataArray[0]=array(
-						"amount"=>$tRequest['total'],
-						"amountType"=>$amountTypeArray['debitType'],
-						"ledgerId"=>$ledgerId,
-					);
-					$dataArray[1]=array(
-						"amount"=>$tRequest['total'],
-						"amountType"=>$amountTypeArray['creditType'],
-						"ledgerId"=>$ledgerSaleAcId,
-					);
-				}
+		// New Ledger / Journal Calculation
+		$dataArray = [];
+		$transactionType = [];
+		$transactionType[0] = $constantArray['sales'];
+		if ($tRequest['total'] == $tRequest['advance']) {
+			$dataArray[0][0] = [
+				"amount"=>$tRequest['advance'],
+				"amountType"=>$amountTypeArray['debitType'],
+				"ledgerId"=>$paymentLedgerId
+			];
+		}else{
+			$dataArray[0][0] = [
+				"amount"=>$tRequest['total'],
+				"amountType"=>$amountTypeArray['debitType'],
+				"ledgerId"=>$ledgerId
+			];
+			//  Oth Array is for Sales Txn 1st Array is for Cash or Advance Payment done by Client on Bill Generation
+			if ($request->input()['advance']!="" && $tRequest['advance']!=0) {
+				$transactionType[1] = $constantArray['receiptType'];
+				$dataArray[1][0] = [
+				"amount"=>$tRequest['advance'],
+				"amountType"=>$amountTypeArray['debitType'],
+				"ledgerId"=>$paymentLedgerId
+				];
+				$dataArray[1][1] = [
+					"amount"=>$tRequest['advance'],
+					"amountType"=>$amountTypeArray['creditType'],
+					"ledgerId"=>$ledgerId
+				];
 			}
 		}
-		else
-		{					
-			//make data array for journal entry
-			if($tRequest['tax']!=0)
-			{	
-				if($tRequest['advance']!="" && $tRequest['advance']!=0)
-				{
-					if($tRequest['total']==$tRequest['advance'])
-					{
-						$dataArray[0]=array(
-							"amount"=>$tRequest['advance'],
-							"amountType"=>$amountTypeArray['debitType'],
-							"ledgerId"=>$paymentLedgerId,
-						);
-						$dataArray[1]=array(
-							"amount"=>$discountTotal,
-							"amountType"=>$amountTypeArray['debitType'],
-							"ledgerId"=>$ledgerDiscountAcId,
-						);
-						$dataArray[2]=array(
-							"amount"=>$tRequest['tax'],
-							"amountType"=>$amountTypeArray['creditType'],
-							"ledgerId"=>$ledgerTaxAcId,
-						);
-						$dataArray[3]=array(
-							"amount"=>($tRequest['advance']+$discountTotal)-$tRequest['tax'],
-							"amountType"=>$amountTypeArray['creditType'],
-							"ledgerId"=>$ledgerSaleAcId,
-						);
-					}
-					else
-					{
-						$dataArray[0]=array(
-							"amount"=>$tRequest['advance'],
-							"amountType"=>$amountTypeArray['debitType'],
-							"ledgerId"=>$paymentLedgerId,
-						);
-						
-						$dataArray[1]=array(
-							"amount"=>$tRequest['total']-$tRequest['advance'],
-							"amountType"=>$amountTypeArray['debitType'],
-							"ledgerId"=>$ledgerId,
-						);
-						$dataArray[2]=array(
-							"amount"=>$discountTotal,
-							"amountType"=>$amountTypeArray['debitType'],
-							"ledgerId"=>$ledgerDiscountAcId,
-						);
-						$dataArray[3]=array(
-							"amount"=>$tRequest['tax'],
-							"amountType"=>$amountTypeArray['creditType'],
-							"ledgerId"=>$ledgerTaxAcId,
-						);
-						$dataArray[4]=array(
-							"amount"=>$tRequest['total']-$tRequest['tax']+$discountTotal,
-							"amountType"=>$amountTypeArray['creditType'],
-							"ledgerId"=>$ledgerSaleAcId,
-						);
-					}
-				}
-				else
-				{
-					$dataArray[0]=array(
-						"amount"=>$tRequest['total'],
-						"amountType"=>$amountTypeArray['debitType'],
-						"ledgerId"=>$ledgerId,
-					);
-					$dataArray[1]=array(
-						"amount"=>$discountTotal,
-						"amountType"=>$amountTypeArray['debitType'],
-						"ledgerId"=>$ledgerDiscountAcId,
-					);
-					$dataArray[2]=array(
-						"amount"=>$tRequest['tax'],
-						"amountType"=>$amountTypeArray['creditType'],
-						"ledgerId"=>$ledgerTaxAcId,
-					);
-					$dataArray[3]=array(
-						"amount"=>$tRequest['total']-$tRequest['tax']+$discountTotal,
-						"amountType"=>$amountTypeArray['creditType'],
-						"ledgerId"=>$ledgerSaleAcId,
-					);
-				}
-			}
-			else
-			{
-				if($tRequest['advance']!="" && $tRequest['advance']!=0)
-				{
-					if($tRequest['total']==$tRequest['advance'])
-					{
-						$dataArray[0]=array(
-							"amount"=>$tRequest['advance'],
-							"amountType"=>$amountTypeArray['debitType'],
-							"ledgerId"=>$paymentLedgerId,
-						);
-						$dataArray[1]=array(
-							"amount"=>$discountTotal,
-							"amountType"=>$amountTypeArray['debitType'],
-							"ledgerId"=>$ledgerDiscountAcId,
-						);
-						$dataArray[2]=array(
-							"amount"=>$tRequest['advance']+$discountTotal,
-							"amountType"=>$amountTypeArray['creditType'],
-							"ledgerId"=>$ledgerSaleAcId,
-						);
-					}
-					else
-					{
-						$dataArray[0]=array(
-							"amount"=>$tRequest['advance'],
-							"amountType"=>$amountTypeArray['debitType'],
-							"ledgerId"=>$paymentLedgerId,
-						);
-						$dataArray[1]=array(
-							"amount"=>$tRequest['total']-$tRequest['advance'],
-							"amountType"=>$amountTypeArray['debitType'],
-							"ledgerId"=>$ledgerId,
-						);
-						$dataArray[2]=array(
-							"amount"=>$discountTotal,
-							"amountType"=>$amountTypeArray['debitType'],
-							"ledgerId"=>$ledgerDiscountAcId,
-						);
-						$dataArray[3]=array(
-							"amount"=>$tRequest['total']+$discountTotal,
-							"amountType"=>$amountTypeArray['creditType'],
-							"ledgerId"=>$ledgerSaleAcId,
-						);
-					}
-				}
-				else
-				{
-					$dataArray[0]=array(
-						"amount"=>$tRequest['total'],
-						"amountType"=>$amountTypeArray['debitType'],
-						"ledgerId"=>$ledgerId,
-					);
-					$dataArray[1]=array(
-						"amount"=>$discountTotal,
-						"amountType"=>$amountTypeArray['debitType'],
-						"ledgerId"=>$ledgerDiscountAcId,
-					);
-					$dataArray[2]=array(
-						"amount"=>$tRequest['total']+$discountTotal,
-						"amountType"=>$amountTypeArray['creditType'],
-						"ledgerId"=>$ledgerSaleAcId,
-					);
-				}
-			}
+		if ($discountTotal != 0) {
+			$dataArray[0][] = [
+				"amount"=>$discountTotal,
+				"amountType"=>$amountTypeArray['debitType'],
+				"ledgerId"=>$ledgerDiscountAcId
+			];
 		}
+		if ($tRequest['tax'] != 0) {
+			$dataArray[0][] = [
+				"amount"=>$tRequest['total']+$discountTotal-$tRequest['tax'],
+				"amountType"=>$amountTypeArray['creditType'],
+				"ledgerId"=>$ledgerSaleAcId
+			];
+			$dataArray[0][] = [
+				"amount"=>$tRequest['tax'],
+				"amountType"=>$amountTypeArray['creditType'],
+				"ledgerId"=>$ledgerTaxAcId
+			];
+		}else{
+			$dataArray[0][] = [
+				"amount"=>$tRequest['total'],
+				"amountType"=>$amountTypeArray['creditType'],
+				"ledgerId"=>$ledgerSaleAcId
+			];
+		}
+
 		// Staff Commission Calculations
 		/* 
 		* $tRequest[0] Array of inventory data
@@ -666,7 +454,7 @@ class BillProcessor extends BaseProcessor
 								}
 							}
 							// For General commission Ends here
-							$dataArray[$commissionArrayRank] = array(
+							$dataArray[$commissionArrayRank][0] = array(
 								'amount' => (string)round($commissionAmount,2),
 								'amountType' => $amountTypeArray['creditType'],
 								'ledgerId' => $staffLedgerId,
@@ -695,7 +483,7 @@ class BillProcessor extends BaseProcessor
 								}
 							}
 							
-							$dataArray[$commissionArrayRank] = array(
+							$dataArray[$commissionArrayRank][0] = array(
 								'amount' => (string)round($commissionAmount,2),
 								'amountType' => $amountTypeArray['creditType'],
 								'ledgerId' => $staffLedgerId,
@@ -723,15 +511,15 @@ class BillProcessor extends BaseProcessor
 									}
 								}
 							}
-							$dataArray[$commissionArrayRank] = array(
+							$dataArray[$commissionArrayRank][0] = array(
 								'amount' => (string)round($commissionAmount,2),
 								'amountType' => $amountTypeArray['creditType'],
 								'ledgerId' => $staffLedgerId,
 							);
 						}
 						if (isset($dataArray[$commissionArrayRank])
-						 && isset($dataArray[$commissionArrayRank]['amount'])
-						 && $dataArray[$commissionArrayRank]['amount'] > 0) {
+						 && isset($dataArray[$commissionArrayRank][0]['amount'])
+						 && $dataArray[$commissionArrayRank][0]['amount'] > 0) {
 							$commissionArrayConstant = new LedgerArray();
 							$commissionLedgerArray = $commissionArrayConstant->commissionLedgerArray();
 							if (is_array($commissionLedgerArray) && count($commissionLedgerArray)) {
@@ -748,8 +536,9 @@ class BillProcessor extends BaseProcessor
 								}else{
 									$commissionExpenseLedgerId = json_decode($commissionExpenseLedgerJson)[0]->ledger_id;
 								}
-								$dataArray[$commissionArrayRank + 1] = array(
-									'amount' => (string)$dataArray[$commissionArrayRank]['amount'],
+								$transactionType[$commissionArrayRank] = $constantArray['paymentType'];
+								$dataArray[$commissionArrayRank][1] = array(
+									'amount' => (string)$dataArray[$commissionArrayRank][0]['amount'],
 									'amountType' => $amountTypeArray['debitType'],
 									'ledgerId' => $commissionExpenseLedgerId,
 								);
@@ -759,31 +548,36 @@ class BillProcessor extends BaseProcessor
 				}
 			}
 		}
-		// print_r($dataArray);
-		// exit();
-
 		// Staff Commission Calculations Ends
-		//make data array for journal sale entry
-		$journalArray = array();
-		$journalArray= array(
-			'jfId' => $jsonDecodedJfId,
-			'data' => array(
-			),
-			'entryDate' => $tRequest['entry_date'],
-			'companyId' => $tRequest['company_id'],
-			'inventory' => array(
-			),
-			'transactionDate'=> $tRequest['entry_date'],
-			'tax'=> $tRequest['tax'],
-			'invoiceNumber'=>$tRequest['invoice_number']
-		);
-		$journalArray['data']=$dataArray;
-		$journalArray['inventory']=$tRequest[0];
-		$method=$constantArray['postMethod'];
-		$path=$constantArray['journalUrl'];
-		$journalRequest = Request::create($path,$method,$journalArray);
-		$journalRequest->headers->set('type',$constantArray['sales']);
-		$processedData = $journalController->store($journalRequest);
+
+		for ($multiJournalCreate=0; $multiJournalCreate < count($dataArray); $multiJournalCreate++) {
+				//make data array for journal sale entry
+			$journalArray = array();
+			$journalArray= array(
+				'jfId' => $jsonDecodedJfId,
+				'data' => array(
+				),
+				'entryDate' => $tRequest['entry_date'],
+				'companyId' => $tRequest['company_id'],
+				'inventory' => array(
+				),
+				'transactionDate'=> $tRequest['entry_date'],
+				'tax'=> $tRequest['tax'],
+				'invoiceNumber'=>$tRequest['invoice_number']
+			);
+			$journalArray['inventory']=$tRequest[0];
+			$method=$constantArray['postMethod'];
+			$path=$constantArray['journalUrl']; 
+			$journalArray['data']=$dataArray[$multiJournalCreate];
+			$journalRequest = Request::create($path,$method,$journalArray);
+			$journalRequest->headers->set('type',$transactionType[$multiJournalCreate]);
+			$processedData = $journalController->store($journalRequest);
+			if (strcmp($processedData, $msgArray['200']) != 0) {
+				return $processedData;
+			}
+		}
+		
+
 		if(strcmp($processedData,$msgArray['200'])==0)
 		{
 			$productArray = array();

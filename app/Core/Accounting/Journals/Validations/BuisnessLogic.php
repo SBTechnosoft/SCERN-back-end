@@ -970,7 +970,7 @@ class BuisnessLogic extends LedgerModel
 			$ledgerResult = $ledgerService->getLedgerData($ledgerIdArray[$journalArrayData]);
 			if(strcmp("sales",$journalType)==0)
 			{
-				if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==17)
+				if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==18)
 				{
 					$journalTaxFlag=1;
 					//tax ledger exist
@@ -1085,7 +1085,7 @@ class BuisnessLogic extends LedgerModel
 				$ledgerResult = $ledgerService->getLedgerData($ledgerIdArray[$journalArrayData]);
 				if(strcmp("sales",$journalType)==0)
 				{
-					if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==17)
+					if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==18)
 					{
 						//tax exist
 						$journalTaxFlag=1;
@@ -1147,7 +1147,6 @@ class BuisnessLogic extends LedgerModel
 							}
 						}
 					}
-					
 				}
 				if($journalDiscountFlag==0 || $discountJournalFlag==0)
 				{

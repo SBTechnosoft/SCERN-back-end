@@ -62,7 +62,6 @@ class JournalController extends BaseController implements ContainerInterface
 		// get exception message
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
-				
 		$RequestUri = explode("/", $_SERVER['REQUEST_URI']);
 		if(strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"bills")==0 || strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"purchase-bills")==0)
 		{
@@ -149,6 +148,10 @@ class JournalController extends BaseController implements ContainerInterface
 						{
 							return $productPersistable;
 						}
+					}else if (strcmp($request->header()['type'][0],$constantArray['receiptType'])==0) {
+						return $status;
+					}else if (strcmp($request->header()['type'][0],$constantArray['paymentType'])==0) {
+						return $status;
 					}
 				}
 				else
