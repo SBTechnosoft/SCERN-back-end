@@ -20,6 +20,7 @@ use Illuminate\Container\Container;
 use ERP\Entities\AuthenticationClass\TokenAuthentication;
 use ERP\Api\V1_0\Documents\Controllers\DocumentController;
 use ERP\Model\Products\ProductModel;
+
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -58,7 +59,6 @@ class JournalController extends BaseController implements ContainerInterface
 		//get constant array
 		$constantClass = new ConstantClass();
 		$constantArray = $constantClass->constantVariable();
-		
 		// get exception message
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();

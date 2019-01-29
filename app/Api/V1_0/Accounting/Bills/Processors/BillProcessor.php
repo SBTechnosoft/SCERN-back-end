@@ -30,7 +30,6 @@ use ERP\Model\Users\UserModel;
 use ERP\Core\Users\Commissions\Services\CommissionService;
 use ERP\Core\Products\Services\ProductService;
 use ERP\Core\Companies\Services\CompanyService;
-use Illuminate\Support\Facades\Log;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -411,7 +410,7 @@ class BillProcessor extends BaseProcessor
 			];
 		}else{
 			$dataArray[0][] = [
-				"amount"=>$tRequest['total'],
+				"amount"=>$tRequest['total']+$discountTotal,
 				"amountType"=>$amountTypeArray['creditType'],
 				"ledgerId"=>$ledgerSaleAcId
 			];

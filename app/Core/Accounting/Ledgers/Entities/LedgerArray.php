@@ -18,7 +18,7 @@ class LedgerArray
 		$ledgerGeneralArray[4] = "purchase";
 		$ledgerGeneralArray[5] = "bank";
 		$ledgerGeneralArray[6] = "tax(output)";
-		$ledgerGeneralArray[7] = "tax(expense)";
+		$ledgerGeneralArray[7] = "tax(input)";
 		$ledgerGeneralArray[8] = "discount(income)";
 		$ledgerGeneralArray[9] = "discount(expense)";
 		$ledgerGeneralArray[10] = "cash";
@@ -64,7 +64,7 @@ class LedgerArray
 		$ledgerGeneralArray[4] = 26;
 		$ledgerGeneralArray[5] = 9;
 		$ledgerGeneralArray[6] = 18;
-		$ledgerGeneralArray[7] = 16;
+		$ledgerGeneralArray[7] = 18;
 		$ledgerGeneralArray[8] = 17;
 		$ledgerGeneralArray[9] = 16;
 		$ledgerGeneralArray[10] = 12;

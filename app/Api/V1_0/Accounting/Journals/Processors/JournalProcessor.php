@@ -12,6 +12,7 @@ use ERP\Exceptions\ExceptionMessage;
 use ERP\Core\Accounting\Journals\Validations\BuisnessLogic;
 use ERP\Api\V1_0\Products\Transformers\ProductTransformer;
 use ERP\Entities\Constants\ConstantClass;
+use Illuminate\Support\Facades\Log;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -88,13 +89,11 @@ class JournalProcessor extends BaseProcessor
 								//trim an input 
 								$productTransformer = new ProductTransformer();
 								$trimProductRequest = $productTransformer->trimInsertInOutwardData($this->request,$inOutWard);
-								
 								//check accounting Rules for sale/purchase
 								$busnessValidateResult = $buisnessLogic->validateInsertBuisnessLogic($trimProductRequest,$tRequest,$request->header()['type'][0]);
 							
 								if(!is_array($busnessValidateResult))
 								{
-
 									return $busnessValidateResult;
 								}
 							}

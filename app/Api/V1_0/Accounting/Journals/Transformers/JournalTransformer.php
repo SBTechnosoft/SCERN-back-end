@@ -46,7 +46,7 @@ class JournalTransformer extends LedgerModel
 			{
 				$journalType = $constantArray['paymentType'];
 			}
-			else
+			else if(strcmp($request->header()['type'][0],$constantArray['receiptType'])==0)
 			{
 				$journalType = $constantArray['receiptType'];
 			}
