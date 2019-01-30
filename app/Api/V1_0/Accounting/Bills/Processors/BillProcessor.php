@@ -597,6 +597,8 @@ class BillProcessor extends BaseProcessor
 				$tInventoryArray[$trimData][11] = array_key_exists("sgstAmount",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['sgstAmount']):0;
 				$tInventoryArray[$trimData][12] = array_key_exists("igstPercentage",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['igstPercentage']):0;
 				$tInventoryArray[$trimData][13] = array_key_exists("igstAmount",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['igstAmount']):0;
+				$tInventoryArray[$trimData][14] = array_key_exists("cessAmount",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['cessAmount']):0;
+				$tInventoryArray[$trimData][15] = array_key_exists("realQtyData",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['realQtyData']):0;
 				array_push($request->input()['inventory'][$trimData],$tInventoryArray[$trimData]);
 			}
 			$productArray['inventory'] = $request->input()['inventory'];
@@ -1658,6 +1660,8 @@ class BillProcessor extends BaseProcessor
 					$billTrimData['inventory'][$inventoryData]['sgstAmount'] = array_key_exists("sgstAmount",$request->input()['inventory'][$inventoryData]) ? trim($request->input()['inventory'][$inventoryData]['sgstAmount']):0;
 					$billTrimData['inventory'][$inventoryData]['igstPercentage'] = array_key_exists("igstPercentage",$request->input()['inventory'][$inventoryData]) ? trim($request->input()['inventory'][$inventoryData]['igstPercentage']):0;
 					$billTrimData['inventory'][$inventoryData]['igstAmount'] = array_key_exists("igstAmount",$request->input()['inventory'][$inventoryData]) ? trim($request->input()['inventory'][$inventoryData]['igstAmount']):0;
+					$billTrimData['inventory'][$inventoryData]['cessAmount'] = array_key_exists("cessAmount",$request->input()['inventory'][$inventoryData]) ? trim($request->input()['inventory'][$inventoryData]['cessAmount']):0;
+					$billTrimData['inventory'][$inventoryData]['realQtyData'] = array_key_exists("realQtyData",$request->input()['inventory'][$inventoryData]) ? trim($request->input()['inventory'][$inventoryData]['realQtyData']):0;
 				}
 				$invFlag=1;
 				$decodedProductArrayData = json_decode($billData[0]->product_array);
