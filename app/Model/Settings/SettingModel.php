@@ -46,7 +46,6 @@ class SettingModel extends Model
 		$advanceBillArray = array();
 		$webIntegrationArray = array();
 		$inventoryArray = array();
-		
 		$barcodeFlag=0;
 		$chequeNoFlag=0;
 		$serviceDateFlag=0;

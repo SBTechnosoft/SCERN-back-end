@@ -169,10 +169,10 @@ class SettingTransformer
 				return $exceptionArray['content'];
 			}
 		}
-		else if(array_key_exists('itemizePurchaseSalesStatus',$request->input()))
+		else if(array_key_exists('inventoryItemizeStatus',$request->input()))
 		{
-			$data['itemize_purchase_sales_status'] = trim($request->input('itemizePurchaseSalesStatus'));
-			if($data['itemize_purchase_sales_status']=='undefined')
+			$data['inventory_itemize_status'] = trim($request->input('inventoryItemizeStatus'));
+			if($data['inventory_itemize_status']=='undefined')
 			{
 				return $exceptionArray['content'];
 			}

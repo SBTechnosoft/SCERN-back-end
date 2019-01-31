@@ -125,6 +125,16 @@ class EncodeAllData extends Setting
 					'updatedAt' => $getUpdatedDate[$decodedData]
 				);
 			}
+			else if(strcmp($decodedJson[$decodedData]['setting_type'],$constantArray['inventorySetting'])==0)
+			{
+				$data[$decodedData]= array(
+					'settingId' => $decodedJson[$decodedData]['setting_id'],
+					'settingType' => $decodedJson[$decodedData]['setting_type'],
+					'inventoryItemizeStatus' => $decodedSettingData->inventory_itemize_status,
+					'createdAt' => $getCreatedDate[$decodedData],
+					'updatedAt' => $getUpdatedDate[$decodedData]
+				);
+			}
 			else if(strcmp($decodedJson[$decodedData]['setting_type'],$constantArray['clientSetting'])==0)
 			{
 				$data[$decodedData]= array(
