@@ -85,7 +85,7 @@ class SettingProcessor extends BaseProcessor
 				for($data=0;$data<count($settingValue);$data++)
 				{
 					// set the data in persistable object
-					$settingPersistable = new SettingPersistable();	
+					$settingPersistable = new SettingPersistable();
 					$str = str_replace(' ', '', ucwords(str_replace('_', ' ', $keyName[$data])));
 					// make function name dynamically
 					 $setFuncName = 'set'.$str;

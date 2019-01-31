@@ -29,6 +29,7 @@ class ConstantClass
 		$constantArray['clientSetting'] = "client";
 		$constantArray['billSetting'] = "bill";
 		$constantArray['advanceBillSetting'] = "advance";
+		$constantArray['inventorySetting'] = "inventory";
 		$constantArray['webIntegrationSetting'] = "webintegration";
 		$constantArray['noImage'] = "Storage/No-Image/no-image.jpg";
 		$constantArray['productBarcode'] = "Storage/Barcode/";

@@ -46,6 +46,8 @@ use ERP\Core\Settings\Properties\WebintegrationUserIdTrait;
 use ERP\Core\Settings\Properties\WebintegrationPasswordTrait;
 use ERP\Core\Settings\Properties\WebintegrationPushUrlTrait;
 
+use ERP\Core\Settings\Properties\ItemizePurchaseSalesStatusTrait;
+
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -95,4 +97,6 @@ class SettingPersistable
     use WebintegrationUserIdTrait;
     use WebintegrationPasswordTrait;
     use WebintegrationPushUrlTrait;
+    
+    use ItemizePurchaseSalesStatusTrait;
 }

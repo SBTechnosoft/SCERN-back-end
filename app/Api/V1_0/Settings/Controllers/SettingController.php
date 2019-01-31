@@ -147,8 +147,8 @@ class SettingController extends BaseController implements ContainerInterface
 			{
 				$requestData = $this->getUpdateRequestData();
 				$processor = new SettingProcessor();
-				$settingPersistable = new SettingPersistable();		
-				$settingService= new SettingService();					
+				$settingPersistable = new SettingPersistable();
+				$settingService= new SettingService();		
 				$settingPersistable = $processor->createPersistableChange($requestData);
 
 				if($settingPersistable[0][0]=='[')
