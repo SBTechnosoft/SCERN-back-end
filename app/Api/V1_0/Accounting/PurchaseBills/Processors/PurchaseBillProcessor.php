@@ -24,6 +24,7 @@ use ERP\Model\Accounting\PurchaseBills\PurchaseBillModel;
 // use ERP\Core\Clients\Entities\ClientArray;
 // use ERP\Core\Accounting\Ledgers\Entities\LedgerArray;
 // use ERP\Model\Accounting\Journals\JournalModel;
+use ERP\Core\Products\Services\ProductService;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -114,6 +115,40 @@ class PurchaseBillProcessor extends BaseProcessor
 						}
 						$data++;
 					}
+					// insertion for itemize (IMEI/Serial) purchase bill
+					$inventoryArrayData = $inventoryData['inventory'];
+					$inventoryCount = count($inventoryArrayData);
+					$inventoryInc = 0;
+					$itemizeBatch = array();
+					$itemizeBillNo = $inventoryData['billNumber'];
+					while ($inventoryInc < $inventoryCount) {
+						if (isset($inventoryArrayData[$inventoryInc]['itemizeDetail'])) {
+							$itemizeArray = $inventoryArrayData[$inventoryInc]['itemizeDetail'];
+							if (count($itemizeArray) > 0) {
+								$itemizeProduct =  $inventoryArrayData[$inventoryInc]['productId'];
+								foreach ($itemizeArray as $serialArray) {
+									$itemizeBatch[] = [
+										'product_id' => $itemizeProduct,
+										'imei_no' => $serialArray['imei_no'],
+										'barcode_no' => $serialArray['barcode_no'],
+										'qty' => $serialArray['qty'],
+										'jfId' => $journalResult,
+										'purchase_bill_no' => $itemizeBillNo
+									];
+								}
+								$inventoryInc++;
+							}
+						}
+					}
+					if (!empty($itemizeBatch) && count($itemizeBatch) > 0) {
+						$productService = new ProductService();
+						$itemizeBatchInsertion = $productService->insertInOutwardItemizeData($itemizeBatch);
+						if (strcmp($itemizeBatchInsertion, $exceptionArray['200']) != 0) {
+							return $itemizeBatchInsertion;
+						}
+					}
+					// end of insertion of itemize (IMEI/Serial)
+
 					$purchaseValue[$data] = json_encode($inventoryData);
 					$keyName[$data] = 'productArray';
 					$purchaseValue[$data+1] = $journalResult;

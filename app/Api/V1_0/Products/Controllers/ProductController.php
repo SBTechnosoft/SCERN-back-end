@@ -739,4 +739,28 @@ class ProductController extends BaseController implements ContainerInterface
 			return $authenticationResult;
 		}
     }
+
+    /**
+     * Get the specified resource from storage.
+     * @param  Request object[Request $request]     
+     */
+    public function getItemizeSummaryData(Request $request,$productId)
+    {
+    	//get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			$productService= new ProductService();
+			$status = $productService->getItemizeStockSummary($productId);
+			return $status;
+		}
+		else
+		{
+			return $authenticationResult;
+		}
+
+    }
 }

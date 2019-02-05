@@ -18,6 +18,7 @@ use ERP\Core\Products\Entities\EncodeAllStockSummaryData;
 use ERP\Core\Settings\Services\SettingService;
 use ERP\Model\Authenticate\AuthenticateModel;
 use ERP\Entities\AuthenticationClass\TokenAuthentication;
+use ERP\Core\Products\Entities\EncodeAllItemizeSummaryData;
 
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
@@ -883,6 +884,44 @@ class ProductService extends AbstractService
 		        }
 		    }
 	    }
+    }
+    public function insertInOutwardItemizeData($batchData)
+    {
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if (empty($batchData) || count($batchData) == 0) {
+			return $exceptionArray['content'];
+		}
+		//data pass to the model object for insert
+		$productModel = new ProductModel();
+		$status = $productModel->insertItemizeTrnDtl($batchData);
+		return $status;
+    }
+    public function updateInOutwardItemizeData()
+    {
+
+    }
+
+    public function getItemizeStockSummary($productId)
+    {
+    	//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		
+		$productModel = new ProductModel();
+		$status = $productModel->getItemizeStockSummaryData($productId);
+		
+		if(strcmp($status,$exceptionArray['404'])==0)
+		{
+			return $exceptionArray['404'];
+		}
+		else
+		{
+			$encodedAllData = new EncodeAllItemizeSummaryData();
+			$encodedData = $encodedAllData->getEncodedItemizeSummaryData($status);
+			return $encodedData;
+		}
     }
 
     /**

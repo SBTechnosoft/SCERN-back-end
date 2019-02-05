@@ -122,6 +122,20 @@ class PurchaseBillTransformer
 						$purchaseBillArray['inventory'][$inventoryArray]['discountType'] = trim($inventoryData[$inventoryArray]['discountType']);
 					}
 				}
+				if (array_key_exists('itemizeDetail', $inventoryData[$inventoryArray])) {
+					$itemizeDtlJson = trim($inventoryData[$inventoryArray]['itemizeDetail']);
+					$itemizeDtlArray = json_decode($itemizeDtlJson);
+					if (count($itemizeDtlArray) > 0) {
+						$itemizeDtlArray = array_map(function($itemizeDtl){
+							$returnItemize = [];
+							$returnItemize['imei_no'] = trim($itemizeDtl->imei_no);
+							$returnItemize['barcode_no'] = trim($itemizeDtl->barcode_no);
+							$returnItemize['qty'] = trim($itemizeDtl->qty);
+							return $returnItemize;
+						}, $itemizeDtlArray);
+						$purchaseBillArray['inventory'][$inventoryArray]['itemizeDetail'] = $itemizeDtlArray;
+					}
+				}
 			}
 		}
 		return $purchaseBillArray;
