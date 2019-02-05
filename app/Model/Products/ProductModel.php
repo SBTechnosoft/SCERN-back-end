@@ -2609,7 +2609,7 @@ class ProductModel extends Model
 			created_at,
 			updated_at,
 			sum(qty) as stock
-			from itemize_trn_dtl where product_id = '$productId' group by imei_no
+			from itemize_trn_dtl where product_id = '$productId' group by imei_no order by created_at
 			");
 		DB::commit();
 		

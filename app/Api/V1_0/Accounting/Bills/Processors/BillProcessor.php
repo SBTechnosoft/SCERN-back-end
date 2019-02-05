@@ -584,24 +584,81 @@ class BillProcessor extends BaseProcessor
 			$productArray['transactionType']=$constantArray['journalOutward'];
 			$productArray['companyId']=$tRequest['company_id'];
 			$tInventoryArray = array();
-			for($trimData=0;$trimData<count($request->input()['inventory']);$trimData++)
-			{
-				$tInventoryArray[$trimData] = array();
+			$itemizeBatch = array();
+			// for($trimData=0;$trimData<count($request->input()['inventory']);$trimData++)
+			// {
+			// 	$tInventoryArray[$trimData] = array();
 
-				$tInventoryArray[$trimData][5] = array_key_exists('color', $request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['color']) : "XX";
-				$tInventoryArray[$trimData][6] = array_key_exists('frameNo', $request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['frameNo']) : "";
-				$tInventoryArray[$trimData][7] = array_key_exists('size', $request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['size']) : "ZZ";
-				$tInventoryArray[$trimData][8] = array_key_exists("cgstPercentage",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['cgstPercentage']):0;
-				$tInventoryArray[$trimData][9] = array_key_exists("cgstAmount",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['cgstAmount']):0;
-				$tInventoryArray[$trimData][10] = array_key_exists("sgstPercentage",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['sgstPercentage']):0;
-				$tInventoryArray[$trimData][11] = array_key_exists("sgstAmount",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['sgstAmount']):0;
-				$tInventoryArray[$trimData][12] = array_key_exists("igstPercentage",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['igstPercentage']):0;
-				$tInventoryArray[$trimData][13] = array_key_exists("igstAmount",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['igstAmount']):0;
-				$tInventoryArray[$trimData][14] = array_key_exists("cessAmount",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['cessAmount']):0;
-				$tInventoryArray[$trimData][15] = array_key_exists("realQtyData",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['realQtyData']):0;
-				array_push($request->input()['inventory'][$trimData],$tInventoryArray[$trimData]);
+			// 	$tInventoryArray[$trimData][5] = array_key_exists('color', $request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['color']) : "XX";
+			// 	$tInventoryArray[$trimData][6] = array_key_exists('frameNo', $request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['frameNo']) : "";
+			// 	$tInventoryArray[$trimData][7] = array_key_exists('size', $request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['size']) : "ZZ";
+			// 	$tInventoryArray[$trimData][8] = array_key_exists("cgstPercentage",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['cgstPercentage']):0;
+			// 	$tInventoryArray[$trimData][9] = array_key_exists("cgstAmount",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['cgstAmount']):0;
+			// 	$tInventoryArray[$trimData][10] = array_key_exists("sgstPercentage",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['sgstPercentage']):0;
+			// 	$tInventoryArray[$trimData][11] = array_key_exists("sgstAmount",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['sgstAmount']):0;
+			// 	$tInventoryArray[$trimData][12] = array_key_exists("igstPercentage",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['igstPercentage']):0;
+			// 	$tInventoryArray[$trimData][13] = array_key_exists("igstAmount",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['igstAmount']):0;
+			// 	$tInventoryArray[$trimData][14] = array_key_exists("cessAmount",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['cessAmount']):0;
+			// 	$tInventoryArray[$trimData][15] = array_key_exists("realQtyData",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['realQtyData']):0;
+
+			// 	// insertion for itemize (IMEI/Serial) purchase bill
+			// 	if (isset($request->input()['inventory'][$trimData]['itemizeDetail'])) {
+			// 		$itemizeArray = json_decode($request->input()['inventory'][$trimData]['itemizeDetail']);
+			// 		if (count($itemizeArray) > 0) {
+			// 			$itemizeJsonArray = [];
+			// 			$itemizeProduct =  $request->input()['inventory'][$trimData]['productId'];
+			// 			foreach ($itemizeArray as $serialArray) {
+			// 				$itemizeJsonArray[] = [
+			// 					'imei_no' => trim($serialArray->imei_no),
+			// 					'barcode_no' => trim($serialArray->barcode_no),
+			// 					'qty' => trim($serialArray->qty)
+			// 				];
+			// 				$itemizeBatch[] = [
+			// 					'product_id' => trim($itemizeProduct),
+			// 					'imei_no' => trim($serialArray->imei_no),
+			// 					'barcode_no' => trim($serialArray->barcode_no),
+			// 					'qty' => trim($serialArray->qty)*-1,
+			// 					'jfId' => $jsonDecodedJfId,
+			// 					'purchase_bill_no' => $productArray['invoiceNumber']
+			// 				];
+			// 			}
+			// 			$request->input()['inventory'][$trimData]['itemizeDetail'] = $itemizeJsonArray;
+			// 		}
+			// 	}
+			// 	// end of insertion of itemize (IMEI/Serial)
+
+			// 	array_push($request->input()['inventory'][$trimData],$tInventoryArray[$trimData]);
+			// }
+
+			$tempInvArray = $request->input()['inventory'];
+			foreach ($tempInvArray as $singleInvKey => $singleInvArray) {
+				// insertion for itemize (IMEI/Serial) purchase bill
+				if (isset($singleInvArray['itemizeDetail'])) {
+					$itemizeArray = json_decode($singleInvArray['itemizeDetail']);
+					if (count($itemizeArray) > 0) {
+						$itemizeJsonArray = [];
+						$itemizeProduct =  $singleInvArray['productId'];
+						foreach ($itemizeArray as $serialArray) {
+							$itemizeJsonArray[] = [
+								'imei_no' => trim($serialArray->imei_no),
+								'barcode_no' => trim($serialArray->barcode_no),
+								'qty' => trim($serialArray->qty)
+							];
+							$itemizeBatch[] = [
+								'product_id' => trim($itemizeProduct),
+								'imei_no' => trim($serialArray->imei_no),
+								'barcode_no' => trim($serialArray->barcode_no),
+								'qty' => trim($serialArray->qty)*-1,
+								'jfId' => $jsonDecodedJfId,
+								'sales_bill_no' => $productArray['invoiceNumber']
+							];
+						}
+						$singleInvArray['itemizeDetail'] = $itemizeJsonArray;
+						$productArray['inventory'][$singleInvKey] = $singleInvArray;
+					}
+				}
+				// end of insertion of itemize (IMEI/Serial)
 			}
-			$productArray['inventory'] = $request->input()['inventory'];
 			$documentPath = $constantArray['billDocumentUrl'];
 			
 			if(in_array(true,$request->file()) || array_key_exists('scanFile',$request->input()))
@@ -617,7 +674,13 @@ class BillProcessor extends BaseProcessor
 					return $processedData;
 				}
 			}
-			// exit();
+			if (!empty($itemizeBatch) && count($itemizeBatch) > 0) {
+				$productService = new ProductService();
+				$itemizeBatchInsertion = $productService->insertInOutwardItemizeData($itemizeBatch);
+				if (strcmp($itemizeBatchInsertion, $msgArray['200']) != 0) {
+					return $itemizeBatchInsertion;
+				}
+			}
 			//entry date/service date conversion
 			$transformEntryDate = Carbon\Carbon::createFromFormat('d-m-Y', $tRequest['entry_date'])->format('Y-m-d');
 			$transformServiceDate = $tRequest['service_date']=="" ? "0000-00-00":

@@ -207,7 +207,6 @@ class BillTransformer
 				}
 				$tInventoryArray[$trimInventory][4] = $currentQty;
 			}
-			
 		}
 		//check paymentmode enum type
 		foreach ($paymentModeArray as $key => $value)
