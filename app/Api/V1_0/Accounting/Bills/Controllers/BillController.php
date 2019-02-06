@@ -34,7 +34,7 @@ class BillController extends BaseController implements ContainerInterface
 	private $billService;
 	private $processor;
 	private $request;
-	private $billPersistable;	
+	private $billPersistable;
 	
 	/**
 	 * get and invoke method is of ContainerInterface method

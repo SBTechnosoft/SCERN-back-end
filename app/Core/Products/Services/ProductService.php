@@ -898,9 +898,20 @@ class ProductService extends AbstractService
 		$status = $productModel->insertItemizeTrnDtl($batchData);
 		return $status;
     }
-    public function updateInOutwardItemizeData()
+    public function updateInOutwardItemizeData($batchData,$jfId)
     {
-
+    	$exception = new ExceptionMessage();
+    	$exceptionArray = $exception->messageArrays();
+		if (empty($batchData) || count($batchData) == 0) {
+			return $exceptionArray['content'];
+		}
+		if (empty($jfId) || $jfId == '') {
+			return $exceptionArray['content'];
+		}
+		//data pass to the model object for insert
+		$productModel = new ProductModel();
+		$status = $productModel->updateItemizeTrnDtl($batchData,$jfId);
+		return $status;
     }
 
     public function getItemizeStockSummary($productId)

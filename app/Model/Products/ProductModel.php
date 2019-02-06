@@ -2590,6 +2590,31 @@ class ProductModel extends Model
 			return $exceptionArray['500'];
 		}
 	}
+	public function updateItemizeTrnDtl($batch,$jfId)
+	{
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if (empty($jfId) || empty($batch) || count($batch) == 0) {
+			return $exceptionArray['content'];
+		}else{
+			$database = "";
+			$constantDatabase = new ConstantClass();
+			$databaseName = $constantDatabase->constantDatabase();
+			if (isset($batch[0]['purchase_bill_no']) && $batch[0]['purchase_bill_no'] != '') {
+				$trnType = 'purchase_bill_no';
+			}else if (isset($batch[0]['sales_bill_no']) && $batch[0]['sales_bill_no'] != '') {
+				$trnType = 'sales_bill_no';
+			}
+			DB::beginTransaction();
+			$raw = DB::connection($databaseName)->statement("DELETE from itemize_trn_dtl where jf_id='$jfId' and $trnType IS NOT NULL");
+			DB::commit();
+			if ($raw==1) {
+				return $this->insertItemizeTrnDtl($batch);
+			}else{
+				return $exceptionArray['content'];
+			}
+		}
+	}
 	public function getItemizeStockSummaryData($productId)
 	{
 		//database selection

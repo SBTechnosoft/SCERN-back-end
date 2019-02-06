@@ -1707,6 +1707,13 @@ class BillProcessor extends BaseProcessor
 			}
 			else
 			{
+				$decodedProductArrayData = json_decode($billData[0]->product_array);
+				$productArray = array();
+				$productArray['invoiceNumber'] = $decodedProductArrayData->invoiceNumber;
+				$productArray['transactionType'] = $decodedProductArrayData->transactionType;
+				$productArray['companyId'] = $decodedProductArrayData->companyId;
+
+				$itemizeBatch = [];
 				for($inventoryData=0;$inventoryData<count($request->input()['inventory']);$inventoryData++)
 				{
 					$billTrimData['inventory'][$inventoryData]['amount'] = trim($request->input()['inventory'][$inventoryData]['amount']);
@@ -1725,15 +1732,44 @@ class BillProcessor extends BaseProcessor
 					$billTrimData['inventory'][$inventoryData]['igstAmount'] = array_key_exists("igstAmount",$request->input()['inventory'][$inventoryData]) ? trim($request->input()['inventory'][$inventoryData]['igstAmount']):0;
 					$billTrimData['inventory'][$inventoryData]['cessAmount'] = array_key_exists("cessAmount",$request->input()['inventory'][$inventoryData]) ? trim($request->input()['inventory'][$inventoryData]['cessAmount']):0;
 					$billTrimData['inventory'][$inventoryData]['realQtyData'] = array_key_exists("realQtyData",$request->input()['inventory'][$inventoryData]) ? trim($request->input()['inventory'][$inventoryData]['realQtyData']):0;
+
+					if (array_key_exists('itemizeDetail', $request->input()['inventory'][$inventoryData])) {
+						$itemizeDtlJson = trim($request->input()['inventory'][$inventoryData]['itemizeDetail']);
+						$itemizeDtlArray = json_decode($itemizeDtlJson);
+						if (count($itemizeDtlArray) > 0) {
+							$returnItemize = [];
+							foreach ($itemizeDtlArray as $itemizeDtl) {
+								$returnItemize[] = [
+									'imei_no'=>trim($itemizeDtl->imei_no),
+									'barcode_no'=>trim($itemizeDtl->barcode_no),
+									'qty'=>trim($itemizeDtl->qty)
+								];
+								$itemizeProduct = $billTrimData['inventory'][$inventoryData]['productId'];
+								$itemizeBatch[] = [
+									'product_id' => $itemizeProduct,
+									'imei_no' =>trim($itemizeDtl->imei_no),
+									'barcode_no' =>trim($itemizeDtl->barcode_no),
+									'qty' =>trim($itemizeDtl->qty)*(-1),
+									'jfId' => $billData[0]->jf_id,
+									'sales_bill_no' => $productArray['invoiceNumber']
+								];
+							}
+
+
+							$billTrimData['inventory'][$inventoryData]['itemizeDetail'] = $returnItemize;
+						}
+					}
 				}
 				$invFlag=1;
-				$decodedProductArrayData = json_decode($billData[0]->product_array);
-				$productArray = array();
-				$productArray['invoiceNumber'] = $decodedProductArrayData->invoiceNumber;
-				$productArray['transactionType'] = $decodedProductArrayData->transactionType;
-				$productArray['companyId'] = $decodedProductArrayData->companyId;
 				$productArray['inventory'] = $billTrimData['inventory'];
-				
+
+				if (!empty($itemizeBatch) && count($itemizeBatch) > 0) {
+					$productService = new ProductService();
+					$itemizeBatchInsertion = $productService->updateInOutwardItemizeData($itemizeBatch,$billData[0]->jf_id);
+					if (strcmp($itemizeBatchInsertion, $msgArray['200']) != 0) {
+						return $itemizeBatchInsertion;
+					}
+				}
 				$billPersistable[$billArrayData]->setProductArray(json_encode($productArray));
 				$billPersistable[$billArrayData]->setSaleId($saleId);
 			}
