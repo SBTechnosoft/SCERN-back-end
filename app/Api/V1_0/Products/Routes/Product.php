@@ -31,6 +31,7 @@ class Product implements RouteRegistrarInterface
 			Route::get('Products/Product/company/{companyId}/transaction', 'Products\Controllers\ProductController@getProductTransactionData');
 			Route::get('Products/Product/company/{companyId}/stock-summary', 'Products\Controllers\ProductController@getStockSummaryData');
 			Route::get('Products/Product/itemize-summary/{productId}', 'Products\Controllers\ProductController@getItemizeSummaryData');
+			Route::get('Products/Product/itemize-register/{productId}', 'Products\Controllers\ProductController@getItemizeRegisterData');
 		});
 		
 		// insert data post request

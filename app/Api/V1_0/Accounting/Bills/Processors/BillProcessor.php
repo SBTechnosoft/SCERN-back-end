@@ -654,9 +654,9 @@ class BillProcessor extends BaseProcessor
 							];
 						}
 						$singleInvArray['itemizeDetail'] = $itemizeJsonArray;
-						$productArray['inventory'][$singleInvKey] = $singleInvArray;
 					}
 				}
+				$productArray['inventory'][$singleInvKey] = $singleInvArray;
 				// end of insertion of itemize (IMEI/Serial)
 			}
 			$documentPath = $constantArray['billDocumentUrl'];
@@ -1754,8 +1754,6 @@ class BillProcessor extends BaseProcessor
 									'sales_bill_no' => $productArray['invoiceNumber']
 								];
 							}
-
-
 							$billTrimData['inventory'][$inventoryData]['itemizeDetail'] = $returnItemize;
 						}
 					}
@@ -1765,9 +1763,14 @@ class BillProcessor extends BaseProcessor
 
 				if (!empty($itemizeBatch) && count($itemizeBatch) > 0) {
 					$productService = new ProductService();
-					$itemizeBatchInsertion = $productService->updateInOutwardItemizeData($itemizeBatch,$billData[0]->jf_id);
+					$itemizeBatchInsertion = $productService->updateInOutwardItemizeData($itemizeBatch,$billData[0]->jf_id,$billData[0]->created_at);
 					if (strcmp($itemizeBatchInsertion, $msgArray['200']) != 0) {
 						return $itemizeBatchInsertion;
+					}
+				}else{
+					$itemizeDelete = $productService->deleteInOutwardItemizeData($jfId,$exceptionArray['sales']);
+					if (strcmp($itemizeDelete, $exceptionArray['200']) != 0) {
+						return $itemizeDelete;
 					}
 				}
 				$billPersistable[$billArrayData]->setProductArray(json_encode($productArray));

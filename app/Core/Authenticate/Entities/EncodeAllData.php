@@ -71,7 +71,7 @@ class EncodeAllData extends UserService
 					'companyId' => $userDecodedData[$jsonData]->company->companyId,
 					'branchId' => $userDecodedData[$jsonData]->branch->branchId
 				)
-			);	
+			);
 		}
 		return json_encode($data);
 	}

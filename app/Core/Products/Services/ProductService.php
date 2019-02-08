@@ -898,7 +898,7 @@ class ProductService extends AbstractService
 		$status = $productModel->insertItemizeTrnDtl($batchData);
 		return $status;
     }
-    public function updateInOutwardItemizeData($batchData,$jfId)
+    public function updateInOutwardItemizeData($batchData,$jfId,$billDate)
     {
     	$exception = new ExceptionMessage();
     	$exceptionArray = $exception->messageArrays();
@@ -910,18 +910,51 @@ class ProductService extends AbstractService
 		}
 		//data pass to the model object for insert
 		$productModel = new ProductModel();
-		$status = $productModel->updateItemizeTrnDtl($batchData,$jfId);
+		$status = $productModel->updateItemizeTrnDtl($batchData,$jfId,$billDate);
 		return $status;
     }
-
-    public function getItemizeStockSummary($productId)
+    public function deleteInOutwardItemizeData($jfId,$trn_type)
+    {
+    	$exception = new ExceptionMessage();
+    	$exceptionArray = $exception->messageArrays();
+		if (empty($jfId) || $jfId == '') {
+			return $exceptionArray['content'];
+		}
+		if (empty($trn_type) || $trn_type == '') {
+			return $exceptionArray['content'];
+		}
+		//data pass to the model object for insert
+		$productModel = new ProductModel();
+		$status = $productModel->destroyItemizeTrnDtl($jfId,$trn_type);
+		return $status;
+    }
+    public function getItemizeStockSummary($productId, $stockBefore = '',$stockAfter = '')
+    {
+    	//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		$productModel = new ProductModel();
+		$status = $productModel->getItemizeStockSummaryData($productId,$stockBefore,$stockAfter);
+		
+		if(strcmp($status,$exceptionArray['404'])==0)
+		{
+			return $exceptionArray['404'];
+		}
+		else
+		{
+			$encodedAllData = new EncodeAllItemizeSummaryData();
+			$encodedData = $encodedAllData->getEncodedItemizeSummaryData($status);
+			return $encodedData;
+		}
+    }
+    public function getItemizeStockRegister($productId,$jfId)
     {
     	//get exception message
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
 		
 		$productModel = new ProductModel();
-		$status = $productModel->getItemizeStockSummaryData($productId);
+		$status = $productModel->getItemizeStockRegisterData($productId,$jfId);
 		
 		if(strcmp($status,$exceptionArray['404'])==0)
 		{

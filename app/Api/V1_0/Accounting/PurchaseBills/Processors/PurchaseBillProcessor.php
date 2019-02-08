@@ -136,9 +136,9 @@ class PurchaseBillProcessor extends BaseProcessor
 										'purchase_bill_no' => $itemizeBillNo
 									];
 								}
-								$inventoryInc++;
 							}
 						}
+						$inventoryInc++;
 					}
 					if (!empty($itemizeBatch) && count($itemizeBatch) > 0) {
 						$productService = new ProductService();
@@ -544,6 +544,46 @@ class PurchaseBillProcessor extends BaseProcessor
 													? $tRequest['billNumber'] : $purchaseArrayData[0]->bill_number;
 					
 					$inventoryData['transactionType'] =  'purchase_tax';
+
+					// insertion for itemize (IMEI/Serial) purchase bill
+					$inventoryArrayData = $inventoryData['inventory'];
+					$inventoryCount = count($inventoryArrayData);
+					$inventoryInc = 0;
+					$itemizeBatch = array();
+					$itemizeBillNo = $inventoryData['billNumber'];
+					while ($inventoryInc < $inventoryCount) {
+						if (isset($inventoryArrayData[$inventoryInc]['itemizeDetail'])) {
+							$itemizeArray = $inventoryArrayData[$inventoryInc]['itemizeDetail'];
+							if (count($itemizeArray) > 0) {
+								$itemizeProduct =  $inventoryArrayData[$inventoryInc]['productId'];
+								foreach ($itemizeArray as $serialArray) {
+									$itemizeBatch[] = [
+										'product_id' => $itemizeProduct,
+										'imei_no' => $serialArray['imei_no'],
+										'barcode_no' => $serialArray['barcode_no'],
+										'qty' => $serialArray['qty'],
+										'jfId' => $purchaseArrayData[0]->jf_id,
+										'purchase_bill_no' => $itemizeBillNo
+									];
+								}
+							}
+						}
+						$inventoryInc++;
+					}
+					$productService = new ProductService();
+					if (!empty($itemizeBatch) && count($itemizeBatch) > 0) {
+						$itemizeBatchInsertion = $productService->updateInOutwardItemizeData($itemizeBatch,$purchaseArrayData[0]->jf_id,$purchaseArrayData[0]->created_at);
+						if (strcmp($itemizeBatchInsertion, $exceptionArray['200']) != 0) {
+							return $itemizeBatchInsertion;
+						}
+					}else{
+						$itemizeDelete = $productService->deleteInOutwardItemizeData($jfId,$exceptionArray['purchase']);
+						if (strcmp($itemizeDelete, $exceptionArray['200']) != 0) {
+							return $itemizeDelete;
+						}
+					}
+					// end of insertion of itemize (IMEI/Serial)
+
 					$purchaseValue[$data] = json_encode($inventoryData);
 					$keyName[$data] = 'productArray';
 				}

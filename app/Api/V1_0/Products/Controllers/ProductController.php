@@ -754,7 +754,9 @@ class ProductController extends BaseController implements ContainerInterface
 		if(strcmp($constantArray['success'],$authenticationResult)==0)
 		{
 			$productService= new ProductService();
-			$status = $productService->getItemizeStockSummary($productId);
+			$fromDate = $request->header('fromDate');
+			$toDate = $request->header('toDate');
+			$status = $productService->getItemizeStockSummary($productId,$toDate,$fromDate);
 			return $status;
 		}
 		else
@@ -762,5 +764,24 @@ class ProductController extends BaseController implements ContainerInterface
 			return $authenticationResult;
 		}
 
+    }
+    public function getItemizeRegisterData(Request $request,$productId)
+    {
+    	//get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			$jfId = $request->header('jfId');
+			$productService= new ProductService();
+			$status = $productService->getItemizeStockRegister($productId,$jfId);
+			return $status;
+		}
+		else
+		{
+			return $authenticationResult;
+		}
     }
 }
