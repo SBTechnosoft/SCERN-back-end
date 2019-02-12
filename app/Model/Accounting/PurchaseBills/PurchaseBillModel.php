@@ -709,6 +709,56 @@ class PurchaseBillModel extends Model
 		DB::commit();
 		return $purchaseData;
 	}
+	/**
+	 * get previous-next purchase-bill data
+	 * @param  header-data
+	 * returns the exception-message/sales data
+	*/
+	public function getPurchaseBillByJfId($companyId,$jfId)
+	{
+
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		DB::beginTransaction();
+		$purchaseData = DB::connection($databaseName)->select("select 
+		purchase_id,
+		vendor_id,
+		product_array,
+		bill_number,
+		total,
+		tax,
+		grand_total,
+		payment_mode,
+		bank_ledger_id,
+		bank_name,
+		check_number,
+		total_discounttype,
+		total_discount,
+		total_cgst_percentage,
+		total_sgst_percentage,
+		total_igst_percentage,
+		advance,
+		extra_charge,
+		balance,
+		transaction_type,
+		transaction_date,
+		entry_date,
+		bill_type,
+		remark,
+		company_id,
+		jf_id,
+		created_at,
+		updated_at 
+		from purchase_bill 
+		where bill_type='purchase_bill' and
+		company_id = '$companyId' and jf_id = '$jfId' and
+		deleted_at='0000-00-00 00:00:00'");
+		DB::commit();
+		$saleDataResult = $this->getDocumentData($purchaseData);
+		return $saleDataResult;
+	}
 	
 	/**
 	 * get document purchase-bill data(internal call)

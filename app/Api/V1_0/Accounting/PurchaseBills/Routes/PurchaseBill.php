@@ -20,6 +20,7 @@ class PurchaseBill implements RouteRegistrarInterface
 		// get data
 		Route::get('Accounting/PurchaseBills/PurchaseBill/company/{companyId}', 'Accounting\PurchaseBills\Controllers\PurchaseBillController@getData');
 		Route::get('Accounting/PurchaseBills/PurchaseBill', 'Accounting\PurchaseBills\Controllers\PurchaseBillController@getPurchaseBillData');
+		Route::get('Accounting/PurchaseBills/PurchaseBill/{jfId}', 'Accounting\PurchaseBills\Controllers\PurchaseBillController@getPurchaseBillByJfId');
 		
 		// insert data post request
 		Route::post('Accounting/PurchaseBills/PurchaseBill', 'Accounting\PurchaseBills\Controllers\PurchaseBillController@store');

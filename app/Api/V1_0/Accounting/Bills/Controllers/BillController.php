@@ -397,6 +397,32 @@ class BillController extends BaseController implements ContainerInterface
 			return $authenticationResult;
 		}
 	}
+	/**
+	 * store the specified resource 
+	 * @param  Request object[Request $request]
+	 * store data in database
+	*/
+	public function getBillByJfId(Request $request,$jfId)
+	{
+		//Authentication
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		
+		// get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			$companyId = $request->header('companyId');
+			$billService = new BillService();
+			$billResult = $billService->getBillByJfId($companyId,$jfId);
+			return $billResult;
+		}
+		else
+		{
+			return $authenticationResult;
+		}
+	}
 	
 	/**
 	 * update the specified resource 
