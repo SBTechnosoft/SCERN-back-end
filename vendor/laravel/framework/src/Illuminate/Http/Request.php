@@ -857,6 +857,7 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
         $routeArray['journals'] = "Journal";
         $routeArray['clients'] = "Client";
         $routeArray['bills'] = "Bill";
+        $routeArray['sales-returns'] = "SalesReturn";
         $routeArray['trial-balance'] = "TrialBalance";
         $routeArray['balance-sheet'] = "BalanceSheet";
         $routeArray['profit-loss'] = "ProfitLoss";

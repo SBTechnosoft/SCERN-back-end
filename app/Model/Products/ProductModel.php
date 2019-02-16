@@ -569,7 +569,7 @@ class ProductModel extends Model
 				}
 			}
 			$RequestUri = explode("/", $_SERVER['REQUEST_URI']);
-			if(strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"purchase-bills")!=0)
+			if(strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"purchase-bills")!=0 && strcmp($RequestUri[2], "sales-returns") != 0)
 			{
 				DB::beginTransaction();
 				$purchaseBill = DB::connection($databaseName)->statement("insert into 

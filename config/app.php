@@ -226,6 +226,7 @@ return [
         'Journals',
         'Clients',
         'Bills',
+        'SalesReturns',
         'TrialBalance',
         'BalanceSheet',
         'ProfitLoss',

@@ -842,9 +842,14 @@ class ProductTransformer extends ExceptionMessage
 			$invoiceNumber = trim($request->input()['invoiceNumber']);
 			$billNumber="";
 		}
-		else
+		elseif(array_key_exists($constantArray['billNumber'],$request->input()))
 		{
 			$billNumber = trim($request->input()['billNumber']); 
+			$invoiceNumber="";
+		}
+		else
+		{
+			$billNumber = ""; 
 			$invoiceNumber="";
 		}
 		
@@ -904,34 +909,6 @@ class ProductTransformer extends ExceptionMessage
 							$currentQty = round($currentQty * $productTransformData->lowestMouConv);
 						break;
 				}
-				// $productTransformData = json_decode($ProductService->getProductData($request->input()['inventory'][$arrayData]['productId']));
-				// $highestMeasurementUnit = $productTransformData->highestMeasurementUnitId;
-				// $higherMeasurementUnit = $productTransformData->higherMeasurementUnitId;
-				// $lowestMeasurementUnit = $productTransformData->measurementUnitId;
-				// $primaryMeasurement = $productTransformData->primaryMeasureUnit;
-				
-				// $currentQty = trim($request->input()['inventory'][$arrayData]['qty']);
-				// $currentMeasurementUnit = $request->input()['inventory'][$arrayData]['measurementUnit'];
-				// if ($primaryMeasurement == 'highest') {
-				// 	if ($currentMeasurementUnit == $higherMeasurementUnit) {
-				// 		$currentQty = round($currentQty / $productTransformData->higherUnitQty);
-				// 	}else if ($currentMeasurementUnit == $lowestMeasurementUnit) {
-				// 		$currentQty = round($currentQty / ($productTransformData->higherUnitQty * $productTransformData->lowestUnitQty));
-				// 	}
-				// }elseif ($primaryMeasurement == 'higher') {
-				// 	if ($currentMeasurementUnit == $highestMeasurementUnit) {
-				// 		$currentQty = round($currentQty * $productTransformData->higherUnitQty);
-				// 	}else if ($currentMeasurementUnit == $lowestMeasurementUnit) {
-				// 		$currentQty = round($currentQty / $productTransformData->lowestUnitQty);
-				// 	}
-				// }elseif ($primaryMeasurement == 'lowest') {
-				// 	if ($currentMeasurementUnit == $highestMeasurementUnit) {
-				// 		$currentQty = round($currentQty * $productTransformData->higherUnitQty * $productTransformData->lowestUnitQty);
-				// 	}else if ($currentMeasurementUnit == $higherMeasurementUnit) {
-				// 		$currentQty = round($currentQty * $productTransformData->lowestUnitQty);
-				// 	}
-				// }
-				// $tempArray[$arrayData][4] = $currentQty;
 			}
 			// Unitwise qty Conversion ends.
 			

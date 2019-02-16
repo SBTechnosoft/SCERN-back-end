@@ -63,7 +63,7 @@ class JournalController extends BaseController implements ContainerInterface
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
 		$RequestUri = explode("/", $_SERVER['REQUEST_URI']);
-		if(strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"bills")==0 || strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"purchase-bills")==0)
+		if(strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"bills")==0 || strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"purchase-bills")==0 || strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"sales-returns")==0)
 		{
 		}
 		else
@@ -148,10 +148,23 @@ class JournalController extends BaseController implements ContainerInterface
 						{
 							return $productPersistable;
 						}
-					}else if (strcmp($request->header()['type'][0],$constantArray['receiptType'])==0) {
+					}elseif(strcmp($request->header()['type'][0],$constantArray['receiptType'])==0) {
 						return $status;
-					}else if (strcmp($request->header()['type'][0],$constantArray['paymentType'])==0) {
+					}elseif(strcmp($request->header()['type'][0],$constantArray['paymentType'])==0) {
 						return $status;
+					}elseif(strcmp($request->header()['type'][0], $constantArray['salesReturnType'])==0) {
+						$inward = $constantArray['journalInward'];
+						$productProcessor = new ProductProcessor();
+						$productPersistable = $productProcessor->createPersistableInOutWard($this->request,$inward);
+						if(is_array($productPersistable))
+						{
+							$status = $productService->insertInOutward($productPersistable,$jfId,'');
+							return $status;
+						}
+						else
+						{
+							return $productPersistable;
+						}
 					}
 				}
 				else
