@@ -121,6 +121,7 @@ class EncodeAllData extends Setting
 					'productMarginStatus' => $decodedSettingData->product_margin_status,
 					'productVariantStatus' => $decodedSettingData->product_variant_status,
 					'productAdvanceMouStatus' => isset($decodedSettingData->product_advance_mou_status) ? $decodedSettingData->product_advance_mou_status : 'disable',
+					'productMeasurementType' => $decodedSettingData->product_measurement_type,
 					'createdAt' => $getCreatedDate[$decodedData],
 					'updatedAt' => $getUpdatedDate[$decodedData]
 				);

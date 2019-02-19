@@ -47,7 +47,6 @@ class MeasurementProcessor extends BaseProcessor
 			//trim an input 
 			$measurementTransformer = new MeasurementTransformer();
 			$tRequest = $measurementTransformer->trimInsertData($this->request);
-			
 			if($tRequest==1)
 			{
 				return $msgArray['content'];

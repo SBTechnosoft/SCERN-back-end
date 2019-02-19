@@ -28,6 +28,7 @@ use ERP\Core\Settings\Properties\ProductAdvanceMouStatusTrait;
 use ERP\Core\Settings\Properties\ProductMrpRequireStatusTrait;
 use ERP\Core\Settings\Properties\ProductMarginStatusTrait;
 use ERP\Core\Settings\Properties\ProductVariantStatusTrait;
+use ERP\Core\Settings\Properties\ProductMeasurementTypeTrait;
 
 use ERP\Core\Settings\Properties\ClientWorkNoStatusTrait;
 use ERP\Core\Settings\Properties\ClientAddressStatusTrait;
@@ -89,6 +90,7 @@ class SettingPersistable
     use ProductMrpRequireStatusTrait;
     use ProductMarginStatusTrait;
     use ProductVariantStatusTrait;
+    use ProductMeasurementTypeTrait;
 
     use AdvanceSalesStatusTrait;
     use AdvancePurchaseStatusTrait;

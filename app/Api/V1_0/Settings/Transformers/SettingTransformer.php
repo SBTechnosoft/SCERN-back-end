@@ -46,6 +46,7 @@ class SettingTransformer
 			$data['product_mrp_require_status'] = trim($request->input('productMrpRequireStatus'));
 			$data['product_margin_status'] = trim($request->input('productMarginStatus'));
 			$data['product_variant_status'] = trim($request->input('productVariantStatus'));
+			$data['product_measurement_type'] = trim($request->input('productMeasurementType'));
 		}
 		else if(array_key_exists('clientAddressStatus',$request->input()))
 		{

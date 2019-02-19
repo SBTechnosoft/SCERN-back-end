@@ -37,6 +37,9 @@ class EncodeAllData
 			$data[$decodedData]= array(
 				'measurementUnitId'=> $decodedJson[$decodedData]['measurement_unit_id'],
 				'unitName' => $decodedJson[$decodedData]['unit_name'],
+				'lengthStatus' => $decodedJson[$decodedData]['length_status'],
+				'widthStatus' => $decodedJson[$decodedData]['width_status'],
+				'heightStatus' => $decodedJson[$decodedData]['height_status'],
 				'createdAt' => $getCreatedDate[$decodedData],
 				'updatedAt' => $getUpdatedDate[$decodedData]
 			);

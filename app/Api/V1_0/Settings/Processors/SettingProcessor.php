@@ -28,7 +28,7 @@ class SettingProcessor extends BaseProcessor
      */	
     public function createPersistable(Request $request)
 	{	
-		$this->request = $request;	
+		$this->request = $request;
 		$settingArray = array();
 		$settingValue = array();
 		$keyName = array();

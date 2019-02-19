@@ -17,6 +17,9 @@ class MeasurementTransformer
 		//data get from body
 		$data = array();
 		$data['unit_name'] = trim($request->input('unitName'));
+		$data['length_status'] = trim($request->input('lengthStatus'));
+		$data['width_status'] = trim($request->input('widthStatus'));
+		$data['height_status'] = trim($request->input('heightStatus'));
 		return $data;
 	}
 	
