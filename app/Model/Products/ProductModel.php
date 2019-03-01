@@ -2630,9 +2630,10 @@ class ProductModel extends Model
 			$database = "";
 			$constantDatabase = new ConstantClass();
 			$databaseName = $constantDatabase->constantDatabase();
-			if (strcmp($type, $exceptionArray['sales'])==0) {
+			$constantArray = $constantDatabase->constantVariable();
+			if (strcmp($type, $constantArray['sales'])==0) {
 				$trnType = 'purchase_bill_no';
-			}else if (strcmp($type, $exceptionArray['purchase'])==0) {
+			}else if (strcmp($type, $constantArray['purchase'])==0) {
 				$trnType = 'sales_bill_no';
 			}else{
 				return $exceptionArray['content'];

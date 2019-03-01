@@ -431,7 +431,7 @@ class BillProcessor extends BaseProcessor
 			if (strcmp($commissionDataJson,$msgArray['404'])!=0) {
 				$commissionDataArray = (array)json_decode($commissionDataJson);
 				if ($commissionDataArray['commissionStatus'] != 'off') {
-					if ($commissionDataArray['commissionRate'] != '0') {
+					if ($commissionDataArray['commissionRate'] != '0' || $commissionDataArray['commissionType'] == 'itemWise') {
 						$productService = new productService();
 						$commissionRateType = $commissionDataArray['commissionRateType'];
 						$commissionCalcOn = $commissionDataArray['commissionCalcOn'];
@@ -515,6 +515,17 @@ class BillProcessor extends BaseProcessor
 								'amountType' => $amountTypeArray['creditType'],
 								'ledgerId' => $staffLedgerId,
 							);
+						}elseif ($commissionDataArray['commissionType'] == 'itemWise') {
+							// Itemwise Commission calculation
+							$commissionAmount = 0;
+							$commissionAmount = $this->itemWiseCommissionCalc($tRequest[0],$tRequest['company_id']);
+
+							$dataArray[$commissionArrayRank][0] = array(
+								'amount' => (string)round($commissionAmount,2),
+								'amountType' => $amountTypeArray['creditType'],
+								'ledgerId' => $staffLedgerId,
+							);
+							
 						}
 						if (isset($dataArray[$commissionArrayRank])
 						 && isset($dataArray[$commissionArrayRank][0]['amount'])
@@ -549,7 +560,7 @@ class BillProcessor extends BaseProcessor
 		}
 		// Staff Commission Calculations Ends
 
-		for ($multiJournalCreate=0; $multiJournalCreate < count($dataArray); $multiJournalCreate++) {
+		for ($multiJournalCreate=0; $multiJournalCreate < count($transactionType); $multiJournalCreate++) {
 				//make data array for journal sale entry
 			$journalArray = array();
 			$journalArray= array(
@@ -1768,8 +1779,9 @@ class BillProcessor extends BaseProcessor
 						return $itemizeBatchInsertion;
 					}
 				}else{
-					$itemizeDelete = $productService->deleteInOutwardItemizeData($jfId,$exceptionArray['sales']);
-					if (strcmp($itemizeDelete, $exceptionArray['200']) != 0) {
+					$productService = new ProductService();
+					$itemizeDelete = $productService->deleteInOutwardItemizeData($jfId,$constantArray['sales']);
+					if (strcmp($itemizeDelete, $msgArray['200']) != 0) {
 						return $itemizeDelete;
 					}
 				}
@@ -2207,5 +2219,61 @@ class BillProcessor extends BaseProcessor
 		$ledgerRequest = Request::create($path,$method,$ledgerArray);
 		$processedData = $ledgerController->store($ledgerRequest);
 		return $processedData;
+	}
+	/** 
+	* @param inv Array, company Id
+	* @return result itemwise Commission Amount
+	*/
+	public function itemWiseCommissionCalc($invArray,$companyId)
+	{
+		$commissionService = new CommissionService();
+		$commissionAmount = 0;
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+
+		foreach ($invArray as $product) {
+			$productId = $product['productId'];
+			$qty = $product['qty'];
+			$rate = $product['price'];
+			$itemWise = $commissionService->getItemwiseByProduct($productId,$companyId);
+			if (strcmp($exceptionArray['404'],$itemWise)==0) {
+				continue;
+			}else{
+				$itemWiseArray = json_decode($itemWise,true);
+				$itemWiseCount = count($itemWiseArray);
+				$cAmtArray = [];
+				while ($itemWiseCount--) {
+					if ($itemWiseArray[$itemWiseCount]['commissionFromQty']<= $qty) {
+					 	if ($itemWiseArray[$itemWiseCount]['commissionToQty']>= $qty) {
+					 		$cAmtArray = $itemWiseArray[$itemWiseCount];
+					 		break;
+					 	}else{
+					 		if (!count($cAmtArray)) {
+					 			$cAmtArray = $itemWiseArray[$itemWiseCount];
+					 		}elseif ($itemWiseArray[$itemWiseCount]['commissionToQty']<= $qty) {
+						 		if ($itemWiseArray[$itemWiseCount]['commissionToQty'] >= $cAmtArray['commissionToQty']) {
+						 			$cAmtArray = $itemWiseArray[$itemWiseCount];
+						 		}
+						 	}
+					 	}
+					}
+				}
+				if (count($cAmtArray)) {
+					if ($cAmtArray['commissionRateType'] == 'Flat') {
+						$commissionAmount += (float)$qty * (float)$cAmtArray['commissionRate'];
+					}else{
+						if (strtolower($cAmtArray['commissionCalcOn']) == 'mrp') {
+							$commissionAmount += (float)$qty * (float)$cAmtArray['mrp'] * (float)$cAmtArray['commissionRate'] / 100;
+						}else{
+							$commissionAmount += (float)$qty * (float)$rate * (float)$cAmtArray['commissionRate'] / 100;
+						}
+					}
+				}else{
+					continue;
+				}
+			}
+		}
+		return $commissionAmount;
 	}
 }

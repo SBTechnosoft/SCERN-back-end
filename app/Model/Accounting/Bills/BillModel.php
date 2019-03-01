@@ -2489,7 +2489,6 @@ class BillModel extends Model
 		{
 			return $exceptionArray['500'];
 		}
-			
 		else
 		{
 			return $raw;

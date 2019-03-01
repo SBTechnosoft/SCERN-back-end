@@ -64,7 +64,7 @@ class MeasurementController extends BaseController implements ContainerInterface
 			if($requestMethod == 'POST')
 			{
 				$processor = new MeasurementProcessor();
-				$measurementService= new MeasurementService();			
+				$measurementService= new MeasurementService();
 				$measurementPersistable = $processor->createPersistable($this->request);
 				if($measurementPersistable[0][0]=='[')
 				{
@@ -105,7 +105,7 @@ class MeasurementController extends BaseController implements ContainerInterface
 		{
 			$measurementService= new MeasurementService();
 			if($measurementUnitId==null)
-			{	
+			{
 				$status = $measurementService->getAllMeasurementData();
 				return $status;
 			}
@@ -113,7 +113,7 @@ class MeasurementController extends BaseController implements ContainerInterface
 			{	
 				$status = $measurementService->getMeasurementData($measurementUnitId);
 				return $status;
-			} 
+			}
 		}
 		else
 		{

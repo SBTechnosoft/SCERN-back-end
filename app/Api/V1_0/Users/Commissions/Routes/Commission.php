@@ -21,12 +21,15 @@ class Commission implements RouteRegistrarInterface
 		// all the possible get request
 		Route::group(['as' => 'get'], function ()
 		{
+			Route::get('Users/Commissions/Commission/item-wise/{commissionId?}', 'Users\Commissions\Controllers\CommissionController@getItemwiseData');
 			Route::get('Users/Commissions/Commission/{userId?}', 'Users\Commissions\Controllers\CommissionController@getData');
 		});
 		// insert data post request
+		Route::post('Users/Commissions/Commission/item-wise/{commissionId?}', 'Users\Commissions\Controllers\CommissionController@storeItemwise');
 		Route::post('Users/Commissions/Commission/{userId}', 'Users\Commissions\Controllers\CommissionController@storeOrUpdate');
 		// update data post request
 		// Route::post('Users/Commission/{userId}', 'Users\Commissions\Controllers\CommissionController@update');
+		Route::delete('Users/Commissions/Commission/item-wise/{commissionId}', 'Users\Commissions\Controllers\CommissionController@destroyItemwise');
 	}
 }
 

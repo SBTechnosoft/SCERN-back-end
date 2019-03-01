@@ -726,7 +726,6 @@ class ProductService extends AbstractService
 				}
 				$stIndex++;
 			}
-
 			if ($setting_webIntegration)
 			{
 				$authToken = $headerData['authenticationtoken'][0];

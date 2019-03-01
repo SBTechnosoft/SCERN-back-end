@@ -120,6 +120,7 @@ class MeasurementModel extends Model
 		length_status,
 		width_status,
 		height_status,
+		devide_factor,
 		updated_at,
 		created_at
 		from measurement_unit_mst 
@@ -158,6 +159,7 @@ class MeasurementModel extends Model
 		length_status,
 		width_status,
 		height_status,
+		devide_factor,
 		updated_at,
 		created_at
 		from measurement_unit_mst 

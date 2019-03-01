@@ -107,6 +107,7 @@ class RouteServiceProvider extends ServiceProvider
 				$routeArray['purchase-bills'] = "PurchaseBill";
 				$routeArray['measurement-units'] = "Measurement";
 				$routeArray['settings'] = "Setting";
+				$routeArray['merge'] = "Merge";
 				$routeName = "";
 				
 				foreach($routeArray as $key => $value)

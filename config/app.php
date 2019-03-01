@@ -245,7 +245,8 @@ return [
         'Professions',
         'Expenses',
         'PurchaseBills',
-        'MeasurementUnits'
+        'MeasurementUnits',
+        'Merge'
 	],
 
     /*

@@ -877,6 +877,7 @@ class Request extends SymfonyRequest implements Arrayable, ArrayAccess
         $routeArray['purchase-bills'] = "PurchaseBill";
         $routeArray['measurement-units'] = "Measurement";
         $routeArray['settings'] = "Setting";
+        $routeArray['merge'] = "Merge";
         $routeName = '';
 		foreach($routeArray as $key => $value)
 		{

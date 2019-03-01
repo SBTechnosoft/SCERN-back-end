@@ -20,6 +20,7 @@ class MeasurementTransformer
 		$data['length_status'] = trim($request->input('lengthStatus'));
 		$data['width_status'] = trim($request->input('widthStatus'));
 		$data['height_status'] = trim($request->input('heightStatus'));
+		$data['devide_factor'] = trim($request->input('devideFactor'));
 		return $data;
 	}
 	
