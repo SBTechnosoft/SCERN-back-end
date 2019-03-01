@@ -210,7 +210,32 @@ class PurchaseBillController extends BaseController implements ContainerInterfac
 			return $authenticationResult;
 		}
 	}
-	
+	/**
+	 * get the purchase-bill data as per given parameter
+	 * @param  Request object[Request $request]
+	 * @return array-data/error message
+	*/
+	public function getPurchaseBillByJfId(Request $request,$jfId)
+	{
+		//Authentication
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		
+		// get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			$companyId = $request->header('companyId');
+			$purchaseBillService = new PurchaseBillService();
+			$status = $purchaseBillService->getPurchaseBillByJfId($companyId,$jfId);
+			return $status;
+		}
+		else
+		{
+			return $authenticationResult;
+		}
+	}
 	/**
 	 * delete the specified resource 
 	 * @param  Request object[Request $request]

@@ -46,6 +46,7 @@ class SettingTransformer
 			$data['product_mrp_require_status'] = trim($request->input('productMrpRequireStatus'));
 			$data['product_margin_status'] = trim($request->input('productMarginStatus'));
 			$data['product_variant_status'] = trim($request->input('productVariantStatus'));
+			$data['product_measurement_type'] = trim($request->input('productMeasurementType'));
 		}
 		else if(array_key_exists('clientAddressStatus',$request->input()))
 		{
@@ -165,6 +166,14 @@ class SettingTransformer
 			$data['webintegration_password'] = trim($request->input('webintegrationPassword'));
 			$data['webintegration_push_url'] = trim($request->input('webintegrationPushUrl'));
 			if($data['webintegration_user_id']=='undefined' || $data['webintegration_password']=='undefined' || $data['webintegration_push_url']=='undefined')
+			{
+				return $exceptionArray['content'];
+			}
+		}
+		else if(array_key_exists('inventoryItemizeStatus',$request->input()))
+		{
+			$data['inventory_itemize_status'] = trim($request->input('inventoryItemizeStatus'));
+			if($data['inventory_itemize_status']=='undefined')
 			{
 				return $exceptionArray['content'];
 			}

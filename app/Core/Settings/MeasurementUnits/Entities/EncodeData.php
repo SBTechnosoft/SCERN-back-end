@@ -35,8 +35,12 @@ class EncodeData
 		$data = array();
 		$data['measurementUnitId'] = $decodedJson[0]['measurement_unit_id'];
 		$data['unitName'] = $decodedJson[0]['unit_name'];
-		$data['createdAt'] = $getCreatedDate;	
-		$data['updatedAt'] = $getUpdatedDate;	
+		$data['lengthStatus'] = $decodedJson[0]['length_status'];
+		$data['widthStatus'] = $decodedJson[0]['width_status'];
+		$data['heightStatus'] = $decodedJson[0]['height_status'];
+		$data['devideFactor'] = $decodedJson[0]['devide_factor'] <= 0 ? '1' : $decodedJson[0]['devide_factor'];
+		$data['createdAt'] = $getCreatedDate;
+		$data['updatedAt'] = $getUpdatedDate;
 		$encodeData = json_encode($data);
 		return $encodeData;
 	}

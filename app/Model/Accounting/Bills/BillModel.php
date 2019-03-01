@@ -1756,6 +1756,58 @@ class BillModel extends Model
 		DB::commit();
 		return $saleData;
 	}
+	/**
+	 * get previous bill data
+	 * @param  header-data
+	 * returns the exception-message/sales data
+	*/
+	public function getBillByJfId($companyId,$jfId)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		DB::beginTransaction();
+		$saleData = DB::connection($databaseName)->select("select 
+		sale_id,
+		product_array,
+		payment_mode,
+		bank_ledger_id,
+		bank_name,
+		invoice_number,
+		job_card_number,
+		check_number,
+		total,
+		total_discounttype,
+		total_discount,
+		total_cgst_percentage,
+		total_sgst_percentage,
+		total_igst_percentage,
+		extra_charge,
+		tax,
+		grand_total,
+		advance,
+		balance,
+		po_number,
+		user_id,
+		remark,
+		entry_date,
+		service_date,
+		client_id,
+		sales_type,
+		refund,
+		company_id,
+		branch_id,
+		jf_id,
+		created_at,
+		updated_at 
+		from sales_bill 
+		where company_id = '$companyId' and jf_id = '$jfId' and
+				deleted_at='0000-00-00 00:00:00'");
+		DB::commit();
+		$saleDataResult = $this->getDocumentData($saleData);
+		return $saleDataResult;
+	}
 	
 	/**
 	 * get document bill data(internal call)
@@ -2437,7 +2489,6 @@ class BillModel extends Model
 		{
 			return $exceptionArray['500'];
 		}
-			
 		else
 		{
 			return $raw;

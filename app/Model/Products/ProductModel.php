@@ -569,7 +569,7 @@ class ProductModel extends Model
 				}
 			}
 			$RequestUri = explode("/", $_SERVER['REQUEST_URI']);
-			if(strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"purchase-bills")!=0)
+			if(strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"purchase-bills")!=0 && strcmp($RequestUri[2], "sales-returns") != 0)
 			{
 				DB::beginTransaction();
 				$purchaseBill = DB::connection($databaseName)->statement("insert into 
@@ -2542,6 +2542,186 @@ class ProductModel extends Model
 		else
 		{
 			return $exceptionArray['500'];
+		}
+	}
+	public function insertItemizeTrnDtl($batch,$billDate = '')
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if ($billDate != '') {
+			$billDate = Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $billDate)->format('Y-m-d H:i:s');
+		}else{
+			$billDate = Carbon\Carbon::now();
+		}
+		$mytime = Carbon\Carbon::now();
+		$separatedBatch = array_chunk($batch, 50);
+		$batchQueryCount = count($separatedBatch);
+		$batchQueryInc = 0;
+		while ($batchQueryInc < $batchQueryCount) {
+			$queryString = '';
+			$insertArray = $separatedBatch[$batchQueryInc];
+			$insertCount = count($insertArray);
+			$querySeparator = '';
+			for ($insertInc=0; $insertInc < $insertCount; $insertInc++) {
+				$productId = isset($insertArray[$insertInc]['product_id']) ? $insertArray[$insertInc]['product_id'] : NULL;
+				$imeiNo = isset($insertArray[$insertInc]['imei_no']) ? $insertArray[$insertInc]['imei_no'] : NULL;
+				$barcodeNo = isset($insertArray[$insertInc]['barcode_no']) ? $insertArray[$insertInc]['barcode_no'] : NULL;
+				$qty = isset($insertArray[$insertInc]['qty']) ? $insertArray[$insertInc]['qty'] : NULL;
+				$purchaseBillNo = isset($insertArray[$insertInc]['purchase_bill_no']) ? $insertArray[$insertInc]['purchase_bill_no'] : NULL;
+				$salesBillNo = isset($insertArray[$insertInc]['sales_bill_no']) ? $insertArray[$insertInc]['sales_bill_no'] : NULL;
+				$jfId = isset($insertArray[$insertInc]['jfId']) ? $insertArray[$insertInc]['jfId'] : NULL;
+				$queryString .= $querySeparator."('$productId','$imeiNo','$barcodeNo','$qty','$purchaseBillNo','$salesBillNo','$jfId','$billDate','$mytime')";
+				$querySeparator = ',';
+			}
+			DB::beginTransaction();
+			$raw = DB::connection($databaseName)->statement("insert into itemize_trn_dtl(`product_id`, `imei_no`, `barcode_no`, `qty`, `purchase_bill_no`, `sales_bill_no`, `jf_id`, `created_at`, `updated_at`) VALUES ".$queryString.";");
+			DB::commit();
+			if($raw!=1)
+			{
+				return $exceptionArray['500'];
+			}
+			$batchQueryInc++;
+		}
+		if($raw==1)
+		{
+			return $exceptionArray['200'];
+		}else
+		{
+			return $exceptionArray['500'];
+		}
+	}
+	public function updateItemizeTrnDtl($batch,$jfId,$billDate)
+	{
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if (empty($jfId) || empty($batch) || count($batch) == 0) {
+			return $exceptionArray['content'];
+		}else{
+			$database = "";
+			$constantDatabase = new ConstantClass();
+			$databaseName = $constantDatabase->constantDatabase();
+			if (isset($batch[0]['purchase_bill_no']) && $batch[0]['purchase_bill_no'] != '') {
+				$trnType = 'purchase_bill_no';
+			}else if (isset($batch[0]['sales_bill_no']) && $batch[0]['sales_bill_no'] != '') {
+				$trnType = 'sales_bill_no';
+			}
+			DB::beginTransaction();
+			$raw = DB::connection($databaseName)->statement("DELETE from itemize_trn_dtl where jf_id='$jfId' and $trnType IS NOT NULL");
+			DB::commit();
+			if ($raw==1) {
+				return $this->insertItemizeTrnDtl($batch,$billDate);
+			}else{
+				return $exceptionArray['content'];
+			}
+		}
+	}
+	public function destroyItemizeTrnDtl($jfId,$type)
+	{
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if (empty($jfId) || empty($type)) {
+			return $exceptionArray['content'];
+		}else{
+			$database = "";
+			$constantDatabase = new ConstantClass();
+			$databaseName = $constantDatabase->constantDatabase();
+			$constantArray = $constantDatabase->constantVariable();
+			if (strcmp($type, $constantArray['sales'])==0) {
+				$trnType = 'purchase_bill_no';
+			}else if (strcmp($type, $constantArray['purchase'])==0) {
+				$trnType = 'sales_bill_no';
+			}else{
+				return $exceptionArray['content'];
+			}
+			DB::beginTransaction();
+			$raw = DB::connection($databaseName)->statement("DELETE from itemize_trn_dtl where jf_id='$jfId' and $trnType IS NOT NULL");
+			DB::commit();
+			if ($raw==1) {
+				return $exceptionArray['200'];
+			}else{
+				return $exceptionArray['content'];
+			}
+		}
+	}
+	public function getItemizeStockSummaryData($productId,$stockBefore,$stockAfter)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		if ($stockBefore != '') {
+			$stockBefore = Carbon\Carbon::createFromFormat('d-m-Y H:i:s', $stockBefore)->addMinute()->format('Y-m-d H:i:s');
+			$stockAfter = Carbon\Carbon::createFromFormat('d-m-Y', $stockAfter)->format('Y-m-d H:i:s');
+			$timeQuery = "and created_at between '$stockAfter' and '$stockBefore'";
+		}else{
+			$timeQuery = "";
+		}
+		DB::beginTransaction();
+		$raw = DB::connection($databaseName)->select("select
+			product_id,
+			imei_no,
+			barcode_no,
+			qty,
+			purchase_bill_no,
+			sales_bill_no,
+			jf_id,
+			created_at,
+			updated_at,
+			sum(qty) as stock
+			from itemize_trn_dtl where product_id = '$productId' $timeQuery group by imei_no order by created_at
+			");
+		DB::commit();
+		
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if(count($raw)==0)
+		{
+			return $exceptionArray['404'];
+		}
+		else
+		{
+			return json_encode($raw);
+		}
+	}
+	public function getItemizeStockRegisterData($productId,$jfId)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		
+		DB::beginTransaction();
+		$raw = DB::connection($databaseName)->select("select
+			product_id,
+			imei_no,
+			barcode_no,
+			qty,
+			purchase_bill_no,
+			sales_bill_no,
+			jf_id,
+			created_at,
+			updated_at,
+			qty as stock
+			from itemize_trn_dtl where product_id = '$productId' and jf_id = '$jfId'
+			");
+		DB::commit();
+		
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if(count($raw)==0)
+		{
+			return $exceptionArray['404'];
+		}
+		else
+		{
+			return json_encode($raw);
 		}
 	}
 }

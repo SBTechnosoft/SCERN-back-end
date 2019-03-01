@@ -305,7 +305,7 @@ class BuisnessLogic extends LedgerModel
 				$ledgerResult = $ledgerService->getLedgerData($ledgerIdArray[$journalArrayData]);
 				if(strcmp("sales",$headerData['type'][0])==0)
 				{
-					if(trim(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId)==17)
+					if(trim(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId)==18)
 					{
 						//tax  ledger exist
 						if($trimData[$journalArrayData]['amount']==$productData['tax'])
@@ -329,7 +329,7 @@ class BuisnessLogic extends LedgerModel
 						}
 						$disFlag++;
 					}
-					if(trim(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId)!=17 && trim($productData['tax'])==0)
+					if(trim(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId)!=18 && trim($productData['tax'])==0)
 					{
 						if($disFlag1==(count($trimData)-1))
 						{
@@ -340,7 +340,7 @@ class BuisnessLogic extends LedgerModel
 				}
 				else
 				{
-					if(trim(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId)==16)
+					if(trim(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId)==18)
 					{
 						//tax  ledger exist
 						if($trimData[$journalArrayData]['amount']==$productData['tax'])
@@ -364,7 +364,7 @@ class BuisnessLogic extends LedgerModel
 						}
 						$disFlag++;
 					}
-					if(trim(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId)!=16 && trim($productData['tax'])==0)
+					if(trim(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId)!=18 && trim($productData['tax'])==0)
 					{
 						if($disFlag1==(count($trimData)-1))
 						{
@@ -415,7 +415,7 @@ class BuisnessLogic extends LedgerModel
 				$ledgerResult = $ledgerService->getLedgerData($ledgerIdArray[$journalArrayData]);
 				if(strcmp("sales",$headerData['type'][0])==0)
 				{
-					if(trim(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId)==17)
+					if(trim(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId)==18)
 					{
 						//tax ledger exist
 						if($trimData[$journalArrayData]['amount']==$productData['tax'])
@@ -445,7 +445,7 @@ class BuisnessLogic extends LedgerModel
 				}
 				else
 				{
-					if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==16)
+					if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==18)
 					{
 						//tax ledger exist
 						if(trim($trimData[$journalArrayData]['amount'])==trim($productData['tax']))
@@ -535,7 +535,7 @@ class BuisnessLogic extends LedgerModel
 					{
 						$disFlag++;
 					}
-					if(trim(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId)==17)
+					if(trim(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId)==18)
 					{
 						// discount ledger exist
 						$journalTaxFlag=1;
@@ -566,7 +566,7 @@ class BuisnessLogic extends LedgerModel
 					{
 						$disFlag++;
 					}
-					if(trim(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId)==16)
+					if(trim(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId)==18)
 					{
 						// discount ledger exist
 						$journalTaxFlag=1;
@@ -665,7 +665,7 @@ class BuisnessLogic extends LedgerModel
 				$ledgerResult = $ledgerService->getLedgerData($ledgerIdArray[$journalArrayData]);
 				if(strcmp("sales",$headerData)==0)
 				{
-					if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==17)
+					if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==18)
 					{
 						//tax ledger exist
 						if(trim($decodedJournalData[$journalArrayData]->amount)==trim($productData['tax']))
@@ -687,7 +687,7 @@ class BuisnessLogic extends LedgerModel
 				}
 				else
 				{
-					if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==16)
+					if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==18)
 					{
 						//tax ledger exist
 						if(trim($decodedJournalData[$journalArrayData]->amount)==trim($productData['tax']))
@@ -728,7 +728,7 @@ class BuisnessLogic extends LedgerModel
 				$ledgerResult = $ledgerService->getLedgerData($ledgerIdArray[$journalArrayData]);
 				if(strcmp("sales",$headerData)==0)
 				{
-					if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==17)
+					if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==18)
 					{
 						// tax ledger exist
 						if(trim($decodedJournalData[$journalArrayData]->amount)==trim($productData['tax']))
@@ -739,7 +739,7 @@ class BuisnessLogic extends LedgerModel
 				}
 				else
 				{
-					if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==16)
+					if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==18)
 					{
 						// tax ledger exist
 						if(trim($decodedJournalData[$journalArrayData]->amount)==trim($productData['tax']))
@@ -867,7 +867,7 @@ class BuisnessLogic extends LedgerModel
 			$ledgerResult = $ledgerService->getLedgerData($ledgerIdArray[$journalArrayData]);
 			if(strcmp("sales",$headerData['type'][0])==0)
 			{
-				if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==17)
+				if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==18)
 				{
 					$journalTaxFlag=1;
 					//tax ledger exist
@@ -902,7 +902,7 @@ class BuisnessLogic extends LedgerModel
 			}
 			else
 			{
-				if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==16)
+				if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==18)
 				{
 					$journalTaxFlag=1;
 					//tax  ledger exist
@@ -970,7 +970,7 @@ class BuisnessLogic extends LedgerModel
 			$ledgerResult = $ledgerService->getLedgerData($ledgerIdArray[$journalArrayData]);
 			if(strcmp("sales",$journalType)==0)
 			{
-				if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==17)
+				if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==18)
 				{
 					$journalTaxFlag=1;
 					//tax ledger exist
@@ -1003,7 +1003,7 @@ class BuisnessLogic extends LedgerModel
 			}
 			else
 			{
-				if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==16)
+				if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==18)
 				{
 					$journalTaxFlag=1;
 					//tax ledger exist
@@ -1085,7 +1085,7 @@ class BuisnessLogic extends LedgerModel
 				$ledgerResult = $ledgerService->getLedgerData($ledgerIdArray[$journalArrayData]);
 				if(strcmp("sales",$journalType)==0)
 				{
-					if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==17)
+					if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==18)
 					{
 						//tax exist
 						$journalTaxFlag=1;
@@ -1097,7 +1097,7 @@ class BuisnessLogic extends LedgerModel
 				}
 				else
 				{
-					if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==16)
+					if(json_decode($ledgerResult)->ledgerGroup->ledgerGroupId==18)
 					{
 						//tax exist
 						$journalTaxFlag=1;
@@ -1147,7 +1147,6 @@ class BuisnessLogic extends LedgerModel
 							}
 						}
 					}
-					
 				}
 				if($journalDiscountFlag==0 || $discountJournalFlag==0)
 				{

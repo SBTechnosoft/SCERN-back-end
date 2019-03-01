@@ -63,57 +63,23 @@ class SettingController extends BaseController implements ContainerInterface
 			// insert
 			if($requestMethod == 'POST')
 			{
-				//get exception message
-				// $exception = new ExceptionMessage();
-				// $exceptionArray = $exception->messageArrays();
-				// $settingModel = new SettingModel();
-				// $settingData = $settingModel->getAllData();
-				// $settingFlag=0;
-				// $exploadedString = array();
-				// echo $str = str_replace('_', ' ', array_keys($request->input())[0]);
-				// echo " \n";
-				// $exploadedString = explode(' ',$str);
-				// if(strcmp($settingData,$exceptionArray['204'])!=0)
-				// {
-				// 	$decodedSettingData = json_decode($settingData);
-				// 	foreach ($decodedSettingData as $key => $value) 
-				// 	{
-				// 		// echo $value->setting_type.'Type';
-				// 		// echo " - ";
-				// 		// echo $exploadedString[0];
-				// 		if(strcmp($value->setting_type,$exploadedString[0])==0)
-				// 		{
-				// 			$settingFlag=1;
-				// 		}
-				// 		echo " \n";
-				// 	}
-				// }
-				// echo $settingFlag;
-				// exit;
-				// if($settingFlag==0)
-				// {
-					$processor = new SettingProcessor();
-					$settingPersistable = new SettingPersistable();		
-					$settingService= new SettingService();		
-					$settingPersistable = $processor->createPersistable($this->request);
-					if($settingPersistable[0][0]=='[')
-					{
-						return $settingPersistable;
-					}
-					else if(is_array($settingPersistable))
-					{
-						$status = $settingService->insert($settingPersistable);
-						return $status;
-					}
-					else
-					{
-						return $settingPersistable;
-					}
-				// }
-				// else
-				// {
-				// 	return $exceptionArray['updateSetting'];
-				// }
+				$processor = new SettingProcessor();
+				$settingPersistable = new SettingPersistable();		
+				$settingService= new SettingService();		
+				$settingPersistable = $processor->createPersistable($this->request);
+				if($settingPersistable[0][0]=='[')
+				{
+					return $settingPersistable;
+				}
+				else if(is_array($settingPersistable))
+				{
+					$status = $settingService->insert($settingPersistable);
+					return $status;
+				}
+				else
+				{
+					return $settingPersistable;
+				}
 			}
 		}
 		else

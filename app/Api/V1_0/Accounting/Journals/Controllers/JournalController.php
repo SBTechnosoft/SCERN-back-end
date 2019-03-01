@@ -20,6 +20,7 @@ use Illuminate\Container\Container;
 use ERP\Entities\AuthenticationClass\TokenAuthentication;
 use ERP\Api\V1_0\Documents\Controllers\DocumentController;
 use ERP\Model\Products\ProductModel;
+
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -58,13 +59,11 @@ class JournalController extends BaseController implements ContainerInterface
 		//get constant array
 		$constantClass = new ConstantClass();
 		$constantArray = $constantClass->constantVariable();
-		
 		// get exception message
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
-				
 		$RequestUri = explode("/", $_SERVER['REQUEST_URI']);
-		if(strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"bills")==0 || strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"purchase-bills")==0)
+		if(strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"bills")==0 || strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"purchase-bills")==0 || strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"sales-returns")==0)
 		{
 		}
 		else
@@ -143,6 +142,23 @@ class JournalController extends BaseController implements ContainerInterface
 						if(is_array($productPersistable) && is_array($vendorId))
 						{
 							$status = $productService->insertInOutward($productPersistable,$jfId,$vendorId['vendor_id']);
+							return $status;
+						}
+						else
+						{
+							return $productPersistable;
+						}
+					}elseif(strcmp($request->header()['type'][0],$constantArray['receiptType'])==0) {
+						return $status;
+					}elseif(strcmp($request->header()['type'][0],$constantArray['paymentType'])==0) {
+						return $status;
+					}elseif(strcmp($request->header()['type'][0], $constantArray['salesReturnType'])==0) {
+						$inward = $constantArray['journalInward'];
+						$productProcessor = new ProductProcessor();
+						$productPersistable = $productProcessor->createPersistableInOutWard($this->request,$inward);
+						if(is_array($productPersistable))
+						{
+							$status = $productService->insertInOutward($productPersistable,$jfId,'');
 							return $status;
 						}
 						else

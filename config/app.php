@@ -226,6 +226,7 @@ return [
         'Journals',
         'Clients',
         'Bills',
+        'SalesReturns',
         'TrialBalance',
         'BalanceSheet',
         'ProfitLoss',
@@ -244,7 +245,8 @@ return [
         'Professions',
         'Expenses',
         'PurchaseBills',
-        'MeasurementUnits'
+        'MeasurementUnits',
+        'Merge'
 	],
 
     /*

@@ -10,7 +10,11 @@ use ERP\Core\Users\Commissions\Properties\CommissionRatePropertyTrait;
 use ERP\Core\Users\Commissions\Properties\CommissionRateTypePropertyTrait;
 use ERP\Core\Users\Commissions\Properties\CommissionCalcOnPropertyTrait;
 use ERP\Core\Users\Commissions\Properties\CommissionForPropertyTrait;
+use ERP\Core\Users\Commissions\Properties\CommissionFromQtyPropertyTrait;
+use ERP\Core\Users\Commissions\Properties\CommissionToQtyPropertyTrait;
 use ERP\Core\Users\Properties\UserIdPropertyTrait;
+use ERP\Core\Products\Properties\ProductIdPropertyTrait;
+use ERP\Core\Companies\Properties\CompanyIdPropertyTrait;
 /**
  * @author Hiren Faldu<hiren.f@siliconbrain.in>
  */
@@ -26,5 +30,9 @@ class CommissionPersistable
     use CommissionRateTypePropertyTrait;
     use CommissionCalcOnPropertyTrait;
     use CommissionForPropertyTrait;
+    use CommissionFromQtyPropertyTrait;
+    use CommissionToQtyPropertyTrait;
     use UserIdPropertyTrait;
+    use ProductIdPropertyTrait;
+    use CompanyIdPropertyTrait;
 }

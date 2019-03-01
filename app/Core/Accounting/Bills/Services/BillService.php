@@ -279,6 +279,32 @@ class BillService
 			return $encodingResult;
 		}
 	}
+   	/**
+     * call the model for database get opertation
+     * @param headerData
+     * @return sale-data/error message
+     */
+	public function getBillByJfId($companyId,$jfId)
+	{
+		// get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+			
+		// data pass to the model object for getData
+		$billModel = new BillModel();
+		$billResult = $billModel->getBillByJfId($companyId,$jfId);
+		
+		if(strcmp($billResult,$exceptionArray['204'])==0)
+		{
+			return $billResult;
+		}
+		else
+		{
+			$encodeData = new EncodeAllData();
+			$encodingResult = $encodeData->getEncodedAllData($billResult);
+			return $encodingResult;
+		}
+	}
 	
 	 /**
      * update bill payment data

@@ -29,6 +29,7 @@ class ConstantClass
 		$constantArray['clientSetting'] = "client";
 		$constantArray['billSetting'] = "bill";
 		$constantArray['advanceBillSetting'] = "advance";
+		$constantArray['inventorySetting'] = "inventory";
 		$constantArray['webIntegrationSetting'] = "webintegration";
 		$constantArray['noImage'] = "Storage/No-Image/no-image.jpg";
 		$constantArray['productBarcode'] = "Storage/Barcode/";
@@ -136,15 +137,15 @@ class ConstantClass
 		$constantArray['conversationSmsType']="sms";
 		$constantArray['prefixConstant']=")]}',\n";
 		
-		$constantArray['clientUrl']="http://api.siliconbrain.co.in/clients";
-		$constantArray['documentGenerateUrl']="http://api.siliconbrain.co.in/documents/bill";
-		$constantArray['documentJobformUrl']="http://api.siliconbrain.co.in/crm/job-form";
-		$constantArray['documentGenerateQuotationUrl']="http://api.siliconbrain.co.in/accounting/quotations";
-		$constantArray['ledgerUrl']="http://api.siliconbrain.co.in/accounting/ledgers";
-		$constantArray['journalUrl']="http://api.siliconbrain.co.in/accounting/journals";
-		$constantArray['invoiceUrl']="http://api.siliconbrain.co.in/settings/invoice-numbers";
-		$constantArray['quotationUrl']="http://api.siliconbrain.co.in/settings/quotation-numbers";
-		$constantArray['productUrl']="http://api.siliconbrain.co.in/accounting/products";
+		$constantArray['clientUrl']=url('/')."/clients";
+		$constantArray['documentGenerateUrl']=url('/')."/documents/bill";
+		$constantArray['documentJobformUrl']=url('/')."/crm/job-form";
+		$constantArray['documentGenerateQuotationUrl']=url('/')."/accounting/quotations";
+		$constantArray['ledgerUrl']=url('/')."/accounting/ledgers";
+		$constantArray['journalUrl']=url('/')."/accounting/journals";
+		$constantArray['invoiceUrl']=url('/')."/settings/invoice-numbers";
+		$constantArray['quotationUrl']=url('/')."/settings/quotation-numbers";
+		$constantArray['productUrl']=url('/')."/accounting/products";
 		return $constantArray;
 	}
 	

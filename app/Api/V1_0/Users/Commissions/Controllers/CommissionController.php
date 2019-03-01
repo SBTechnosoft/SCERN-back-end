@@ -89,7 +89,6 @@ class CommissionController extends BaseController implements ContainerInterface
 						$status = $commissionService->update($commissionPersistable);
 						return $status;
 					}
-					
 				}
 				else
 				{
@@ -98,6 +97,104 @@ class CommissionController extends BaseController implements ContainerInterface
 			}
 		}
     }
+    public function storeItemwise(Request $request,$commissionId=null)
+    {
+    	//Authentication
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		
+		//get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			$this->request = $request;
+			$requestMethod = $_SERVER['REQUEST_METHOD'];
+			// insert or update
+			if($requestMethod == 'POST')
+			{
+				//get exception message
+				$exception = new ExceptionMessage();
+				$fileSizeArray = $exception->messageArrays();
+				// create or update staff commission
+				$processor = new CommissionProcessor();
+				$commissionPersistable = new CommissionPersistable();
+				$commissionService= new CommissionService();
+
+				$commissionPersistable = $processor->createItemwisePersistable($this->request);
+				if($commissionPersistable[0][0]=='[')
+				{
+					return $commissionPersistable;
+				}
+				else if(is_array($commissionPersistable))
+				{
+					if ($commissionId == null || $commissionId == '') {
+						$status = $commissionService->insertItemwise($commissionPersistable);
+						return $status;
+					}else{
+						$result = $commissionService->getItemwise($commissionId);
+						if (strcmp($result,$fileSizeArray['404'])==0) {
+							return $fileSizeArray['404'];
+						}else{
+							$status = $commissionService->updateItemwise($commissionPersistable,$commissionId);
+							return $status;
+						}
+					}
+				}
+				else
+				{
+					return $commissionPersistable;
+				}
+			}
+		}
+    }
+
+    /**
+     * get the specified resource.
+     * @param  int  $commissionId
+     */
+    public function getItemwiseData(Request $request,$commissionId=null)
+    {
+    	$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		
+		//get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			if($commissionId==null || $commissionId == '')
+			{
+				$companyId = null;
+				$productId = null;
+				$commissionService= new CommissionService();
+				if (array_key_exists('companyId', $request->header())) {
+					$companyId = $request->header('companyId');
+					if (array_key_exists('productId', $request->header())) {
+						$productId = $request->header('productId');
+					}
+				}
+				$status = $commissionService->getItemwiseByProduct($productId,$companyId);
+				return $status;
+			}
+			else
+			{
+				$commissionService= new CommissionService();
+				$status = $commissionService->getItemwise($commissionId);
+				return $status;
+			}
+		}
+		else
+		{
+			return $authenticationResult;
+		}
+    }
+
     /**
      * get the specified resource.
      * @param  int  $userId
@@ -130,6 +227,34 @@ class CommissionController extends BaseController implements ContainerInterface
 		else
 		{
 			return $authenticationResult;
+		}
+	}
+	public function destroyItemwise(Request $request,$commissionId)
+	{
+		//Authentication
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		
+		//get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			$this->request = $request;
+			$exception = new ExceptionMessage();
+			$fileSizeArray = $exception->messageArrays();
+			$commissionService= new CommissionService();
+			$result = $commissionService->getItemwise($commissionId);
+			if (strcmp($result,$fileSizeArray['404'])==0) {
+				return $fileSizeArray['404'];
+			}else{
+				$status = $commissionService->deleteItemwise($commissionId);
+				return $status;
+			}
 		}
 	}
 }

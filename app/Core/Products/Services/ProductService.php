@@ -18,6 +18,7 @@ use ERP\Core\Products\Entities\EncodeAllStockSummaryData;
 use ERP\Core\Settings\Services\SettingService;
 use ERP\Model\Authenticate\AuthenticateModel;
 use ERP\Entities\AuthenticationClass\TokenAuthentication;
+use ERP\Core\Products\Entities\EncodeAllItemizeSummaryData;
 
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
@@ -725,7 +726,6 @@ class ProductService extends AbstractService
 				}
 				$stIndex++;
 			}
-
 			if ($setting_webIntegration)
 			{
 				$authToken = $headerData['authenticationtoken'][0];
@@ -883,6 +883,88 @@ class ProductService extends AbstractService
 		        }
 		    }
 	    }
+    }
+    public function insertInOutwardItemizeData($batchData)
+    {
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if (empty($batchData) || count($batchData) == 0) {
+			return $exceptionArray['content'];
+		}
+		//data pass to the model object for insert
+		$productModel = new ProductModel();
+		$status = $productModel->insertItemizeTrnDtl($batchData);
+		return $status;
+    }
+    public function updateInOutwardItemizeData($batchData,$jfId,$billDate)
+    {
+    	$exception = new ExceptionMessage();
+    	$exceptionArray = $exception->messageArrays();
+		if (empty($batchData) || count($batchData) == 0) {
+			return $exceptionArray['content'];
+		}
+		if (empty($jfId) || $jfId == '') {
+			return $exceptionArray['content'];
+		}
+		//data pass to the model object for insert
+		$productModel = new ProductModel();
+		$status = $productModel->updateItemizeTrnDtl($batchData,$jfId,$billDate);
+		return $status;
+    }
+    public function deleteInOutwardItemizeData($jfId,$trn_type)
+    {
+    	$exception = new ExceptionMessage();
+    	$exceptionArray = $exception->messageArrays();
+		if (empty($jfId) || $jfId == '') {
+			return $exceptionArray['content'];
+		}
+		if (empty($trn_type) || $trn_type == '') {
+			return $exceptionArray['content'];
+		}
+		//data pass to the model object for insert
+		$productModel = new ProductModel();
+		$status = $productModel->destroyItemizeTrnDtl($jfId,$trn_type);
+		return $status;
+    }
+    public function getItemizeStockSummary($productId, $stockBefore = '',$stockAfter = '')
+    {
+    	//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		$productModel = new ProductModel();
+		$status = $productModel->getItemizeStockSummaryData($productId,$stockBefore,$stockAfter);
+		
+		if(strcmp($status,$exceptionArray['404'])==0)
+		{
+			return $exceptionArray['404'];
+		}
+		else
+		{
+			$encodedAllData = new EncodeAllItemizeSummaryData();
+			$encodedData = $encodedAllData->getEncodedItemizeSummaryData($status);
+			return $encodedData;
+		}
+    }
+    public function getItemizeStockRegister($productId,$jfId)
+    {
+    	//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		
+		$productModel = new ProductModel();
+		$status = $productModel->getItemizeStockRegisterData($productId,$jfId);
+		
+		if(strcmp($status,$exceptionArray['404'])==0)
+		{
+			return $exceptionArray['404'];
+		}
+		else
+		{
+			$encodedAllData = new EncodeAllItemizeSummaryData();
+			$encodedData = $encodedAllData->getEncodedItemizeSummaryData($status);
+			return $encodedData;
+		}
     }
 
     /**

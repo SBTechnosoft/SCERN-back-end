@@ -34,9 +34,14 @@ class EncodeAllData
 				$measurement->setUpdated_at($convertedUpdatedDate[$decodedData]);
 				$getUpdatedDate[$decodedData] = $measurement->getUpdated_at();
 			}
+			$devideFactor =  $decodedJson[$decodedData]['devide_factor'] <= 0 ? '1' : $decodedJson[$decodedData]['devide_factor'];
 			$data[$decodedData]= array(
 				'measurementUnitId'=> $decodedJson[$decodedData]['measurement_unit_id'],
 				'unitName' => $decodedJson[$decodedData]['unit_name'],
+				'lengthStatus' => $decodedJson[$decodedData]['length_status'],
+				'widthStatus' => $decodedJson[$decodedData]['width_status'],
+				'heightStatus' => $decodedJson[$decodedData]['height_status'],
+				'devideFactor' => $devideFactor,
 				'createdAt' => $getCreatedDate[$decodedData],
 				'updatedAt' => $getUpdatedDate[$decodedData]
 			);

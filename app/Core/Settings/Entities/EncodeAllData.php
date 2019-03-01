@@ -121,6 +121,17 @@ class EncodeAllData extends Setting
 					'productMarginStatus' => $decodedSettingData->product_margin_status,
 					'productVariantStatus' => $decodedSettingData->product_variant_status,
 					'productAdvanceMouStatus' => isset($decodedSettingData->product_advance_mou_status) ? $decodedSettingData->product_advance_mou_status : 'disable',
+					'productMeasurementType' => $decodedSettingData->product_measurement_type,
+					'createdAt' => $getCreatedDate[$decodedData],
+					'updatedAt' => $getUpdatedDate[$decodedData]
+				);
+			}
+			else if(strcmp($decodedJson[$decodedData]['setting_type'],$constantArray['inventorySetting'])==0)
+			{
+				$data[$decodedData]= array(
+					'settingId' => $decodedJson[$decodedData]['setting_id'],
+					'settingType' => $decodedJson[$decodedData]['setting_type'],
+					'inventoryItemizeStatus' => $decodedSettingData->inventory_itemize_status,
 					'createdAt' => $getCreatedDate[$decodedData],
 					'updatedAt' => $getUpdatedDate[$decodedData]
 				);

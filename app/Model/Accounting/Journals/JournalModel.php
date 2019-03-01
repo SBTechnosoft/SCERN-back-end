@@ -88,29 +88,8 @@ class JournalModel extends Model
 		//related ledger entry
 		for($data=0;$data<count($jfIdArray);$data++)
 		{
-			if($amountTypeArray[$data]==$constantArray['debit'])
-			{
-				//purchase case
-				if(count($creditLedger)>1)
-				{
-					for($creditLoop=0;$creditLoop<count($creditLedger);$creditLoop++)
-					{
-						DB::beginTransaction();
-						$ledgerEntryResult = DB::connection($databaseName)->statement("insert into 
-						".$ledgerIdArray[$data]."_ledger_dtl(
-						jf_id,
-						amount,
-						amount_type,
-						entry_date,
-						ledger_id,
-						created_at) 
-						values('".$jfIdArray[$data]."','".$creditAmount[$creditLoop]."','".$amountTypeArray[$data]."','".$entryDateArray[$data]."','".$creditLedger[$creditLoop]."','".$mytime."')");
-						DB::commit();
-					}
-				}
-				//sale case
-				else
-				{
+			if ($amountTypeArray[$data]==$constantArray['debit']) {
+				if (count($creditLedger)>0) {
 					DB::beginTransaction();
 					$ledgerEntryResult = DB::connection($databaseName)->statement("insert into 
 					".$ledgerIdArray[$data]."_ledger_dtl(
@@ -122,31 +101,11 @@ class JournalModel extends Model
 					created_at) 
 					values('".$jfIdArray[$data]."','".$amountArray[$data]."','".$amountTypeArray[$data]."','".$entryDateArray[$data]."','".$creditLedger[0]."','".$mytime."')");
 					DB::commit();
+				}else{
+					return $exceptionArray['500'];
 				}
-			}
-			else
-			{
-				//sale case
-				if(count($debitLedger)>1)
-				{
-					for($debitLoop=0;$debitLoop<count($debitLedger);$debitLoop++)
-					{
-						DB::beginTransaction();
-						$ledgerEntryResult = DB::connection($databaseName)->statement("insert into 
-						".$ledgerIdArray[$data]."_ledger_dtl(
-						jf_id,
-						amount,
-						amount_type,
-						entry_date,
-						ledger_id,
-						created_at) 
-						values('".$jfIdArray[$data]."','".$debitAmount[$debitLoop]."','".$amountTypeArray[$data]."','".$entryDateArray[$data]."','".$debitLedger[$debitLoop]."','".$mytime."')");
-						DB::commit();
-					}
-				}
-				//purchase case
-				else
-				{
+			}else{
+				if (count($debitLedger)>0) {
 					DB::beginTransaction();
 					$ledgerEntryResult = DB::connection($databaseName)->statement("insert into 
 					".$ledgerIdArray[$data]."_ledger_dtl(
@@ -158,6 +117,8 @@ class JournalModel extends Model
 					created_at) 
 					values('".$jfIdArray[$data]."','".$amountArray[$data]."','".$amountTypeArray[$data]."','".$entryDateArray[$data]."','".$debitLedger[0]."','".$mytime."')");
 					DB::commit();
+				}else{
+					return $exceptionArray['500'];
 				}
 			}
 			if($ledgerEntryResult==0)
@@ -1172,28 +1133,7 @@ class JournalModel extends Model
 				{
 					if($journalArray[$data]['amount_type']==$constantArray['debit'])
 					{
-						//purchase case
-						if(count($creditLedger)>1)
-						{
-							for($creditLoop=0;$creditLoop<count($creditLedger);$creditLoop++)
-							{
-								DB::beginTransaction();
-								$ledgerEntryResult = DB::connection($databaseName)->statement("insert into 
-								".$journalArray[$data]['ledger_id']."_ledger_dtl(
-								jf_id,
-								amount,
-								amount_type,
-								entry_date,
-								ledger_id,
-								updated_at,
-								created_at) 
-								values('".$jfId."','".$creditAmount[$creditLoop]."','".$journalArray[$data]['amount_type']."','".$entryDate."','".$creditLedger[$creditLoop]."','".$mytime."','".$mytime."')");
-								DB::commit();
-							}
-						}
-						//sale case
-						else
-						{
+						if (count($creditLedger)>0) {
 							DB::beginTransaction();
 							$ledgerEntryResult = DB::connection($databaseName)->statement("insert into 
 							".$journalArray[$data]['ledger_id']."_ledger_dtl(
@@ -1206,32 +1146,11 @@ class JournalModel extends Model
 							created_at) 
 							values('".$jfId."','".$journalArray[$data]['amount']."','".$journalArray[$data]['amount_type']."','".$entryDate."','".$creditLedger[0]."','".$mytime."','".$mytime."')");
 							DB::commit();
+						}else{
+							return $exceptionArray['500'];
 						}
-					}
-					else
-					{
-						//sale case
-						if(count($debitLedger)>1)
-						{
-							for($debitLoop=0;$debitLoop<count($debitLedger);$debitLoop++)
-							{
-								DB::beginTransaction();
-								$ledgerEntryResult = DB::connection($databaseName)->statement("insert into 
-								".$journalArray[$data]['ledger_id']."_ledger_dtl(
-								jf_id,
-								amount,
-								amount_type,
-								entry_date,
-								ledger_id,
-								updated_at,
-								created_at) 
-								values('".$jfId."','".$debitAmount[$debitLoop]."','".$journalArray[$data]['amount_type']."','".$entryDate."','".$debitLedger[$debitLoop]."','".$mytime."','".$mytime."')");
-								DB::commit();
-							}
-						}
-						//purchase case
-						else
-						{
+					}else{
+						if (count($debitLedger)>0) {
 							DB::beginTransaction();
 							$ledgerEntryResult = DB::connection($databaseName)->statement("insert into 
 							".$journalArray[$data]['ledger_id']."_ledger_dtl(
@@ -1244,6 +1163,8 @@ class JournalModel extends Model
 							created_at) 
 							values('".$jfId."','".$journalArray[$data]['amount']."','".$journalArray[$data]['amount_type']."','".$entryDate."','".$debitLedger[0]."','".$mytime."','".$mytime."')");
 							DB::commit();
+						}else{
+							return $exceptionArray['500'];
 						}
 					}
 					if($ledgerEntryResult==0)

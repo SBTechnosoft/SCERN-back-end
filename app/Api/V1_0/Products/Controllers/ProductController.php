@@ -739,4 +739,49 @@ class ProductController extends BaseController implements ContainerInterface
 			return $authenticationResult;
 		}
     }
+
+    /**
+     * Get the specified resource from storage.
+     * @param  Request object[Request $request]     
+     */
+    public function getItemizeSummaryData(Request $request,$productId)
+    {
+    	//get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			$productService= new ProductService();
+			$fromDate = $request->header('fromDate');
+			$toDate = $request->header('toDate');
+			$status = $productService->getItemizeStockSummary($productId,$toDate,$fromDate);
+			return $status;
+		}
+		else
+		{
+			return $authenticationResult;
+		}
+
+    }
+    public function getItemizeRegisterData(Request $request,$productId)
+    {
+    	//get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			$jfId = $request->header('jfId');
+			$productService= new ProductService();
+			$status = $productService->getItemizeStockRegister($productId,$jfId);
+			return $status;
+		}
+		else
+		{
+			return $authenticationResult;
+		}
+    }
 }

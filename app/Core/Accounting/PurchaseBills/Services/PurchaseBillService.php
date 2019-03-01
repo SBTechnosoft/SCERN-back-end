@@ -213,4 +213,30 @@ class PurchaseBillService
 			return $encodingResult;
 		}
 	}
+	/**
+     * call the model for database get opertation
+     * @param headerData
+     * @return sale-data/error message
+     */
+	public function getPurchaseBillByJfId($companyId,$jfId)
+	{
+		// get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+			
+		// data pass to the model object for getData
+		$purchaseBillModel = new PurchaseBillModel();
+		$status = $purchaseBillModel->getPurchaseBillByJfId($companyId,$jfId);
+		
+		if(strcmp($status,$exceptionArray['204'])==0)
+		{
+			return $status;
+		}
+		else
+		{
+			$encodeAllData = new EncodeAllData();
+			$encodingResult = $encodeAllData->getEncodedAllData($status);
+			return $encodingResult;
+		}
+	}
 }
