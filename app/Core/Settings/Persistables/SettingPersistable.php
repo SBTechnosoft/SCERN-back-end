@@ -49,6 +49,8 @@ use ERP\Core\Settings\Properties\WebintegrationPushUrlTrait;
 
 use ERP\Core\Settings\Properties\InventoryItemizeStatusTrait;
 
+use ERP\Core\Settings\Properties\LanguageSettingTypeTrait;
+
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -101,4 +103,6 @@ class SettingPersistable
     use WebintegrationPushUrlTrait;
     
     use InventoryItemizeStatusTrait;
+    
+    use LanguageSettingTypeTrait;
 }
