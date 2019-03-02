@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use ERP\Http\Requests;
 use ERP\Core\Settings\Entities\ChequeNoEnum;
 use ERP\Core\Settings\Entities\ReminderEnum;
+use ERP\Core\Settings\Entities\LanguageSettingEnum;
 use ERP\Exceptions\ExceptionMessage;
 use ERP\Entities\Constants\ConstantClass;
 /**
@@ -180,8 +181,16 @@ class SettingTransformer
 		}
 		else if(array_key_exists('languageSettingType',$request->input()))
 		{
-			$data['language_setting_type'] = trim($request->input('languageSettingType'));
-			if($data['inventory_itemize_status']=='undefined')
+			$languageSettingType = strtolower(trim($request->input('languageSettingType')));
+			$languageSettingEnum = new LanguageSettingEnum();
+			$languageSettingTypeArray = $languageSettingEnum->enumArrays();
+			$selectedLanguage = array_search($languageSettingType, $languageSettingTypeArray);
+			if (is_numeric($selectedLanguage)) {
+				$data['language_setting_type'] = $languageSettingTypeArray[$selectedLanguage];
+			}else{
+				return $exceptionArray['content'];
+			}
+			if($data['language_setting_type']=='undefined')
 			{
 				return $exceptionArray['content'];
 			}
