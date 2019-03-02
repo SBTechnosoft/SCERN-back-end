@@ -178,6 +178,14 @@ class SettingTransformer
 				return $exceptionArray['content'];
 			}
 		}
+		else if(array_key_exists('languageSettingType',$request->input()))
+		{
+			$data['language_setting_type'] = trim($request->input('languageSettingType'));
+			if($data['inventory_itemize_status']=='undefined')
+			{
+				return $exceptionArray['content'];
+			}
+		}
 		return $data;
 	}
 	
