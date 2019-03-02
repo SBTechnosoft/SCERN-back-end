@@ -21,6 +21,7 @@ class MeasurementTransformer
 		$data['width_status'] = trim($request->input('widthStatus'));
 		$data['height_status'] = trim($request->input('heightStatus'));
 		$data['devide_factor'] = trim($request->input('devideFactor'));
+		$data['modulo_factor'] = trim($request->input('moduloFactor'));
 		return $data;
 	}
 	
