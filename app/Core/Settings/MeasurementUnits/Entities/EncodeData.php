@@ -39,6 +39,7 @@ class EncodeData
 		$data['widthStatus'] = $decodedJson[0]['width_status'];
 		$data['heightStatus'] = $decodedJson[0]['height_status'];
 		$data['devideFactor'] = $decodedJson[0]['devide_factor'] <= 0 ? '1' : $decodedJson[0]['devide_factor'];
+		$data['moduloFactor'] = $decodedJson[0]['modulo_factor'];
 		$data['createdAt'] = $getCreatedDate;
 		$data['updatedAt'] = $getUpdatedDate;
 		$encodeData = json_encode($data);
