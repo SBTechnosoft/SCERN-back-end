@@ -30,6 +30,7 @@ class ConstantClass
 		$constantArray['billSetting'] = "bill";
 		$constantArray['advanceBillSetting'] = "advance";
 		$constantArray['inventorySetting'] = "inventory";
+		$constantArray['languageSetting'] = "language";
 		$constantArray['webIntegrationSetting'] = "webintegration";
 		$constantArray['noImage'] = "Storage/No-Image/no-image.jpg";
 		$constantArray['productBarcode'] = "Storage/Barcode/";

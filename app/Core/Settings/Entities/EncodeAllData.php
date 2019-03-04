@@ -136,6 +136,16 @@ class EncodeAllData extends Setting
 					'updatedAt' => $getUpdatedDate[$decodedData]
 				);
 			}
+			else if(strcmp($decodedJson[$decodedData]['setting_type'],$constantArray['languageSetting'])==0)
+			{
+				$data[$decodedData]= array(
+					'settingId' => $decodedJson[$decodedData]['setting_id'],
+					'settingType' => $decodedJson[$decodedData]['setting_type'],
+					'languageSettingType' => $decodedSettingData->language_setting_type,
+					'createdAt' => $getCreatedDate[$decodedData],
+					'updatedAt' => $getUpdatedDate[$decodedData]
+				);
+			}
 			else if(strcmp($decodedJson[$decodedData]['setting_type'],$constantArray['clientSetting'])==0)
 			{
 				$data[$decodedData]= array(

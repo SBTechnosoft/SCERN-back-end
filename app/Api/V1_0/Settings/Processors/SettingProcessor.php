@@ -98,7 +98,6 @@ class SettingProcessor extends BaseProcessor
 			{
 				return $settingArray;
 			}
-			
 		}
 	}
 	
