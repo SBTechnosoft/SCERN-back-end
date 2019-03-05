@@ -4,6 +4,7 @@ namespace ERP\Core\Products\Persistables;
 use ERP\Core\Shared\Properties\NamePropertyTrait;
 use ERP\Core\Products\Properties\ProductIdPropertyTrait;
 use ERP\Core\Products\Properties\ProductNamePropertyTrait;
+use ERP\Core\Products\Properties\AltProductNamePropertyTrait;
 use ERP\Core\Shared\Properties\IsDisplayPropertyTrait;
 use ERP\Core\Shared\Properties\IdPropertyTrait;
 use ERP\Core\Products\Properties\MeasureUnitPropertyTrait;
@@ -114,6 +115,7 @@ class productPersistable
 	use CompanyIdPropertyTrait;
 	use ProductIdPropertyTrait;
 	use ProductNamePropertyTrait;
+	use AltProductNamePropertyTrait;
 	use IdPropertyTrait;
 	use ProductGrpIdPropertyTrait;
 	use BranchIdPropertyTrait;

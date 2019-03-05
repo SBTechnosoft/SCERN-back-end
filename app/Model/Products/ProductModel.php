@@ -1299,6 +1299,7 @@ class ProductModel extends Model
 		$raw = DB::connection($databaseName)->select("select 
 		pmst.product_id,
 		pmst.product_name,
+		pmst.alt_product_name,
 		pmst.highest_measurement_unit_id,
 		pmst.higher_measurement_unit_id,
 		pmst.medium_measurement_unit_id,
@@ -1649,6 +1650,7 @@ class ProductModel extends Model
 		$raw = DB::connection($databaseName)->select("select 
 		pmst.product_id,
 		pmst.product_name,
+		pmst.alt_product_name,
 		pmst.highest_measurement_unit_id,
 		pmst.higher_measurement_unit_id,
 		pmst.medium_measurement_unit_id,
@@ -1834,6 +1836,7 @@ class ProductModel extends Model
 		$raw = DB::connection($databaseName)->select("select 
 		pmst.product_id,
 		pmst.product_name,
+		pmst.alt_product_name,
 		pmst.highest_measurement_unit_id,
 		pmst.higher_measurement_unit_id,
 		pmst.medium_measurement_unit_id,
@@ -1938,6 +1941,7 @@ class ProductModel extends Model
 		$raw = DB::connection($databaseName)->select("select 
 		pmst.product_id,
 		pmst.product_name,
+		pmst.alt_product_name,
 		pmst.highest_measurement_unit_id,
 		pmst.higher_measurement_unit_id,
 		pmst.medium_measurement_unit_id,
@@ -2043,6 +2047,7 @@ class ProductModel extends Model
 		$raw = DB::connection($databaseName)->select("select 
 		pmst.product_id,
 		pmst.product_name,
+		pmst.alt_product_name,
 		pmst.highest_measurement_unit_id,
 		pmst.higher_measurement_unit_id,
 		pmst.medium_measurement_unit_id,
@@ -2161,6 +2166,7 @@ class ProductModel extends Model
 		$raw = DB::connection($databaseName)->select("select 
 		pmst.product_id,
 		pmst.product_name,
+		pmst.alt_product_name,
 		pmst.highest_measurement_unit_id,
 		pmst.higher_measurement_unit_id,
 		pmst.medium_measurement_unit_id,
@@ -2368,6 +2374,7 @@ class ProductModel extends Model
 		$raw = DB::connection($databaseName)->select("select 
 		pmst.product_id,
 		pmst.product_name,
+		pmst.alt_product_name,
 		pmst.highest_measurement_unit_id,
 		pmst.higher_measurement_unit_id,
 		pmst.medium_measurement_unit_id,

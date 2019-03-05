@@ -37,6 +37,7 @@ class ProductTransformer extends ExceptionMessage
 		
 		//trim an input
 		$tProductName = trim($request->input('productName'));
+		$tAltProductName = trim($request->input('altProductName'));
 		$tHighestMeaUnitId = trim($request->input('highestMeasurementUnitId'));
 		$tHigherMeaUnitId = trim($request->input('higherMeasurementUnitId'));
 		$tMediumMeaUnitId = trim($request->input('mediumMeasurementUnitId'));
@@ -261,6 +262,7 @@ class ProductTransformer extends ExceptionMessage
 			//make an array
 			$data = array();
 			$data['product_name'] = $tProductName;
+			$data['alt_product_name'] = $tAltProductName;
 			$data['highest_measurement_unit_id'] = $tHighestMeaUnitId;
 			$data['higher_measurement_unit_id'] = $tHigherMeaUnitId;
 			$data['measurement_unit'] = $tMeasUnit;
@@ -366,6 +368,7 @@ class ProductTransformer extends ExceptionMessage
 
 				//trim an input
 				$tProductName = trim($inputRequestData[$arrayData]['productName']);
+				$tAltProductName = trim($inputRequestData[$arrayData]['altProductName']);
 				$tMeasUnit = trim($inputRequestData[$arrayData]['measurementUnit']);
 				$tColor = array_key_exists("color",$inputRequestData[$arrayData]) ? trim($inputRequestData[$arrayData]['color']) : "XX";
 				$tSize = array_key_exists("size",$inputRequestData[$arrayData]) ? trim($inputRequestData[$arrayData]['size']) : "ZZ";
@@ -506,6 +509,7 @@ class ProductTransformer extends ExceptionMessage
 				{
 					$errorArray[$errorIndex] = array();
 					$errorArray[$errorIndex]['productName'] = $tProductName;
+					$errorArray[$errorIndex]['altProductName'] = $tAltProductName;
 					$errorArray[$errorIndex]['measurementUnit'] = $tMeasUnit;
 					$errorArray[$errorIndex]['color'] = $tColor;
 					$errorArray[$errorIndex]['size'] = $tSize;
@@ -582,6 +586,7 @@ class ProductTransformer extends ExceptionMessage
 					//make an array
 					$data[$dataIndex] = array();
 					$data[$dataIndex]['product_name'] = $tProductName;
+					$data[$dataIndex]['alt_product_name'] = $tAltProductName;
 					$data[$dataIndex]['measurement_unit'] = $tMeasUnit;
 					$data[$dataIndex]['color'] = $tColor;
 					$data[$dataIndex]['size'] = $tSize;

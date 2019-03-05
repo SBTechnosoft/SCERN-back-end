@@ -25,6 +25,7 @@ class EncodeData extends ProductCategoryService
 		$updatedAt= $decodedJson[0]['updated_at'];
 		$productId= $decodedJson[0]['product_id'];
 		$productName= $decodedJson[0]['product_name'];
+		$altProductName= $decodedJson[0]['alt_product_name'];
 
 		$highestMeasurementUnitId= $decodedJson[0]['highest_measurement_unit_id'];
 		$higherMeasurementUnitId= $decodedJson[0]['higher_measurement_unit_id'];
@@ -104,23 +105,6 @@ class EncodeData extends ProductCategoryService
 		$branchId= $decodedJson[0]['branch_id'];
 		
 
-		// //get the product_cat_details from database
-		// $encodeProductCatDataClass = new EncodeData();
-		// $productCatStatus = $encodeProductCatDataClass->getProductCatData($productCatId);
-		// $productCatDecodedJson = json_decode($productCatStatus,true);
-		// //get the product group detail from database
-		// $productGroupDetail  = new ProductGroupDetail();
-		// $getProductGrpDetails = $productGroupDetail->getProductGrpDetails($productGrpId);
-		
-		// //get the company detail from database
-		// $companyDetail  = new CompanyDetail();
-		// $getCompanyDetails = $companyDetail->getCompanyDetails($companyId);
-		
-		// //get the branch detail from database
-		// $branchDetail  = new BranchDetail();
-		// $getBranchDetails = $branchDetail->getBranchDetails($branchId);
-		
-		//$getCompanyDetails['noOfDecimalPoints']
 		//convert amount(number_format) into their company's selected decimal points
 		$highestPurchasePrice = number_format($highestPurchasePrice,2,'.','');
 		$higherPurchasePrice = number_format($higherPurchasePrice,2,'.','');
@@ -208,46 +192,8 @@ class EncodeData extends ProductCategoryService
 			$getUpdatedDate = $product->getUpdated_at();
 			$getUpdatedTime = $convertedUpdatedTime;
 		}
-		// $documentDataArray = array();
-		// $documentCount = count($decodedJson[0]['document']);
-		// if($documentCount!=0)
-		// {
-		// 	for($documentArray=0;$documentArray<$documentCount;$documentArray++)
-		// 	{
-		// 		$documentDataArray[$documentArray]['documentName'] = $decodedJson[0]['document'][$documentArray]['document_name'];
-		// 		$documentDataArray[$documentArray]['documentSize'] = $decodedJson[0]['document'][$documentArray]['document_size'];
-		// 		$documentDataArray[$documentArray]['documentFormat'] = $decodedJson[0]['document'][$documentArray]['document_format'];
-		// 		$documentDataArray[$documentArray]['documentType'] = $decodedJson[0]['document'][$documentArray]['document_type'];
-		// 		$documentDataArray[$documentArray]['productId'] = $decodedJson[0]['document'][$documentArray]['product_id'];
-		// 		$documentDataArray[$documentArray]['documentPath'] = 
-		// 		strcmp($decodedJson[0]['document'][$documentArray]['document_type'],'CoverImage')==0 ? $constantArrayData['productCoverDocumentUrl'] : $constantArrayData['productDocumentUrl'];
-
-		// 		$documentDataArray[$documentArray]['createdAt'] = 
-		// 		$decodedJson[0]['document'][$documentArray]['created_at'] == "0000-00-00 00:00:00" ? "0000-00-00" : Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$decodedJson[0]['document'][$documentArray]['created_at'])->format('d-m-Y');
-
-		// 		$documentDataArray[$documentArray]['updatedAt'] = 
-		// 		$decodedJson[0]['document'][$documentArray]['updated_at'] == "0000-00-00 00:00:00" ? "0000-00-00" : Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$decodedJson[0]['document'][$documentArray]['updated_at'])->format('d-m-Y');
-		// 	}	
-		// }
-		// else
-		// {
-		// 	$documentDataArray = array();
-		// }
-		
 		$documentPath = $constantArrayData['productBarcode'];
 		
-		// $quantityWisePricingCount = count($quantityWisePricing);
-		// if($quantityWisePricingCount!=0)
-		// {
-		// 	for($quantityWisePricingArray=0;$quantityWisePricingArray<$quantityWisePricingCount;$quantityWisePricingArray++)
-		// 	{
-		// 		$quantityWisePricing[$quantityWisePricingArray]['salesPrice'] = number_format($quantityWisePricing[$quantityWisePricingArray]['salesPrice'],2,'.','');
-		// 	}	
-		// }
-		// else
-		// {
-		// 	$quantityWisePricing = array();
-		// }
 
 		//Quantity of Product
 		$quantity = 0;
@@ -264,6 +210,7 @@ class EncodeData extends ProductCategoryService
 		$data = array();
 		$data['productId'] = $productId;
 		$data['productName'] = $productName;
+		$data['altProductName'] = $altProductName;
 		$data['highestMeasurementUnitId'] = $highestMeasurDecodedJson;
 		$data['higherMeasurementUnitId'] = $higherMeasurDecodedJson;
 
