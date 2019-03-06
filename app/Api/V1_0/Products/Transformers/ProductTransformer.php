@@ -17,7 +17,6 @@ use ERP\Model\Branches\BranchModel;
 use ERP\Model\Companies\CompanyModel;
 use ERP\Model\Authenticate\AuthenticateModel;
 
-use Illuminate\Support\Facades\Log;
 use ERP\Core\Products\Services\ProductService;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
@@ -175,24 +174,6 @@ class ProductTransformer extends ExceptionMessage
 		
 		$tCreatedBy = isset($userId[0]->user_id) ? $userId[0]->user_id : 0;
 
-		// $enumMeasurementUnitArray = array();
-		// $measurementUnitEnum = new measurementUnitEnum();
-		// $enumMeasurementUnitArray = $measurementUnitEnum->enumArrays();
-		// if($tMeasUnit!="")
-		// {
-		// 	foreach ($enumMeasurementUnitArray as $key => $value)
-		// 	{
-		// 		if(strcmp($value,$tMeasUnit)==0)
-		// 		{
-		// 			$measurementUnitFlag=1;
-		// 			break;
-		// 		}
-		// 		else
-		// 		{
-		// 			$measurementUnitFlag=2;
-		// 		}
-		// 	}
-		// }
 
 		//check Primary Measure enum data
 		$enumPrimaryMeasureUnitArray = array();
