@@ -17,7 +17,7 @@ use ERP\Model\Branches\BranchModel;
 use ERP\Model\Companies\CompanyModel;
 use ERP\Model\Authenticate\AuthenticateModel;
 
-
+use Illuminate\Support\Facades\Log;
 use ERP\Core\Products\Services\ProductService;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
@@ -914,6 +914,7 @@ class ProductTransformer extends ExceptionMessage
 							$currentQty = round($currentQty * $productTransformData->lowestMouConv);
 						break;
 				}
+				$tempArray[$arrayData][4] = $currentQty;
 			}
 			// Unitwise qty Conversion ends.
 			
