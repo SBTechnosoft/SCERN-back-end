@@ -23,7 +23,6 @@ class EncodeAllData extends ClientService
 		$deocodedJsonData = json_decode($decodedJson['quotationData']);
 		$decodedDocumentData = json_decode($decodedJson['documentData']);
 		$quotation = new Quotation();
-		
 		for($decodedData=0;$decodedData<count($deocodedJsonData);$decodedData++)
 		{
 			$quotationBillId[$decodedData] = $deocodedJsonData[$decodedData]->quotation_bill_id;
@@ -46,6 +45,7 @@ class EncodeAllData extends ClientService
 			$branchId[$decodedData] = $deocodedJsonData[$decodedData]->branch_id;
 			$createdAt[$decodedData] = $deocodedJsonData[$decodedData]->created_at;
 			$updatedAt[$decodedData] = $deocodedJsonData[$decodedData]->updated_at;
+			
 
 			//get the client detail from database
 			$encodeAllData = new EncodeAllData();
@@ -214,11 +214,45 @@ class EncodeAllData extends ClientService
 					'cityId'=>$clientData->city->cityId
 				),
 				'company' => $getCompanyDetails[$jsonData],
-				'branch' => $getBranchDetails[$jsonData]	
+				'branch' => $getBranchDetails[$jsonData]
 			);
+			if (isset($deocodedJsonData[$jsonData]->workflow_status_id)) {
+				$data[$jsonData]['statusId'] = $deocodedJsonData[$jsonData]->workflow_status_id;
+				$data[$jsonData]['processStatusDtlId'] = $deocodedJsonData[$jsonData]->process_status_dtl_id;
+				$data[$jsonData]['assignedTo'] = $deocodedJsonData[$jsonData]->assigned_to;
+				$data[$jsonData]['assignedBy'] = $deocodedJsonData[$jsonData]->assigned_by;
+			}
 			$data[$jsonData]['file'] = $arrayData[$jsonData];
 		}
 		$jsonEncodedData = json_encode($data);
 		return $jsonEncodedData;
+	}
+	public function getEncodedStatusData($status)
+	{
+		$encodeAllData =  array();
+		$decodedJson = json_decode($status,true);
+		for($decodedData=0;$decodedData<count($decodedJson);$decodedData++)
+		{
+			$encodeAllData[$decodedData] = [
+				'statusId' => $decodedJson[$decodedData]['status_id'],
+				'status' => ucfirst($decodedJson[$decodedData]['status_name']),
+				'statusType'=>$decodedJson[$decodedData]['status_position']
+			];
+		}
+		return json_encode($encodeAllData);
+	}
+	public function getEncodedStatusCountData($status)
+	{
+		$encodeAllData =  array();
+		$decodedJson = json_decode($status,true);
+		for($decodedData=0;$decodedData<count($decodedJson);$decodedData++)
+		{
+			$encodeAllData[$decodedData] = [
+				'statusId' => $decodedJson[$decodedData]['status_id'],
+				'status' => ucfirst($decodedJson[$decodedData]['status_name']),
+				'statusCount'=>$decodedJson[$decodedData]['status_count']
+			];
+		}
+		return json_encode($encodeAllData);
 	}
 }

@@ -192,7 +192,7 @@ class InvoiceController extends BaseController implements ContainerInterface
      */
 	public function update(Request $request,$invoiceId)
     {    
-		if(strcmp($_SERVER['REQUEST_URI'],"/accounting/bills")==0 || strcmp($_SERVER['REQUEST_URI'],"/accounting/quotations")==0)
+		if(strcmp($_SERVER['REQUEST_URI'],"/accounting/bills")==0 || strcmp($_SERVER['REQUEST_URI'],"/accounting/quotations")==0 || strpos($_SERVER['REQUEST_URI'],"/accounting/quotations/convert")!==false)
 		{
 			$this->request = $request;
 			$processor = new InvoiceProcessor();

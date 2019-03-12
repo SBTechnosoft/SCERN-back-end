@@ -50,7 +50,8 @@ class LedgerController extends BaseController implements ContainerInterface
     public function store(Request $request)
     {
 		$requestUri = explode('/',$_SERVER['REQUEST_URI']);
-		if(strcmp($requestUri[1],"accounting")==0 && strcmp($requestUri[2],"bills")==0)
+		if((strcmp($requestUri[1],"accounting")==0 && strcmp($requestUri[2],"bills")==0) ||
+			(strcmp($requestUri[2], 'quotations')==0 && strcmp($requestUri[3], 'convert')==0))
 		{
 			$this->request = $request;
 			// check the requested Http method
@@ -287,7 +288,8 @@ class LedgerController extends BaseController implements ContainerInterface
 	public function update(Request $request,$ledgerId)
     {  
 		$RequestUri = explode("/", $_SERVER['REQUEST_URI']);
-		if(strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"bills")==0 || strcmp($RequestUri[1],"clients")==0)
+		if(strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"bills")==0 || strcmp($RequestUri[1],"clients")==0 ||
+			(strcmp($RequestUri[2], 'quotations')==0 && strcmp($RequestUri[3], 'convert')==0))
 		{
 			$this->request = $request;
 			

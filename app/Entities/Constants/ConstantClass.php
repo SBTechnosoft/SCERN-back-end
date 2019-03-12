@@ -31,6 +31,7 @@ class ConstantClass
 		$constantArray['advanceBillSetting'] = "advance";
 		$constantArray['inventorySetting'] = "inventory";
 		$constantArray['languageSetting'] = "language";
+		$constantArray['workFlowSetting'] = "workflow";
 		$constantArray['webIntegrationSetting'] = "webintegration";
 		$constantArray['noImage'] = "Storage/No-Image/no-image.jpg";
 		$constantArray['productBarcode'] = "Storage/Barcode/";
@@ -147,6 +148,7 @@ class ConstantClass
 		$constantArray['invoiceUrl']=url('/')."/settings/invoice-numbers";
 		$constantArray['quotationUrl']=url('/')."/settings/quotation-numbers";
 		$constantArray['productUrl']=url('/')."/accounting/products";
+		$constantArray['salesBillUrl']=url('/')."/accounting/bills";
 		return $constantArray;
 	}
 	

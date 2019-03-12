@@ -20,6 +20,7 @@ use ERP\Api\V1_0\Settings\InvoiceNumbers\Controllers\InvoiceController;
 use Illuminate\Container\Container;
 use ERP\Api\V1_0\Documents\Controllers\DocumentController;
 use ERP\Model\Accounting\Bills\BillModel;
+
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -58,7 +59,6 @@ class BillController extends BaseController implements ContainerInterface
 		//Authentication
 		$tokenAuthentication = new TokenAuthentication();
 		$authenticationResult = $tokenAuthentication->authenticate($request->header());
-		
 		//get constant array
 		$constantClass = new ConstantClass();
 		$constantArray = $constantClass->constantVariable();
@@ -117,6 +117,12 @@ class BillController extends BaseController implements ContainerInterface
 								$documentRequest->headers->set('issalesorder',$request->header()['issalesorder'][0]);
 							}
 							$processedData = $documentController->getData($documentRequest);
+							if (array_key_exists('isquotationprocess', $request->header())) {
+								return [
+									'saleId' => $saleId,
+									'response' => $processedData
+								];
+							}
 							return $processedData;
 						}
 					}

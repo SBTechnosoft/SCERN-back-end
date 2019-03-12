@@ -56,6 +56,7 @@ class QuotationTransformer
 		{
 			$tPaymentMode='';
 		}
+
 		$invoiceNumber = array_key_exists('invoiceNumber',$quotationArrayData)?trim($quotationArrayData['invoiceNumber']):"";
 		$tCompanyId = trim($quotationArrayData['companyId']);
 		$tBranchId = array_key_exists('branchId',$quotationArrayData) ? trim($quotationArrayData['branchId']):0;
@@ -290,7 +291,7 @@ class QuotationTransformer
 		$tempArrayFlag=0;
 		$tempArray = array();
 		$tQuotationArray = array();
-		$quotationArrayData = $request->input();
+		$quotationArrayData = array_except($request->input(),['workflowStatus','assignedTo','assignedBy']);
 		
 		//get exception message
 		$exception = new ExceptionMessage();

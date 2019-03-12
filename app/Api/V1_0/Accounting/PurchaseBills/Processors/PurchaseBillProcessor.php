@@ -390,6 +390,7 @@ class PurchaseBillProcessor extends BaseProcessor
 			$journalInventory[$inventoryArray]['price']=$trimRequest['inventory'][$inventoryArray]['price'];
 			$journalInventory[$inventoryArray]['qty']=$trimRequest['inventory'][$inventoryArray]['qty'];
 			$journalInventory[$inventoryArray]['measurementUnit']=$trimRequest['inventory'][$inventoryArray]['measurementUnit'];
+
 			if (@$trimRequest['inventory'][$discountArray]['discountType'])
 			{
 				$journalInventory[$inventoryArray]['discountType']= $trimRequest['inventory'][$inventoryArray]['discountType'];
@@ -444,32 +445,6 @@ class PurchaseBillProcessor extends BaseProcessor
 				}
 			}
 		}
-		// $journalArray['data']=$dataArray;
-		// $journalArray['inventory']=$journalInventory;
-		// $method=$constantArray['postMethod'];
-		// if(strcmp($stringOperation,'insert')==0)
-		// {
-		// 	$journalArray['vendorId'] = $trimRequest['vendorId'];
-		// 	$path=$constantArray['journalUrl'];
-		// 	$journalRequest = Request::create($path,$method,$journalArray);
-		// 	$journalRequest->headers->set('type',$constantArray['purchase']);
-		// 	$processedData = $journalController->store($journalRequest);
-		// 	if(strcmp($processedData,$exceptionArray['200'])!=0)
-		// 	{
-		// 		return $exceptionArray['500'];
-		// 	}
-		// }
-		// else
-		// {
-		// 	$path=$constantArray['journalUrl'].'/'.$jsonDecodedJfId;
-		// 	$journalRequest = Request::create($path,$method,$journalArray);
-		// 	$journalRequest->headers->set('type',$constantArray['purchase']);
-		// 	$processedData = $journalController->update($journalRequest,$jsonDecodedJfId);
-		// 	if(strcmp($processedData,$exceptionArray['200'])!=0)
-		// 	{
-		// 		return $processedData;
-		// 	}
-		// }
 		return $jsonDecodedJfId;
 	}
 	
@@ -550,6 +525,7 @@ class PurchaseBillProcessor extends BaseProcessor
 					$inventoryCount = count($inventoryArrayData);
 					$inventoryInc = 0;
 					$itemizeBatch = array();
+					$jfId = $purchaseArrayData[0]->jf_id;
 					$itemizeBillNo = $inventoryData['billNumber'];
 					while ($inventoryInc < $inventoryCount) {
 						if (isset($inventoryArrayData[$inventoryInc]['itemizeDetail'])) {
@@ -562,7 +538,7 @@ class PurchaseBillProcessor extends BaseProcessor
 										'imei_no' => $serialArray['imei_no'],
 										'barcode_no' => $serialArray['barcode_no'],
 										'qty' => $serialArray['qty'],
-										'jfId' => $purchaseArrayData[0]->jf_id,
+										'jfId' => $jfId,
 										'purchase_bill_no' => $itemizeBillNo
 									];
 								}
@@ -570,6 +546,7 @@ class PurchaseBillProcessor extends BaseProcessor
 						}
 						$inventoryInc++;
 					}
+
 					$productService = new ProductService();
 					if (!empty($itemizeBatch) && count($itemizeBatch) > 0) {
 						$itemizeBatchInsertion = $productService->updateInOutwardItemizeData($itemizeBatch,$purchaseArrayData[0]->jf_id,$purchaseArrayData[0]->created_at);
