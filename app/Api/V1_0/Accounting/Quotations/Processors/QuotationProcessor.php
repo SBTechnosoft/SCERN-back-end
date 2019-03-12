@@ -64,7 +64,6 @@ class QuotationProcessor extends BaseProcessor
 			$status = $quotationValidate->validate($tRequest);
 			if($status==$constantArray['success'])
 			{
-				//get contact-number from input data
 				if(!array_key_exists($constantArray['contactNo'],$tRequest))
 				{
 					$contactNo="";
