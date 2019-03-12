@@ -303,17 +303,20 @@ class DocumentMpdf extends CurrencyToWordConversion
 					if ($setting_variant == true) {
 						$extraColumnValue .= " | ".$decodedArray->inventory[$productArray]->variant;
 						$extraFlag = 1;
-						/* L W H */
-							$d_length = $decodedArray->inventory[$productArray]->lengthValue ? $decodedArray->inventory[$productArray]->lengthValue.'X ' : '';
-							$d_width = $decodedArray->inventory[$productArray]->widthValue ? $decodedArray->inventory[$productArray]->widthValue.'X ' : '';
-							$d_height = $decodedArray->inventory[$productArray]->heightValue ? $decodedArray->inventory[$productArray]->heightValue.'X' : '';
-							$display_product_name .= " <span style='float:right'>".$d_length.$d_width.$d_height."</span>";
-						/* End */
-						
 					}
 
 					if ($setting_measureType == $measureTypesConstants['unit']) {
 						$variantColumn = "<td  style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);text-align:center'>". $decodedArray->inventory[$productArray]->totalFt ."</td>";
+						$d_length = $d_width = $d_height = "";
+						/* L W H */
+							$d_length = $advanceMeasureData->lengthStatus == 'enable' ? ($decodedArray->inventory[$productArray]->lengthValue ? $decodedArray->inventory[$productArray]->lengthValue.'X ' : '') : "";
+							$d_width = $advanceMeasureData->widthStatus == 'enable' ? ($decodedArray->inventory[$productArray]->widthValue ? $decodedArray->inventory[$productArray]->widthValue.'X ' : '') : "";
+							$d_height = $advanceMeasureData->heightStatus == 'enable' ? ($decodedArray->inventory[$productArray]->heightValue ? $decodedArray->inventory[$productArray]->heightValue.'X' : '') : "";
+							if ($d_length != "" || $d_width != "" || $d_height != "") {
+								$display_product_name .= " <span style='float:right'>".$d_length.$d_width.$d_height."</span>";
+							}
+						/* End */
+
 						$extraColumnColspan = "2";
 						$extraFlag = 1;
 					}
@@ -324,8 +327,6 @@ class DocumentMpdf extends CurrencyToWordConversion
 					}
 
 					$extraColumnHtml = "<td colspan='".$extraColumnColspan."' style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);text-align:center'>".$extraColumnValue."</td>";
-
-					
 					
 				/* End */
 
