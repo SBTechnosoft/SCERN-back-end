@@ -277,6 +277,19 @@ class ConstantClass
 	}
 
 	/**
+	 *  Dropdown data of Measurement Units for Setting
+	 * @param (no parameter)
+	*/
+	public function measurementTypeConstants()
+	{
+		$constantArray = array();
+		$constantArray['normal'] = "normal";
+		$constantArray['advance'] = "Advance Measurement";
+		$constantArray['unit'] = "Unit Measurement";
+		return $constantArray;
+	}
+
+	/**
 	 * check the incoming request url and give them respected database name
 	 * @param (no parameter)
 	*/

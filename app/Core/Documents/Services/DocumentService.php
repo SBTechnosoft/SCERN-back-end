@@ -24,15 +24,15 @@ class DocumentService extends BillModel
         //get the data from persistable object 
 		$documentArray = func_get_arg(0);
 		for($filaArray=0;$filaArray<count($documentArray);$filaArray++)
-		 {
+		{
 			 $simpleArray[$filaArray] = array();
 			 $simpleArray[$filaArray][0] = $documentArray[$filaArray]->getDocumentName();
 			 $simpleArray[$filaArray][1] = $documentArray[$filaArray]->getDocumentSize();
 			 $simpleArray[$filaArray][2] = $documentArray[$filaArray]->getDocumentFormat();
 			 $simpleArray[$filaArray][3] = $documentArray[$filaArray]->getDocumentUrl();
-		 }
+		}
 		 return $simpleArray;
-	 }
+	}
 	 
 	/**
      * get all the data and call the model for database selection opertation
@@ -79,6 +79,7 @@ class DocumentService extends BillModel
 			
 			$templateService = new TemplateService();
 			$templateData = $templateService->getSpecificData($decodedSaleData->company->companyId,$templateType);
+			$templateData = $templateService->joinProductHeadWithTemplate($templateData);
 			$emailTemplateData = $templateService->getSpecificData($decodedSaleData->company->companyId,$emailTemplateType);
 			$blankTemplateData = $templateService->getSpecificData($decodedSaleData->company->companyId,$blankTemplateType);
 			$smsTemplateData = $templateService->getSpecificData($decodedSaleData->company->companyId,$smsTemplateType);
