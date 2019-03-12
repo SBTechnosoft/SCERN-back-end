@@ -400,7 +400,7 @@ class BillModel extends Model
 		else
 		{
 			$getJobCardNumber = array();
-		}
+		}		
 		if(array_key_exists("isDraft",$requestInput))
 		{
 			DB::beginTransaction();
@@ -437,17 +437,16 @@ class BillModel extends Model
 			is_draft='no',
 			".$salesOrder."
 			where sale_id='".$requestInput['isDraft']."'");
-			DB::commit();
-			
+			DB::commit();			
 			//update invoice-number
 			$invoiceResult = $this->updateInvoiceNumber($companyId);
 			if(strcmp($invoiceResult,$exceptionArray['200'])!=0)
-			{
+			{				
 				return $invoiceResult;
 			}
 		}
 		else
-		{
+		{			
 			//if job-card-number is exists then update bill data otherwise insert bill data
 			if(count($getJobCardNumber)==0)
 			{
@@ -487,10 +486,10 @@ class BillModel extends Model
 				values('".$productArray."','".$paymentMode."','".$bankLedgerId."','".$invoiceNumber."','".$jobCardNumber."','".$bankName."','".$checkNumber."','".$total."','".$totalDiscounttype."','".$totalDiscount."','".$totalCgstPercentage."','".$totalSgstPercentage."','".$totalIgstPercentage."','".$extraCharge."','".$tax."','".$grandTotal."','".$advance."','".$balance."','".$poNumber."','".$userId."','".$salesOrderInsert."','".$remark."','".$entryDate."','".$serviceDate."','".$companyId."','".$branchId."','".$ClientId."','".$salesType."','".$jfId."','".$mytime."')");
 				DB::commit();
 				
-				//update invoice-number
+				//update invoice-number				
 				$invoiceResult = $this->updateInvoiceNumber($companyId);
 				if(strcmp($invoiceResult,$exceptionArray['200'])!=0)
-				{
+				{					
 					return $invoiceResult;
 				}
 			}
@@ -781,7 +780,7 @@ class BillModel extends Model
 		$invoiceDataArray = array();
 		$invoiceDataArray['endAt'] = $endAt+1;
 		$invoiceRequest = Request::create($invoicePath,$invoiceMethod,$invoiceDataArray);
-		$updateResult = $invoiceController->update($invoiceRequest,json_decode($invoiceData)->invoiceId);
+		$updateResult = $invoiceController->update($invoiceRequest,json_decode($invoiceData)->invoiceId);		
 		return $updateResult;
 	}
 	
@@ -868,6 +867,9 @@ class BillModel extends Model
 				$branch_check = " and branch_id = ".$branchId;
 			}
 
+			if ($data->getIsSalesOrder()) {
+				$isSalesOrder = "is_salesorder='ok'";
+			}
 			DB::beginTransaction();
 			$raw = DB::connection($databaseName)->select("select 
 			sale_id,

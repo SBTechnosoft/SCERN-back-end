@@ -51,6 +51,8 @@ use ERP\Core\Settings\Properties\InventoryItemizeStatusTrait;
 
 use ERP\Core\Settings\Properties\LanguageSettingTypeTrait;
 
+use ERP\Core\Settings\Properties\WorkFlowQuotationStatusTrait;
+
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -105,4 +107,6 @@ class SettingPersistable
     use InventoryItemizeStatusTrait;
     
     use LanguageSettingTypeTrait;
+    
+    use WorkFlowQuotationStatusTrait;
 }

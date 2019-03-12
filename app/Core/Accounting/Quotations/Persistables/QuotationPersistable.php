@@ -36,6 +36,10 @@ use ERP\Core\Accounting\Bills\Properties\CheckNumberPropertyTrait;
 use ERP\Core\Accounting\Bills\Properties\BankNamePropertyTrait;
 use ERP\Core\Accounting\Bills\Properties\BalancePropertyTrait;
 use ERP\Core\Accounting\Bills\Properties\AdvancePropertyTrait;
+
+use ERP\Core\Accounting\Bills\Properties\WorkflowStatusIdTrait;
+use ERP\Core\Accounting\Bills\Properties\AssignedToTrait;
+use ERP\Core\Accounting\Bills\Properties\AssignedByTrait;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -76,4 +80,8 @@ class QuotationPersistable
 	use CheckNumberPropertyTrait;
 	use BalancePropertyTrait;
 	use AdvancePropertyTrait;
+	
+	use WorkflowStatusIdTrait;
+	use AssignedToTrait;
+	use AssignedByTrait;
 }

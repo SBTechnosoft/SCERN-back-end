@@ -195,6 +195,14 @@ class SettingTransformer
 				return $exceptionArray['content'];
 			}
 		}
+		else if(array_key_exists('workflowQuotationStatus',$request->input()))
+		{
+			$data['workflow_quotation_status'] = strtolower(trim($request->input('workflowQuotationStatus')));
+			if($data['workflow_quotation_status']=='undefined')
+			{
+				return $exceptionArray['content'];
+			}
+		}
 		return $data;
 	}
 	

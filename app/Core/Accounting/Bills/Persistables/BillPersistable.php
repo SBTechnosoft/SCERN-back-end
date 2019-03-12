@@ -36,6 +36,9 @@ use ERP\Core\Accounting\Bills\Properties\PoNumberTrait;
 use ERP\Core\Accounting\Bills\Properties\ExpenseTrait;
 use ERP\Core\Accounting\Bills\Properties\ServiceDateTrait;
 use ERP\Core\Accounting\Bills\Properties\UserIdTrait;
+
+
+use ERP\Core\Accounting\Bills\Properties\IsSalesOrderTrait;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -76,4 +79,6 @@ class BillPersistable
 	use PoNumberTrait;
 	use ExpenseTrait;
 	use ServiceDateTrait;
+	
+	use IsSalesOrderTrait;
 }

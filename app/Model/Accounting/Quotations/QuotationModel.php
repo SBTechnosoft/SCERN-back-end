@@ -324,7 +324,63 @@ class QuotationModel extends Model
 			return $exceptionArray['500'];
 		}
 	}
-	
+	/**
+	 * insert status data
+	 * @param  quotation-id,sale-id,status-id,assign-detail
+	 * returns the exception-message
+	*/
+	public function logWorkflowStatus($statusLogData,$headerData,$checkArray)
+	{
+		$mytime = Carbon\Carbon::now();
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		$checkCond = '';
+		$conditionSeparator = '';
+		foreach ($checkArray as $key => $value) {
+			$checkCond .= $conditionSeparator."$key = '$value'";
+			$conditionSeparator = ' and ';
+		}
+		$raw1 = DB::connection($databaseName)->select("select
+		process_status_dtl_id
+		FROM process_status_dtl
+		WHERE $checkCond ");
+		DB::commit();
+		if (count($raw1)==0) {
+			$insertKeyStr = '';
+			$insertValStr = '';
+			$separator = '';
+			foreach ($statusLogData as $key => $value) {
+				$insertKeyStr .= $separator."$key";
+				$insertValStr .= $separator."'$value'";
+				$separator = ',';
+			}
+			$raw = DB::connection($databaseName)->statement("insert into process_status_dtl($insertKeyStr)
+			values($insertValStr)");
+			DB::commit();
+		}else{
+			$updateStr = '';
+			$separator = '';
+			foreach ($statusLogData as $key => $value) {
+				$updateStr .= $separator."$key = '$value'";
+				$separator = ', ';
+			}
+			$raw = DB::connection($databaseName)->statement("update process_status_dtl set $updateStr WHERE $checkCond");
+		}
+		
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if($raw==1)
+		{
+			return $exceptionArray['200'];
+		}
+		else
+		{
+			return $exceptionArray['500'];
+		}
+	}
 	/**
 	 * get specific data
 	 * @param  headerdata
@@ -343,15 +399,22 @@ class QuotationModel extends Model
 			$quotationArray = new QuotationArray();
 			$quotationArrayData = $quotationArray->searchQuotationData();
 			$queryParameter="";
-			for($dataArray=0;$dataArray<count($quotationArrayData);$dataArray++)
-			{
-				$key = $quotationArrayData[array_keys($quotationArrayData)[$dataArray]];
-				$queryKey = array_keys($quotationArrayData)[$dataArray];
-				
-				if(array_key_exists($quotationArrayData[array_keys($quotationArrayData)[$dataArray]],$headerData))
+			foreach ($quotationArrayData as $key => $value) {
+				if(array_key_exists($value,$headerData))
 				{
-					$queryParameter = $queryParameter."".$queryKey."='".$headerData[$key][0]."' and ";
+					$queryParameter = $queryParameter."".$key."='".$headerData[$value][0]."' and ";
 				}
+			}
+			if (array_key_exists('companyid', $headerData)) {
+				$queryParameter .= "quotation_bill_dtl.company_id = '".$headerData['companyid'][0]."' and ";
+			}
+			if (array_key_exists('fromdate', $headerData)) {
+				$toDate = Carbon\Carbon::now();
+				if (array_key_exists('todate', $headerData)) {
+					$toDate = Carbon\Carbon::createFromFormat('d-m-Y', $headerData['todate'][0])->format('Y-m-d');
+				}
+				$fromDate = Carbon\Carbon::createFromFormat('d-m-Y', $headerData['fromdate'][0])->format('Y-m-d');;
+				$queryParameter .= "(quotation_bill_dtl.entry_date BETWEEN '".$fromDate."' AND '".$toDate."') AND ";
 			}
 			//database selection
 			$database = "";
@@ -359,28 +422,59 @@ class QuotationModel extends Model
 			$databaseName = $constantDatabase->constantDatabase();
 			
 			DB::beginTransaction();		
-			$raw = DB::connection($databaseName)->select("select 
-			quotation_bill_id,
-			product_array,
-			quotation_number,
-			total,
-			total_discounttype,
-			total_discount,
-			total_cgst_percentage,
-			total_sgst_percentage,
-			total_igst_percentage,
-			extra_charge,
-			tax,
-			grand_total,
-			remark,
-			entry_date,
-			client_id,
-			company_id,
-			branch_id,
-			jf_id,
-			created_at,
-			updated_at	
-			from quotation_bill_dtl where ".$queryParameter." deleted_at='0000-00-00 00:00:00'");
+			if (array_key_exists('isquotationprocess', $headerData)) {
+				$raw = DB::connection($databaseName)->select("select 
+				quotation_bill_dtl.quotation_bill_id,
+				quotation_bill_dtl.product_array,
+				quotation_bill_dtl.quotation_number,
+				quotation_bill_dtl.total,
+				quotation_bill_dtl.total_discounttype,
+				quotation_bill_dtl.total_discount,
+				quotation_bill_dtl.total_cgst_percentage,
+				quotation_bill_dtl.total_sgst_percentage,
+				quotation_bill_dtl.total_igst_percentage,
+				quotation_bill_dtl.extra_charge,
+				quotation_bill_dtl.tax,
+				quotation_bill_dtl.grand_total,
+				quotation_bill_dtl.remark,
+				quotation_bill_dtl.entry_date,
+				quotation_bill_dtl.client_id,
+				quotation_bill_dtl.company_id,
+				quotation_bill_dtl.branch_id,
+				quotation_bill_dtl.jf_id,
+				quotation_bill_dtl.created_at,
+				quotation_bill_dtl.updated_at,
+				process_status_dtl.workflow_status_id,
+				process_status_dtl.process_status_dtl_id,
+				process_status_dtl.assigned_to,
+				process_status_dtl.assigned_by
+				from quotation_bill_dtl 
+				LEFT JOIN process_status_dtl on process_status_dtl.quotation_id = quotation_bill_dtl.quotation_bill_id
+				where ".$queryParameter." quotation_bill_dtl.deleted_at='0000-00-00 00:00:00'");
+			}else{
+				$raw = DB::connection($databaseName)->select("select 
+				quotation_bill_id,
+				product_array,
+				quotation_number,
+				total,
+				total_discounttype,
+				total_discount,
+				total_cgst_percentage,
+				total_sgst_percentage,
+				total_igst_percentage,
+				extra_charge,
+				tax,
+				grand_total,
+				remark,
+				entry_date,
+				client_id,
+				company_id,
+				branch_id,
+				jf_id,
+				created_at,
+				updated_at	
+				from quotation_bill_dtl where ".$queryParameter." deleted_at='0000-00-00 00:00:00'");
+			}
 			DB::commit();
 			
 			// get exception message
@@ -431,6 +525,112 @@ class QuotationModel extends Model
 		}
 	}
 	
+	/**
+	 * get specific data
+	 * @param  headerdata
+	 * returns the exception-message/array data
+	*/
+	public function getStatusData($headerData)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		
+		// get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		DB::beginTransaction();
+		$raw = DB::connection($databaseName)->select("select 
+		status_id,
+		status_name,
+		status_position
+		from flow_status_mst 
+		where deleted_at='0000-00-00 00:00:00'");
+		DB::commit();
+		if(count($raw)==0)
+		{
+			return $exceptionArray['204'];
+		}
+		else
+		{
+			return json_encode($raw);
+		}
+	}
+	/**
+	 * get specific data
+	 * @param  headerdata
+	 * returns the exception-message/array data
+	*/
+	public function getSpecificStatus($statusId)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		
+		// get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		DB::beginTransaction();
+		$raw = DB::connection($databaseName)->select("select 
+		status_id,
+		status_name,
+		status_position
+		from flow_status_mst 
+		where deleted_at='0000-00-00 00:00:00' and status_id='$statusId'");
+		DB::commit();
+		if(count($raw)==0)
+		{
+			return $exceptionArray['204'];
+		}
+		else
+		{
+			return json_encode($raw);
+		}
+	}
+	
+	/**
+	 * get specific data
+	 * @param  headerdata
+	 * returns the exception-message/array data
+	*/
+	public function getStatusQuoteCountData($companyId,$headerData)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		$queryParameter = '';
+		if (array_key_exists('fromdate', $headerData)) {
+			$toDate = Carbon\Carbon::now();
+			if (array_key_exists('todate', $headerData)) {
+				$toDate = Carbon\Carbon::createFromFormat('d-m-Y', $headerData['todate'][0])->format('Y-m-d');
+			}
+			$fromDate = Carbon\Carbon::createFromFormat('d-m-Y', $headerData['fromdate'][0])->format('Y-m-d');;
+			$queryParameter .= "(date(process_status_dtl.created_at) BETWEEN '".$fromDate."' AND '".$toDate."') AND ";
+		}
+		// get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		DB::beginTransaction();
+		$raw = DB::connection($databaseName)->select("select 
+		flow_status_mst.status_id,
+		flow_status_mst.status_name,
+		count(process_status_dtl.process_status_dtl_id) as status_count
+		from flow_status_mst 
+		LEFT JOIN (select process_status_dtl_id,workflow_status_id FROM process_status_dtl where sale_id='0' and $queryParameter company_id = '$companyId') as process_status_dtl on flow_status_mst.status_id = process_status_dtl.workflow_status_id
+		where flow_status_mst.deleted_at='0000-00-00 00:00:00' and status_position='quotation' GROUP BY flow_status_mst.status_id");
+		DB::commit();
+		if(count($raw)==0)
+		{
+			return $exceptionArray['204'];
+		}
+		else
+		{
+			return json_encode($raw);
+		}
+	}
 	/**
 	 * get previous-next quotation-bill data
 	 * @param  header-data
@@ -1058,6 +1258,38 @@ class QuotationModel extends Model
 		if(count($saleBillData)!=0)
 		{
 			return json_encode($saleBillData);
+		}
+	}
+	public function deleteQuotationData($quoteId)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		$mytime = Carbon\Carbon::now();
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		//delete bill data 
+		DB::beginTransaction();
+		$deleteQuoteData = DB::connection($databaseName)->statement("update
+		quotation_bill_dtl set
+		deleted_at = '".$mytime."'
+		where quotation_bill_id = ".$quoteId." and
+		deleted_at='0000-00-00 00:00:00'");
+		if ($deleteQuoteData==1) {
+			$deleteStatus = DB::connection($databaseName)->statement("DELETE FROM
+			process_status_dtl
+			where quotation_id = '$quoteId' and sale_id = 0");
+		}
+		DB::commit();
+		if( $deleteQuoteData==1)
+		{
+			return $exceptionArray['200'];
+		}
+		else
+		{
+			return $exceptionArray['500'];
 		}
 	}
 }

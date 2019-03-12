@@ -764,6 +764,7 @@ class BillProcessor extends BaseProcessor
 		//trim an input 
 		$billTransformer = new BillTransformer();
 		$tRequest = $billTransformer->trimFromToDateData($requestHeader);
+		
 		if(is_array($tRequest))
 		{
 			if(!preg_match("/^[0-9]{4}-([1-9]|1[0-2]|0[1-9])-([1-9]|0[1-9]|[1-2][0-9]|3[0-1])$/",$tRequest['fromDate']))
@@ -778,6 +779,9 @@ class BillProcessor extends BaseProcessor
 			$billPersistable = new BillPersistable();
 			$billPersistable->setSalesType($tRequest['salesType']);
 			$billPersistable->setFromDate($tRequest['fromDate']);
+			if ($tRequest['isSalesOrder'] != '' && $tRequest['isSalesOrder'] != 'not') {
+				$billPersistable->setIsSalesOrder($tRequest['isSalesOrder']);
+			}
 			$billPersistable->setToDate($tRequest['toDate']);
 			if($tRequest['branchId'] != '' && $tRequest['branchId'] != 0){
 				$billPersistable->setBranchId($tRequest['branchId']);

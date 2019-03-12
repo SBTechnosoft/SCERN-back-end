@@ -56,6 +56,7 @@ class BillTransformer
 		$tStateAbb = array_key_exists('stateAbb',$billArrayData)? $this->checkStringValue(trim($billArrayData['stateAbb'])):"";
 		$tCityId = array_key_exists('cityId',$billArrayData)? $this->checkValue(trim($billArrayData['cityId'])):"";
 		$tTotal = trim($billArrayData['total']);
+
 		if(!array_key_exists('totalDiscounttype',$request->input()) && !array_key_exists('totalDiscount',$request->input()))
 		{
 			$tTotalDiscounttype = 'flat';
@@ -320,12 +321,14 @@ class BillTransformer
 			}
 
 			$branchId = array_key_exists('branchid', $headerData) ? $headerData['branchid'][0] : '';
+			$isSalesOrder = array_key_exists('issalesorder', $headerData) ? $headerData['issalesorder'][0] : '';
 			
 			$trimArray = array();	
 			$trimArray['salesType'] = $salesType;	
 			$trimArray['fromDate'] = $transformFromDate;	
 			$trimArray['toDate'] = $transformToDate;	
 			$trimArray['branchId'] = $branchId;	
+			$trimArray['isSalesOrder'] = $isSalesOrder;
 			return $trimArray;
 		}
 		else
