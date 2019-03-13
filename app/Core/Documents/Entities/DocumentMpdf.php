@@ -965,6 +965,42 @@ class DocumentMpdf extends CurrencyToWordConversion
 		$constantArray = $constantClass->constantVariable();
 		$commentArray = $constantClass->getCommentMessage();
 		$smsSettingArray = $constantClass->setSmsPassword();
+
+		/* Setting */
+			$setting_color = $setting_size = $setting_frameNo = $setting_variant = false;
+			$measureTypesConstants = $constantClass->measurementTypeConstants();
+			$setting_measureType = $measureTypesConstants['normal'];
+
+			$settingService= new SettingService();
+			$settingData = $settingService->getData();
+			$settingData = json_decode($settingData);
+
+			$stCount = count($settingData);
+			$stIndex = 0;
+			while ($stIndex < $stCount) {
+				$settingSingleData = $settingData[$stIndex];
+
+				if($settingSingleData->settingType == 'product')
+				{
+					$setting_measureType = $settingSingleData->productMeasurementType;
+					if ($settingSingleData->productColorStatus == 'enable') {
+						$setting_color = true;
+					}
+					if ($settingSingleData->productSizeStatus == 'enable') {
+						$setting_size = true;
+					}
+					if ($settingSingleData->productFrameNoStatus == 'enable') {
+						$setting_frameNo = true;
+					}
+					if ($settingSingleData->productVariantStatus == 'enable') {
+						$setting_variant = true;
+					}
+					break;
+				}
+				$stIndex++;
+			}
+		/* End Setting */
+
 		if(array_key_exists("operation",$headerData))
 		{
 			if(strcmp($headerData['operation'][0],'preprint')==0)
@@ -1010,7 +1046,9 @@ class DocumentMpdf extends CurrencyToWordConversion
 				//get product-data
 				$productData[$productArray] = $productService->getProductData($decodedArray->inventory[$productArray]->productId);
 				$decodedData[$productArray] = json_decode($productData[$productArray]);
-				
+				$advanceMeasureData = $measurementService->getMeasurementData($decodedArray->inventory[$productArray]->measurementUnit);
+				$advanceMeasureData = json_decode($advanceMeasureData);
+
 				$marginPrice[$productArray] = ($decodedData[$productArray]->wholesaleMargin/100)*$decodedArray->inventory[$productArray]->price;
 				$marginPrice[$productArray] = $marginPrice[$productArray]+$decodedData[$productArray]->wholesaleMarginFlat;
 				
@@ -1063,16 +1101,63 @@ class DocumentMpdf extends CurrencyToWordConversion
 				$cgst = $this->checkValue($decodedArray->inventory[$productArray]->cgstPercentage);
 				$sgst = $this->checkValue($decodedArray->inventory[$productArray]->sgstPercentage);
 				$igst = $this->checkValue($decodedArray->inventory[$productArray]->igstPercentage);
+
+
+				$display_product_name = $decodedData[$productArray]->productName;
+				$productColspan = $extraColumnColspan = "3";
+				$variantColumn = "";
+
+				/* Color/Size By Setting */
+					$extraFlag = 0;
+					$extraColumnValue = $advanceMeasureData->unitName;
+					if ($setting_color == true) {
+						$extraColumnValue .= " | ".$decodedArray->inventory[$productArray]->color;
+						$extraFlag = 1;
+					}
+					if ($setting_size == true) {
+						$extraColumnValue .= " | ".$decodedArray->inventory[$productArray]->size;
+						$extraFlag = 1;
+					}
+					if ($setting_frameNo == true) {
+						$extraColumnValue .= " | ".$decodedArray->inventory[$productArray]->frameNo;
+						$extraFlag = 1;
+					}
+					if ($setting_variant == true) {
+						$extraColumnValue .= " | ".$decodedArray->inventory[$productArray]->variant;
+						$extraFlag = 1;
+					}
+
+					if ($setting_measureType == $measureTypesConstants['unit']) {
+						$variantColumn = "<td  style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);text-align:center'>". $decodedArray->inventory[$productArray]->totalFt ."</td>";
+						$d_length = $d_width = $d_height = "";
+						/* L W H */
+							$d_length = $advanceMeasureData->lengthStatus == 'enable' ? ($decodedArray->inventory[$productArray]->lengthValue ? $decodedArray->inventory[$productArray]->lengthValue.'X ' : '') : "";
+							$d_width = $advanceMeasureData->widthStatus == 'enable' ? ($decodedArray->inventory[$productArray]->widthValue ? $decodedArray->inventory[$productArray]->widthValue.'X ' : '') : "";
+							$d_height = $advanceMeasureData->heightStatus == 'enable' ? ($decodedArray->inventory[$productArray]->heightValue ? $decodedArray->inventory[$productArray]->heightValue.'X' : '') : "";
+							if ($d_length != "" || $d_width != "" || $d_height != "") {
+								$display_product_name .= " <span style='float:right'>".$d_length.$d_width.$d_height."</span>";
+							}
+						/* End */
+
+						$extraColumnColspan = "2";
+						$extraFlag = 1;
+					}
+
+					if (!$extraFlag) {
+						$productColspan = "5";
+						$extraColumnColspan = "1";
+					}
+
+					$extraColumnHtml = "<td colspan='".$extraColumnColspan."' style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);text-align:center'>".$extraColumnValue."</td>";
+					
 				$totalTax = $cgst + $sgst + $igst;
 				// $frameNo = $decodedArray->inventory[$productArray]->frameNo==""? "" :$decodedArray->inventory[$productArray]->frameNo;
 				$product_hsnCode1 = $product_hsnCode=="" ? "-" :$product_hsnCode;
 				$output = $output."<tr  style='font-family: Calibri; text-align: left; height:  0.7cm; background-color: transparent;'><td  style='font-size: 11px; height: 0.7cm; text-align:center; padding:0 0 0 0;border-right: 1px solid black;'>". $index .
-				"</td><td colspan='3' style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' >&nbsp;"
-				. $decodedData[$productArray]->productName .
+				"</td><td colspan='".$productColspan."' style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' >&nbsp;"
+				. $display_product_name .
 				"</td><td  style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);text-align:center'>". $product_hsnCode1 .
-				"</td><td colspan='2' style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);text-align:center'>". $decodedArray->inventory[$productArray]->color ." | ". $decodedArray->inventory[$productArray]->size .
-				"</td><td  style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0; text-align: center;border-right: 1px solid rgba(0, 0, 0, .3);'>". $decodedArray->inventory[$productArray]->frameNo  .
-				"</td><td  style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);text-align:center'>". $decodedArray->inventory[$productArray]->qty .
+				"</td>".$extraColumnHtml.$variantColumn."<td  style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);text-align:center'>". $decodedArray->inventory[$productArray]->qty .
 				"</td><td  style='font-size: 11px;   height:  0.7cm; text-align: right; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);'>". $rate .
 				"&nbsp;</td><td  style='font-size: 11px;   height:  0.7cm; text-align: right; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);'>". $mainPrice .
 				"&nbsp;</td><td  style='font-size: 11px; height:  0.7cm; text-align: center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);'>". $discount .
@@ -1128,7 +1213,27 @@ class DocumentMpdf extends CurrencyToWordConversion
 					$totalProductSpace = $lastManageSpace*0.7;	
 					
 					$finalProductBlankSpace = $totalCm-$totalProductSpace;
-					$output = $output . "<tr  style='height:".$finalProductBlankSpace."cm; background-color: transparent;'><td style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td><td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' colspan='3' ></td><td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td><td colspan='2' style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td><td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td><td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td><td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td><td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td><td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td><td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td><td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td><td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td><td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td></tr>";
+
+					$blankExtraColumn = "<td colspan='".$extraColumnColspan."' style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td>";
+
+					$variantBlankHtml = "<td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td>";
+					if ($variantColumn == "") {
+						$variantBlankHtml = "";
+					}
+
+					$output = $output . "<tr  style='height:".$finalProductBlankSpace."cm; background-color: transparent;'>
+							<td style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td>
+							<td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' colspan='".$productColspan."' ></td>
+							<td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td>
+							".$blankExtraColumn.$variantBlankHtml."
+							<td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td>
+							<td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td>
+							<td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td>
+							<td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td>
+							<td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td>
+							<td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td>
+							<td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td>
+							<td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td></tr>";
 				}
 				$index++;
 			}    
@@ -1260,6 +1365,7 @@ class DocumentMpdf extends CurrencyToWordConversion
 
 		$billArray = array();
 		$billArray['Description']=$output;
+		$billArray['productDisplayNone']= 'none';
 		$billArray['ClientName']=$decodedBillData->client->clientName;
 		$billArray['Company']="<span style='font-size:22px'>".$decodedBillData->company->companyName."</span>";
 		$billArray['Total']=$totalAmount;

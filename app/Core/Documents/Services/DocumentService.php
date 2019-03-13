@@ -236,6 +236,7 @@ class DocumentService extends BillModel
 
 		$templateService = new TemplateService();
 		$templateData = $templateService->getSpecificData($companyId,$templateType);
+		$templateData = $templateService->joinProductHeadWithTemplate($templateData);
 		$emailTemplateData = $templateService->getSpecificData($companyId,$emailTemplateType);
 
 		$blankTemplateData = $templateService->getSpecificData($companyId,$blankTemplateType);
