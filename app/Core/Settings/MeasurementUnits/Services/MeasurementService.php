@@ -64,7 +64,7 @@ class MeasurementService extends AbstractService
 	
 	/**
      * get all the data and call the model for database selection opertation
-     * @return status
+     * @return status 
      */
 	public function getAllMeasurementData()
 	{

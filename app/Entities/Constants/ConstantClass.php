@@ -252,7 +252,7 @@ class ConstantClass
 	
 	/**
 	 * making an array contains comment data 
-	 * @param (no parameter)
+	 * @param (no parameter) 
 	*/
     public function getReminderTimeForPayment()
 	{
@@ -275,6 +275,19 @@ class ConstantClass
 		$constantArray = array();
 		$constantArray['Authenticate'] = "authenticate";
 		$constantArray['Product'] = "products";
+		return $constantArray;
+	}
+
+	/**
+	 *  Dropdown data of Measurement Units for Setting
+	 * @param (no parameter)
+	*/
+	public function measurementTypeConstants()
+	{
+		$constantArray = array();
+		$constantArray['normal'] = "normal";
+		$constantArray['advance'] = "Advance Measurement";
+		$constantArray['unit'] = "Unit Measurement";
 		return $constantArray;
 	}
 
