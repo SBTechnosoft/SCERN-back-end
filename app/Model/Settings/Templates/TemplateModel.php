@@ -7,7 +7,7 @@ use Carbon;
 use ERP\Exceptions\ExceptionMessage;
 use ERP\Entities\Constants\ConstantClass;
 /**
- * @author Reema Patel<reema.p@siliconbrain.in>
+ * @author Reema Patel<reema.p@siliconbrain.in> 
  */
 class TemplateModel extends Model
 {

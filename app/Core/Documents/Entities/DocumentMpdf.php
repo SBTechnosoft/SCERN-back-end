@@ -951,7 +951,7 @@ class DocumentMpdf extends CurrencyToWordConversion
 	}
 
 	/**
-	* pdf generation 
+	* pdf generation  
 	* @param template-data and quotation data
 	* @return error-message/document-path
 	*/

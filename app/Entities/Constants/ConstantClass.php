@@ -252,7 +252,7 @@ class ConstantClass
 	
 	/**
 	 * making an array contains comment data 
-	 * @param (no parameter)
+	 * @param (no parameter) 
 	*/
     public function getReminderTimeForPayment()
 	{

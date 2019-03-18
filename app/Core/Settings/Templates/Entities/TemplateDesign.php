@@ -4,7 +4,7 @@ namespace ERP\Core\Settings\Templates\Entities;
 
 use ERP\Core\Settings\Services\SettingService;
 
-/**
+/** 
  *
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
