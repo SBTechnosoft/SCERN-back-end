@@ -44,7 +44,7 @@ class DocumentMpdf extends CurrencyToWordConversion
 		$smsSettingArray = $constantClass->setSmsPassword();
 
 		/* Setting */
-			$setting_color = $setting_size = $setting_frameNo = $setting_variant = false;
+			$setting_color = $setting_size = $setting_frameNo = $setting_variant = $setting_language = false;
 			$measureTypesConstants = $constantClass->measurementTypeConstants();
 			$setting_measureType = $measureTypesConstants['normal'];
 
@@ -72,7 +72,12 @@ class DocumentMpdf extends CurrencyToWordConversion
 					if ($settingSingleData->productVariantStatus == 'enable') {
 						$setting_variant = true;
 					}
-					break;
+				}
+				if ($settingSingleData->settingType == 'language')
+				{
+					if ($settingSingleData->languageSettingType == 'hindi') {
+						$setting_language = true;
+					}
 				}
 				$stIndex++;
 			}
@@ -281,7 +286,7 @@ class DocumentMpdf extends CurrencyToWordConversion
 				$sgst = $this->checkValue($decodedArray->inventory[$productArray]->sgstPercentage);
 				$igst = $this->checkValue($decodedArray->inventory[$productArray]->igstPercentage);
 
-				$display_product_name = $decodedData[$productArray]->productName;
+				$display_product_name = $setting_language ? $decodedData[$productArray]->altProductName : $decodedData[$productArray]->productName;
 				$productColspan = $extraColumnColspan = "3";
 				$variantColumn = "";
 
@@ -334,7 +339,7 @@ class DocumentMpdf extends CurrencyToWordConversion
 				// $frameNo = $decodedArray->inventory[$productArray]->frameNo==""? "" :$decodedArray->inventory[$productArray]->frameNo;
 				$product_hsnCode1 = $product_hsnCode=="" ? "-" :$product_hsnCode;
 				$output = $output."<tr  style='font-family: Calibri; text-align: left; height:  0.7cm; background-color: transparent;'><td  style='font-size: 11px; height: 0.7cm; text-align:center; padding:0 0 0 0;border-right: 1px solid black;'>". $index .
-				"</td><td colspan='".$productColspan."' style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' >&nbsp;"
+				"</td><td lang='hi' colspan='".$productColspan."' style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' >&nbsp;"
 				. $display_product_name .
 				"</td><td  style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);text-align:center'>". $product_hsnCode1 .
 				"</td>".$extraColumnHtml.$variantColumn."<td  style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);text-align:center'>". $decodedArray->inventory[$productArray]->qty .
@@ -598,6 +603,9 @@ class DocumentMpdf extends CurrencyToWordConversion
 		// $mpdf = new mPDF('A4','landscape');
 		 $mpdf = new mPDF('','A4','','agency','5','5','0','0','0','0','landscape');
 		// $mpdf = new mPDF('','', 0, '', 10, 5, 5, 10, 0, 0, 'L');
+		 if ($setting_language) {
+		 	$mpdf->autoLangToFont = true;
+		 }
 		$mpdf->SetDisplayMode('fullpage');
 		foreach($billArray as $key => $value)
 		{
@@ -967,7 +975,7 @@ class DocumentMpdf extends CurrencyToWordConversion
 		$smsSettingArray = $constantClass->setSmsPassword();
 
 		/* Setting */
-			$setting_color = $setting_size = $setting_frameNo = $setting_variant = false;
+			$setting_color = $setting_size = $setting_frameNo = $setting_variant = $setting_language = false;
 			$measureTypesConstants = $constantClass->measurementTypeConstants();
 			$setting_measureType = $measureTypesConstants['normal'];
 
@@ -995,7 +1003,12 @@ class DocumentMpdf extends CurrencyToWordConversion
 					if ($settingSingleData->productVariantStatus == 'enable') {
 						$setting_variant = true;
 					}
-					break;
+				}
+				if ($settingSingleData->settingType == 'language')
+				{
+					if ($settingSingleData->languageSettingType == 'hindi') {
+						$setting_language = true;
+					}
 				}
 				$stIndex++;
 			}
@@ -1102,8 +1115,7 @@ class DocumentMpdf extends CurrencyToWordConversion
 				$sgst = $this->checkValue($decodedArray->inventory[$productArray]->sgstPercentage);
 				$igst = $this->checkValue($decodedArray->inventory[$productArray]->igstPercentage);
 
-
-				$display_product_name = $decodedData[$productArray]->productName;
+				$display_product_name = $setting_language ? $decodedData[$productArray]->altProductName : $decodedData[$productArray]->productName;
 				$productColspan = $extraColumnColspan = "3";
 				$variantColumn = "";
 
@@ -1154,7 +1166,7 @@ class DocumentMpdf extends CurrencyToWordConversion
 				// $frameNo = $decodedArray->inventory[$productArray]->frameNo==""? "" :$decodedArray->inventory[$productArray]->frameNo;
 				$product_hsnCode1 = $product_hsnCode=="" ? "-" :$product_hsnCode;
 				$output = $output."<tr  style='font-family: Calibri; text-align: left; height:  0.7cm; background-color: transparent;'><td  style='font-size: 11px; height: 0.7cm; text-align:center; padding:0 0 0 0;border-right: 1px solid black;'>". $index .
-				"</td><td colspan='".$productColspan."' style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' >&nbsp;"
+				"</td><td lang='hi' colspan='".$productColspan."' style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' >&nbsp;"
 				. $display_product_name .
 				"</td><td  style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);text-align:center'>". $product_hsnCode1 .
 				"</td>".$extraColumnHtml.$variantColumn."<td  style='font-size: 11px;  height:  0.7cm; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);text-align:center'>". $decodedArray->inventory[$productArray]->qty .
@@ -1422,6 +1434,9 @@ class DocumentMpdf extends CurrencyToWordConversion
 		// $mpdf = new mPDF('A4','landscape');
 		 $mpdf = new mPDF('','A4','','agency','5','5','0','0','0','0','landscape');
 		// $mpdf = new mPDF('','', 0, '', 10, 5, 5, 10, 0, 0, 'L');
+		 if ($setting_language) {
+		 	$mpdf->autoLangToFont = true;
+		 }
 		$mpdf->SetDisplayMode('fullpage');
 		foreach($billArray as $key => $value)
 		{
