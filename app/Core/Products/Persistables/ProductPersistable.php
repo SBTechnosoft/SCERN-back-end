@@ -54,6 +54,7 @@ use ERP\Core\Products\Properties\MediumMeasurementUnitIdTrait;
 use ERP\Core\Products\Properties\MediumLowerMeasurementUnitIdTrait;
 use ERP\Core\Products\Properties\LowerMeasurementUnitIdTrait;
 use ERP\Core\Products\Properties\PrimaryMeasureUnitTrait;
+use ERP\Core\Products\Properties\ItemCodeTrait;
 
 use ERP\Core\Products\Properties\HighestPurchasePricePropertyTrait;
 use ERP\Core\Products\Properties\HigherPurchasePriceTrait;
@@ -186,6 +187,7 @@ class productPersistable
 	use LowerUnitQtyTrait;
 	use LowestUnitQtyTrait;
 
+	use ItemCodeTrait;
 	use WebIntegrationTrait;
 	
 	use CreatedByTrait;
