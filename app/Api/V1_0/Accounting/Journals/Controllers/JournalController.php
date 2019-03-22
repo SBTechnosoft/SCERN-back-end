@@ -428,6 +428,18 @@ class JournalController extends BaseController implements ContainerInterface
 							$productArray['inventory'][$inventoryArray]['price']=$inputArray['inventory'][$inventoryArray]['price'];
 							$productArray['inventory'][$inventoryArray]['qty']=$inputArray['inventory'][$inventoryArray]['qty'];
 							$productArray['inventory'][$inventoryArray]['measurementUnit']=$inputArray['inventory'][$inventoryArray]['measurementUnit'];
+
+							if (array_key_exists('stockFt', $inputArray['inventory'][$inventoryArray]) &&
+								$inputArray['inventory'][$inventoryArray]['stockFt'] != 'undefined' &&
+								$inputArray['inventory'][$inventoryArray]['stockFt'] != 0 ) {
+								$productArray['inventory'][$inventoryArray]['stockFt'] = trim($inputArray['inventory'][$inventoryArray]['stockFt']);
+							}
+							if (array_key_exists('totalFt', $inputArray['inventory'][$inventoryArray]) &&
+								$inputArray['inventory'][$inventoryArray]['totalFt'] != 'undefined' &&
+								$inputArray['inventory'][$inventoryArray]['totalFt'] != 0 ){
+								$productArray['inventory'][$inventoryArray]['totalFt'] = trim($inputArray['inventory'][$inventoryArray]['totalFt']);
+
+							}
 						}
 					}
 					//journal data is available in sale/purchase for update

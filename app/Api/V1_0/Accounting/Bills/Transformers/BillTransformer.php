@@ -9,9 +9,11 @@ use ERP\Core\Accounting\Bills\Entities\SalesTypeEnum;
 use ERP\Core\Products\Entities\EnumClasses\DiscountTypeEnum;
 use ERP\Core\Accounting\Bills\Entities\PaymentTransactionEnum;
 use ERP\Exceptions\ExceptionMessage;
+use ERP\Entities\Constants\ConstantClass;
 use ERP\Model\Accounting\Bills\BillModel;
 
 use ERP\Core\Products\Services\ProductService;
+use ERP\Core\Settings\Services\SettingService;
 use ERP\Model\Authenticate\AuthenticateModel;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
@@ -150,6 +152,23 @@ class BillTransformer
 		$discountFlag=0;
 		$discountTypeEnum = new DiscountTypeEnum();
 		$ProductService = new ProductService();
+
+		$settingService = new SettingService();
+		$settingStatus = $settingService->getData();
+		if (strcmp($exceptionArray['204'], $settingStatus)==0) {
+			return $settingStatus;
+		}
+		$constantClass = new ConstantClass();
+		$constants = $constantClass->constantVariable();
+
+		$settingArray = json_decode($settingStatus,true);
+		$productSetting = array_first($settingArray, function($key, $value) use ($constants)
+		{
+		    return $value['settingType'] == $constants['productSetting'];
+		},$exceptionArray['204']);
+		$productMeasurementType = $productSetting['productMeasurementType'];
+		$measurementTypes = $constantClass->measurementTypeConstants();
+		
 		for($trimInventory=0;$trimInventory<count($billArrayData['inventory']);$trimInventory++)
 		{
 			$discountTypeArray = array();
@@ -175,40 +194,57 @@ class BillTransformer
 			$tInventoryArray[$trimInventory][2] = trim($billArrayData['inventory'][$trimInventory]['discountType']);
 			$tInventoryArray[$trimInventory][3] = $this->checkValue(trim($billArrayData['inventory'][$trimInventory]['price']));
 			$tInventoryArray[$trimInventory][4] = trim($billArrayData['inventory'][$trimInventory]['qty']);
-			if (array_key_exists('measurementUnit', $billArrayData['inventory'][$trimInventory])) {
-				// Get Product Units to tranform Qty into primary unit Qty
-				$productTransformData = json_decode($ProductService->getProductData($billArrayData['inventory'][$trimInventory]['productId']));
-				$highestMeasurementUnit = $productTransformData->highestMeasurementUnitId;
-				$higherMeasurementUnit = $productTransformData->higherMeasurementUnitId;
-				$mediumMeasurementUnit = $productTransformData->mediumMeasurementUnitId;
-				$mediumLowerMeasurementUnit = $productTransformData->mediumLowerMeasurementUnitId;
-				$lowerMeasurementUnit = $productTransformData->lowerMeasurementUnitId;
-				$lowestMeasurementUnit = $productTransformData->measurementUnitId;
-				$primaryMeasurement = $productTransformData->primaryMeasureUnit;
-				$currentQty = trim($billArrayData['inventory'][$trimInventory]['qty']);
-				$currentMeasurementUnit = $billArrayData['inventory'][$trimInventory]['measurementUnit'];
-				switch ($currentMeasurementUnit) {
-					case $highestMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->highestMouConv);
-						break;
-					case $higherMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->higherMouConv);
-						break;
-					case $mediumMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->mediumMouConv);
-						break;
-					case $mediumLowerMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->mediumLowerMouConv);
-						break;
-					case $lowerMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->lowerMouConv);
-						break;
-					
-					default:
-							$currentQty = round($currentQty * $productTransformData->lowestMouConv);
-						break;
+			if (strcmp($measurementTypes['unit'], $productMeasurementType)==0) {
+
+				if (array_key_exists('stockFt', $billArrayData['inventory'][$trimInventory]) &&
+					$billArrayData['inventory'][$trimInventory]['stockFt'] != 'undefined' &&
+					$billArrayData['inventory'][$trimInventory]['stockFt'] != 0 ) {
+					$tInventoryArray[$trimInventory][4] = trim($billArrayData['inventory'][$trimInventory]['stockFt']);
+
+				}elseif (array_key_exists('totalFt', $billArrayData['inventory'][$trimInventory]) &&
+					$billArrayData['inventory'][$trimInventory]['totalFt'] != 'undefined' &&
+					$billArrayData['inventory'][$trimInventory]['totalFt'] != 0 ){
+					$tInventoryArray[$trimInventory][4] = trim($billArrayData['inventory'][$trimInventory]['totalFt']);
+
+				}else{
+					return $exceptionArray['content'];
 				}
-				$tInventoryArray[$trimInventory][4] = $currentQty;
+			}elseif (strcmp($measurementTypes['advance'], $productMeasurementType)==0) {
+				if (array_key_exists('measurementUnit', $billArrayData['inventory'][$trimInventory])) {
+					// Get Product Units to tranform Qty into primary unit Qty
+					$productTransformData = json_decode($ProductService->getProductData($billArrayData['inventory'][$trimInventory]['productId']));
+					$highestMeasurementUnit = $productTransformData->highestMeasurementUnitId;
+					$higherMeasurementUnit = $productTransformData->higherMeasurementUnitId;
+					$mediumMeasurementUnit = $productTransformData->mediumMeasurementUnitId;
+					$mediumLowerMeasurementUnit = $productTransformData->mediumLowerMeasurementUnitId;
+					$lowerMeasurementUnit = $productTransformData->lowerMeasurementUnitId;
+					$lowestMeasurementUnit = $productTransformData->measurementUnitId;
+					$primaryMeasurement = $productTransformData->primaryMeasureUnit;
+					$currentQty = trim($billArrayData['inventory'][$trimInventory]['qty']);
+					$currentMeasurementUnit = $billArrayData['inventory'][$trimInventory]['measurementUnit'];
+					switch ($currentMeasurementUnit) {
+						case $highestMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->highestMouConv);
+							break;
+						case $higherMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->higherMouConv);
+							break;
+						case $mediumMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->mediumMouConv);
+							break;
+						case $mediumLowerMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->mediumLowerMouConv);
+							break;
+						case $lowerMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->lowerMouConv);
+							break;
+						
+						default:
+								$currentQty = round($currentQty * $productTransformData->lowestMouConv);
+							break;
+					}
+					$tInventoryArray[$trimInventory][4] = $currentQty;
+				}
 			}
 		}
 		//check paymentmode enum type
@@ -470,7 +506,23 @@ class BillTransformer
 					return $exceptionArray['content'];
 				}
 			}
-		}	
+		}
+		$settingService = new SettingService();
+		$settingStatus = $settingService->getData();
+		if (strcmp($exceptionArray['204'], $settingStatus)==0) {
+			return $settingStatus;
+		}
+		$constantClass = new ConstantClass();
+		$constants = $constantClass->constantVariable();
+
+		$settingArray = json_decode($settingStatus,true);
+		$productSetting = array_first($settingArray, function($key, $value) use ($constants)
+		{
+		    return $value['settingType'] == $constants['productSetting'];
+		},$exceptionArray['204']);
+		$productMeasurementType = $productSetting['productMeasurementType'];
+		$measurementTypes = $constantClass->measurementTypeConstants();
+		
 		for($inputArrayData=0;$inputArrayData<count($billArrayData);$inputArrayData++)
 		{
 			if(strcmp(array_keys($billArrayData)[$inputArrayData],'inventory')==0)

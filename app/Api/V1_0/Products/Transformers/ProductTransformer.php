@@ -16,7 +16,7 @@ use ERP\Model\ProductGroups\ProductGroupModel;
 use ERP\Model\Branches\BranchModel;
 use ERP\Model\Companies\CompanyModel;
 use ERP\Model\Authenticate\AuthenticateModel;
-
+use ERP\Core\Settings\Services\SettingService;
 use ERP\Core\Products\Services\ProductService;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
@@ -1111,12 +1111,30 @@ class ProductTransformer extends ExceptionMessage
 		$productArrayFlag=0;
 		$tempFlag=0;
 		
-		$constantClass = new ConstantClass();
-		$constantArray = $constantClass->constantVariable();
-		
 		//get exception message
 		$exception = new ProductTransformer();
 		$exceptionArray = $exception->messageArrays();
+
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		$settingService = new SettingService();
+		$settingStatus = $settingService->getData();
+		if (strcmp($exceptionArray['204'], $settingStatus)==0) {
+			return $settingStatus;
+		}
+
+		$settingArray = json_decode($settingStatus,true);
+		$productSetting = array_first($settingArray, function($key, $value) use ($constantArray)
+		{
+		    return $value['settingType'] == $constantArray['productSetting'];
+		},$exceptionArray['204']);
+
+		$productMeasurementType = $productSetting['productMeasurementType'];
+		$measurementTypes = $constantClass->measurementTypeConstants();
+
+
+		//get exception message
+		
 		for($requestArray=0;$requestArray<count($productArray);$requestArray++)
 		{
 			//check if array is exists
@@ -1132,39 +1150,64 @@ class ProductTransformer extends ExceptionMessage
 					$tempArray[$arrayElement]['discount_type'] = trim($productArray['inventory'][$arrayElement]['discountType']);
 					$tempArray[$arrayElement]['price'] = trim($productArray['inventory'][$arrayElement]['price']);
 					$tempArray[$arrayElement]['qty'] = trim($productArray['inventory'][$arrayElement]['qty']);
+					// Get Product Units to tranform Qty into primary unit Qty
+
+					if (strcmp($measurementTypes['unit'], $productMeasurementType)==0) {
+
+						if (array_key_exists('stockFt', $productArray['inventory'][$arrayElement]) &&
+							$productArray['inventory'][$arrayElement]['stockFt'] != 'undefined' &&
+							$productArray['inventory'][$arrayElement]['stockFt'] != 0 ) {
+
+							$tempArray[$arrayElement]['qty'] = trim($productArray['inventory'][$arrayElement]['stockFt']);
+
+						}elseif (array_key_exists('totalFt', $productArray['inventory'][$arrayElement]) &&
+							$productArray['inventory'][$arrayElement]['totalFt'] != 'undefined' &&
+							$productArray['inventory'][$arrayElement]['totalFt'] != 0 ){
+
+							$tempArray[$arrayElement]['qty'] = trim($productArray['inventory'][$arrayElement]['totalFt']);
+						}else{
+							return $exceptionArray['content'];
+						}
+					}elseif (strcmp($measurementTypes['advance'], $productMeasurementType)==0) {
+
+						if (array_key_exists('measurementUnit', $productArray['inventory'][$arrayElement])) {
 							// Get Product Units to tranform Qty into primary unit Qty
-							if (isset($productArray['inventory'][$arrayElement]['measurementUnit'])) {
-								$ProductService = new ProductService();
-								$productTransformData = json_decode($ProductService->getProductData($productArray['inventory'][$arrayElement]['productId']));
-								$highestMeasurementUnit = $productTransformData->highestMeasurementUnitId;
-								$higherMeasurementUnit = $productTransformData->higherMeasurementUnitId;
-								$lowestMeasurementUnit = $productTransformData->measurementUnitId;
-								$primaryMeasurement = $productTransformData->primaryMeasureUnit;
+							$productTransformData = json_decode($ProductService->getProductData($productArray['inventory'][$arrayElement]['productId']));
+							$highestMeasurementUnit = $productTransformData->highestMeasurementUnitId;
+							$higherMeasurementUnit = $productTransformData->higherMeasurementUnitId;
+							$mediumMeasurementUnit = $productTransformData->mediumMeasurementUnitId;
+							$mediumLowerMeasurementUnit = $productTransformData->mediumLowerMeasurementUnitId;
+							$lowerMeasurementUnit = $productTransformData->lowerMeasurementUnitId;
+							$lowestMeasurementUnit = $productTransformData->measurementUnitId;
+							$primaryMeasurement = $productTransformData->primaryMeasureUnit;
+							$currentQty = trim($productArray['inventory'][$arrayElement]['qty']);
+							$currentMeasurementUnit = $productArray['inventory'][$arrayElement]['measurementUnit'];
+							switch ($currentMeasurementUnit) {
+								case $highestMeasurementUnit:
+										$currentQty = round($currentQty * $productTransformData->highestMouConv);
+									break;
+								case $higherMeasurementUnit:
+										$currentQty = round($currentQty * $productTransformData->higherMouConv);
+									break;
+								case $mediumMeasurementUnit:
+										$currentQty = round($currentQty * $productTransformData->mediumMouConv);
+									break;
+								case $mediumLowerMeasurementUnit:
+										$currentQty = round($currentQty * $productTransformData->mediumLowerMouConv);
+									break;
+								case $lowerMeasurementUnit:
+										$currentQty = round($currentQty * $productTransformData->lowerMouConv);
+									break;
 								
-								$currentQty = trim($productArray['inventory'][$arrayElement]['qty']);
-								$currentMeasurementUnit = $productArray['inventory'][$arrayElement]['measurementUnit'];
-								if ($primaryMeasurement == 'highest') {
-									if ($currentMeasurementUnit == $higherMeasurementUnit) {
-										$currentQty = round($currentQty / $productTransformData->higherUnitQty);
-									}else if ($currentMeasurementUnit == $lowestMeasurementUnit) {
-										$currentQty = round($currentQty / ($productTransformData->higherUnitQty * $productTransformData->lowestUnitQty));
-									}
-								}elseif ($primaryMeasurement == 'higher') {
-									if ($currentMeasurementUnit == $highestMeasurementUnit) {
-										$currentQty = round($currentQty * $productTransformData->higherUnitQty);
-									}else if ($currentMeasurementUnit == $lowestMeasurementUnit) {
-										$currentQty = round($currentQty / $productTransformData->lowestUnitQty);
-									}
-								}elseif ($primaryMeasurement == 'lowest') {
-									if ($currentMeasurementUnit == $highestMeasurementUnit) {
-										$currentQty = round($currentQty * $productTransformData->higherUnitQty * $productTransformData->lowestUnitQty);
-									}else if ($currentMeasurementUnit == $higherMeasurementUnit) {
-										$currentQty = round($currentQty * $productTransformData->lowestUnitQty);
-									}
-								}
-								$tempArray[$arrayElement]['qty'] = $currentQty;
+								default:
+										$currentQty = round($currentQty * $productTransformData->lowestMouConv);
+									break;
 							}
-							// Unitwise qty Conversion ends.
+							$tempArray[$arrayElement]['qty'] = $currentQty;
+						}
+
+					}
+					// Unitwise qty Conversion ends.
 					$tempArray[$arrayElement]['measurementUnit'] = trim($productArray['inventory'][$arrayElement]['measurementUnit']);
 					
 					if($tempArray[$arrayElement]['discount']!=0 && $tempArray[$arrayElement]['discount']!="")
