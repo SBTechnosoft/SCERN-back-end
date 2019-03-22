@@ -47,6 +47,13 @@ class PurchaseBillTransformer
 			$entryDate = $splitedDate[2]."-".$splitedDate[1]."-".$splitedDate[0];
 			$purchaseBillArray['entryDate'] = $entryDate;
 		}
+		//Due date conversation
+		if(array_key_exists('dueDate',$request->input()))
+		{
+			$splitedDate = explode("-",trim($request->input()['dueDate']));
+			$dueDate = $splitedDate[2]."-".$splitedDate[1]."-".$splitedDate[0];
+			$purchaseBillArray['dueDate'] = $dueDate;
+		}
 		$purchaseBillArray['vendorId'] = array_key_exists('vendorId',$request->input())? trim($request->input()['vendorId']):0;
 		$purchaseBillArray['companyId'] = array_key_exists('companyId',$request->input())? trim($request->input()['companyId']):0;
 		$purchaseBillArray['billNumber'] = array_key_exists('billNumber',$request->input())? trim($request->input()['billNumber']):'';
@@ -183,6 +190,12 @@ class PurchaseBillTransformer
 				$splitedDate = explode("-",trim($input['entryDate']));
 				$entryDate = $splitedDate[2]."-".$splitedDate[1]."-".$splitedDate[0];
 				$purchaseBillArray['entryDate'] = $entryDate;
+			}
+			else if(strcmp(array_keys($input)[$arrayData],'dueDate')==0)
+			{
+				$splitedDate = explode("-",trim($input['dueDate']));
+				$dueDate = $splitedDate[2]."-".$splitedDate[1]."-".$splitedDate[0];
+				$purchaseBillArray['dueDate'] = $dueDate;
 			}
 			else
 			{
