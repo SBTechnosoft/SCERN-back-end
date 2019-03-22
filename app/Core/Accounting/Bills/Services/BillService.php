@@ -93,9 +93,10 @@ class BillService
 			$jfId= $billArray->getJfId();
 			$expense= $billArray->getExpense();
 			$serviceDate= $billArray->getServiceDate();
+			$createdBy= $billArray->getCreatedBy();
 			//data pass to the model object for insert
 			$billModel = new BillModel();
-			$status = $billModel->insertData($productArray,$paymentMode,$bankLedgerId,$invoiceNumber,$jobCardNumber,$bankName,$checkNumber,$total,$extraCharge,$tax,$grandTotal,$advance,$balance,$remark,$entryDate,$companyId,$branchId,$ClientId,$salesType,$jfId,$totalDiscounttype,$totalDiscount,$totalCgstPercentage,$totalSgstPercentage,$totalIgstPercentage,$poNumber,$requestInput,$expense,$serviceDate,$userId);
+			$status = $billModel->insertData($productArray,$paymentMode,$bankLedgerId,$invoiceNumber,$jobCardNumber,$bankName,$checkNumber,$total,$extraCharge,$tax,$grandTotal,$advance,$balance,$remark,$entryDate,$companyId,$branchId,$ClientId,$salesType,$jfId,$totalDiscounttype,$totalDiscount,$totalCgstPercentage,$totalSgstPercentage,$totalIgstPercentage,$poNumber,$requestInput,$expense,$serviceDate,$userId,$createdBy);
 			//get exception message
 			$exception = new ExceptionMessage();
 			$exceptionArray = $exception->messageArrays();
@@ -143,6 +144,7 @@ class BillService
 			$jfId = $billArray[count($billArray)-1]->getJfId();
 			$expense = $billArray[count($billArray)-1]->getExpense();
 			$serviceDate = $billArray[count($billArray)-1]->getServiceDate();
+			$createdBy= $billArray[count($billArray)-1]->getCreatedBy();
 
 			for($doc=0;$doc<(count($billArray)-1);$doc++)
 			{
@@ -151,7 +153,7 @@ class BillService
 			
 			//data pass to the model object for insert
 			$billModel = new BillModel();
-			$status = $billModel->insertAllData($productArray,$paymentMode,$bankLedgerId,$invoiceNumber,$jobCardNumber,$bankName,$checkNumber,$total,$extraCharge,$tax,$grandTotal,$advance,$balance,$remark,$entryDate,$companyId,$branchId,$ClientId,$salesType,$documentArray,$jfId,$totalDiscounttype,$totalDiscount,$totalCgstPercentage,$totalSgstPercentage,$totalIgstPercentage,$poNumber,$requestInput,$expense,$serviceDate,$userId);
+			$status = $billModel->insertAllData($productArray,$paymentMode,$bankLedgerId,$invoiceNumber,$jobCardNumber,$bankName,$checkNumber,$total,$extraCharge,$tax,$grandTotal,$advance,$balance,$remark,$entryDate,$companyId,$branchId,$ClientId,$salesType,$documentArray,$jfId,$totalDiscounttype,$totalDiscount,$totalCgstPercentage,$totalSgstPercentage,$totalIgstPercentage,$poNumber,$requestInput,$expense,$serviceDate,$userId,$createdBy);
 			//get exception message
 			$exception = new ExceptionMessage();
 			$exceptionArray = $exception->messageArrays();

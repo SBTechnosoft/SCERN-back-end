@@ -228,6 +228,7 @@ class DocumentMpdf extends CurrencyToWordConversion
 			for($productArray=0;$productArray<$inventoryCount;$productArray++)
 			{
 				//get product-data
+				$measurementService = new MeasurementService();
 				$productData[$productArray] = $productService->getProductData($decodedArray->inventory[$productArray]->productId);
 				$decodedData[$productArray] = json_decode($productData[$productArray]);
 				$advanceMeasureData = $measurementService->getMeasurementData($decodedArray->inventory[$productArray]->measurementUnit);
@@ -306,7 +307,7 @@ class DocumentMpdf extends CurrencyToWordConversion
 						$extraFlag = 1;
 					}
 					if ($setting_variant == true) {
-						$extraColumnValue .= " | ".$decodedArray->inventory[$productArray]->variant;
+						$extraColumnValue .= " | ".@$decodedArray->inventory[$productArray]->variant;
 						$extraFlag = 1;
 					}
 
@@ -1057,6 +1058,7 @@ class DocumentMpdf extends CurrencyToWordConversion
 			for($productArray=0;$productArray<$inventoryCount;$productArray++)
 			{
 				//get product-data
+				$measurementService = new MeasurementService();
 				$productData[$productArray] = $productService->getProductData($decodedArray->inventory[$productArray]->productId);
 				$decodedData[$productArray] = json_decode($productData[$productArray]);
 				$advanceMeasureData = $measurementService->getMeasurementData($decodedArray->inventory[$productArray]->measurementUnit);
@@ -1118,7 +1120,6 @@ class DocumentMpdf extends CurrencyToWordConversion
 				$display_product_name = $setting_language ? $decodedData[$productArray]->altProductName : $decodedData[$productArray]->productName;
 				$productColspan = $extraColumnColspan = "3";
 				$variantColumn = "";
-
 				/* Color/Size By Setting */
 					$extraFlag = 0;
 					$extraColumnValue = $advanceMeasureData->unitName;

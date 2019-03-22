@@ -29,7 +29,7 @@ class BillModel extends Model
 	 * @param  array
 	 * returns the status
 	*/
-	public function insertAllData($productArray,$paymentMode,$bankLedgerId,$invoiceNumber,$jobCardNumber,$bankName,$checkNumber,$total,$extraCharge,$tax,$grandTotal,$advance,$balance,$remark,$entryDate,$companyId,$branchId,$ClientId,$salesType,$documentArray,$jfId,$totalDiscounttype,$totalDiscount,$totalCgstPercentage,$totalSgstPercentage,$totalIgstPercentage,$poNumber,$requestData,$expense,$serviceDate,$userId)
+	public function insertAllData($productArray,$paymentMode,$bankLedgerId,$invoiceNumber,$jobCardNumber,$bankName,$checkNumber,$total,$extraCharge,$tax,$grandTotal,$advance,$balance,$remark,$entryDate,$companyId,$branchId,$ClientId,$salesType,$documentArray,$jfId,$totalDiscounttype,$totalDiscount,$totalCgstPercentage,$totalSgstPercentage,$totalIgstPercentage,$poNumber,$requestData,$expense,$serviceDate,$userId,$createdBy = 0)
 	{
 		$mytime = Carbon\Carbon::now();
 		//database selection
@@ -89,6 +89,8 @@ class BillModel extends Model
 			sales_type='".$salesType."',
 			client_id='".$ClientId."',
 			jf_id='".$jfId."',
+			created_by='".$createdBy."',
+			updated_by='".$createdBy."',
 			updated_at='".$mytime."',
 			is_draft='no',
 			".$isSalesOrder."
@@ -138,8 +140,9 @@ class BillModel extends Model
 				sales_type,
 				client_id,
 				jf_id,
+				created_by,
 				created_at) 
-				values('".$productArray."','".$paymentMode."','".$bankLedgerId."','".$invoiceNumber."','".$jobCardNumber."','".$bankName."','".$checkNumber."','".$total."','".$totalDiscounttype."','".$totalDiscount."','".$totalCgstPercentage."','".$totalSgstPercentage."','".$totalIgstPercentage."','".$extraCharge."','".$tax."','".$grandTotal."','".$advance."','".$balance."','".$poNumber."','".$userId."','".$isSalesOrderInsert."','".$remark."','".$entryDate."','".$serviceDate."','".$companyId."','".$branchId."','".$salesType."','".$ClientId."','".$jfId."','".$mytime."')");
+				values('".$productArray."','".$paymentMode."','".$bankLedgerId."','".$invoiceNumber."','".$jobCardNumber."','".$bankName."','".$checkNumber."','".$total."','".$totalDiscounttype."','".$totalDiscount."','".$totalCgstPercentage."','".$totalSgstPercentage."','".$totalIgstPercentage."','".$extraCharge."','".$tax."','".$grandTotal."','".$advance."','".$balance."','".$poNumber."','".$userId."','".$isSalesOrderInsert."','".$remark."','".$entryDate."','".$serviceDate."','".$companyId."','".$branchId."','".$salesType."','".$ClientId."','".$createdBy."','".$mytime."')");
 				DB::commit();
 				
 				//update invoice-number
@@ -183,6 +186,8 @@ class BillModel extends Model
 				po_number='".$poNumber."',
 				user_id='".$userId."',
 				jf_id='".$jfId."',
+				created_by='".$createdBy."',
+				updated_by='".$createdBy."',
 				updated_at='".$mytime."' 
 				where job_card_number='".$jobCardNumber."' and
 				deleted_at='0000-00-00 00:00:00'");
@@ -373,7 +378,7 @@ class BillModel extends Model
 	 * @param  array
 	 * returns the status
 	*/
-	public function insertData($productArray,$paymentMode,$bankLedgerId,$invoiceNumber,$jobCardNumber,$bankName,$checkNumber,$total,$extraCharge,$tax,$grandTotal,$advance,$balance,$remark,$entryDate,$companyId,$branchId,$ClientId,$salesType,$jfId,$totalDiscounttype,$totalDiscount,$totalCgstPercentage,$totalSgstPercentage,$totalIgstPercentage,$poNumber,$requestData,$expense,$serviceDate,$userId)
+	public function insertData($productArray,$paymentMode,$bankLedgerId,$invoiceNumber,$jobCardNumber,$bankName,$checkNumber,$total,$extraCharge,$tax,$grandTotal,$advance,$balance,$remark,$entryDate,$companyId,$branchId,$ClientId,$salesType,$jfId,$totalDiscounttype,$totalDiscount,$totalCgstPercentage,$totalSgstPercentage,$totalIgstPercentage,$poNumber,$requestData,$expense,$serviceDate,$userId,$createdBy = 0)
 	{
 		$mytime = Carbon\Carbon::now();
 		//database selection
@@ -433,6 +438,8 @@ class BillModel extends Model
 			sales_type='".$salesType."',
 			client_id='".$ClientId."',
 			jf_id='".$jfId."',
+			created_by='".$createdBy."',
+			updated_by='".$createdBy."',
 			updated_at='".$mytime."',
 			is_draft='no',
 			".$salesOrder."
@@ -482,8 +489,9 @@ class BillModel extends Model
 				client_id,
 				sales_type,
 				jf_id,
+				created_by,
 				created_at) 
-				values('".$productArray."','".$paymentMode."','".$bankLedgerId."','".$invoiceNumber."','".$jobCardNumber."','".$bankName."','".$checkNumber."','".$total."','".$totalDiscounttype."','".$totalDiscount."','".$totalCgstPercentage."','".$totalSgstPercentage."','".$totalIgstPercentage."','".$extraCharge."','".$tax."','".$grandTotal."','".$advance."','".$balance."','".$poNumber."','".$userId."','".$salesOrderInsert."','".$remark."','".$entryDate."','".$serviceDate."','".$companyId."','".$branchId."','".$ClientId."','".$salesType."','".$jfId."','".$mytime."')");
+				values('".$productArray."','".$paymentMode."','".$bankLedgerId."','".$invoiceNumber."','".$jobCardNumber."','".$bankName."','".$checkNumber."','".$total."','".$totalDiscounttype."','".$totalDiscount."','".$totalCgstPercentage."','".$totalSgstPercentage."','".$totalIgstPercentage."','".$extraCharge."','".$tax."','".$grandTotal."','".$advance."','".$balance."','".$poNumber."','".$userId."','".$salesOrderInsert."','".$remark."','".$entryDate."','".$serviceDate."','".$companyId."','".$branchId."','".$ClientId."','".$salesType."','".$jfId."','".$createdBy."','".$mytime."')");
 				DB::commit();
 				
 				//update invoice-number				
@@ -527,6 +535,8 @@ class BillModel extends Model
 				sales_type='".$salesType."',
 				".$salesOrder.",
 				jf_id='".$jfId."',
+				created_by='".$createdBy."',
+				updated_by='".$createdBy."',
 				updated_at='".$mytime."' 
 				where job_card_number='".$jobCardNumber."' and 
 				deleted_at='0000-00-00 00:00:00'");
@@ -2831,7 +2841,7 @@ class BillModel extends Model
 	 * @param  sale-id
 	 * returns the exception-message/status
 	*/
-	public function deleteBillData($saleId)
+	public function deleteBillData($saleId,$deletedBy = 0)
 	{
 		//database selection
 		$database = "";
@@ -2926,7 +2936,8 @@ class BillModel extends Model
 		DB::beginTransaction();
 		$deleteBillData = DB::connection($databaseName)->statement("update
 		sales_bill set
-		deleted_at = '".$mytime."'
+		deleted_at = '".$mytime."',
+		deleted_by = '".$deletedBy."'
 		where sale_id = ".$saleId." and
 		deleted_at='0000-00-00 00:00:00'");
 		DB::commit();

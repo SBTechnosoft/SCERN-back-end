@@ -20,6 +20,7 @@ use ERP\Api\V1_0\Settings\InvoiceNumbers\Controllers\InvoiceController;
 use Illuminate\Container\Container;
 use ERP\Api\V1_0\Documents\Controllers\DocumentController;
 use ERP\Model\Accounting\Bills\BillModel;
+use ERP\Model\Authenticate\AuthenticateModel;
 
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
@@ -446,8 +447,11 @@ class BillController extends BaseController implements ContainerInterface
 		$constantArray = $constantClass->constantVariable();
 		if(strcmp($constantArray['success'],$authenticationResult)==0)
 		{
+			$authenticateModel = new AuthenticateModel();
+ 			$userId = $authenticateModel->getActiveUser($request->header());
+ 			$deletedBy = isset($userId[0]->user_id) ? $userId[0]->user_id : 0;
 			$billModel = new BillModel();
-			$deleteBillResult = $billModel->deleteBillData($saleId);
+			$deleteBillResult = $billModel->deleteBillData($saleId,$deletedBy);
 			return $deleteBillResult;
 		}
 		else

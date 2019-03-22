@@ -12,6 +12,7 @@ use ERP\Exceptions\ExceptionMessage;
 use ERP\Model\Accounting\Bills\BillModel;
 
 use ERP\Core\Products\Services\ProductService;
+use ERP\Model\Authenticate\AuthenticateModel;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -31,6 +32,7 @@ class BillTransformer
 		$paymentModeArray = array();
 		$paymentModeEnum = new PaymentModeEnum();
 		$paymentModeArray = $paymentModeEnum->enumArrays();
+		$headerData = $request->header();
 		
 		//get exception message
 		$exception = new ExceptionMessage();
@@ -225,6 +227,9 @@ class BillTransformer
 		}
 		else
 		{
+			$authenticateModel = new AuthenticateModel();
+ 			$userId = $authenticateModel->getActiveUser($headerData);
+ 			$tCreatedBy = isset($userId[0]->user_id) ? $userId[0]->user_id : 0;
 			// make an array
 			$data = array();
 			$data['company_id'] = $tCompanyId;
@@ -262,6 +267,7 @@ class BillTransformer
 			$data['totalSgstPercentage'] = $tTotalSgstPercentage;
 			$data['totalIgstPercentage'] = $tTotalIgstPercentage;
 			$data['expense'] = $tExpense;
+			$data['created_by'] = $tCreatedBy;
 			$trimArray=array();
 			for($inventoryArray=0;$inventoryArray<count($billArrayData['inventory']);$inventoryArray++)
 			{
@@ -358,6 +364,7 @@ class BillTransformer
 		$paymentTrnArray = array();
 		$paymentTrnEnum = new PaymentTransactionEnum();
 		$paymentTrnArray = $paymentTrnEnum->enumArrays();
+		$headerData = $request->header();
 		
 		//check paymentmode enum type
 		foreach ($paymentTrnArray as $key => $value)
@@ -404,6 +411,9 @@ class BillTransformer
 					$tPaymentMode=$paymentModeArray['cashPayment'];
 				}
 			}
+			$authenticateModel = new AuthenticateModel();
+ 			$userId = $authenticateModel->getActiveUser($headerData);
+ 			$tCreatedBy = isset($userId[0]->user_id) ? $userId[0]->user_id : 0;
 			$trimArray = array();
 			$trimArray['entry_date'] = $tEntryDate;
 			$trimArray['amount'] = $tAmount;
@@ -412,6 +422,8 @@ class BillTransformer
 			$trimArray['bank_name'] = $tBankName;
 			$trimArray['check_number'] = $tCheckNumber;
 			$trimArray['bank_ledger_id'] = $tBankLedgerId;
+			$trimArray['updated_by'] = $tCreatedBy;
+
 			return $trimArray;
 		}
 	}
@@ -432,7 +444,7 @@ class BillTransformer
 		$tempArray = array();
 		$tBillArray = array();
 		$billArrayData = $request->input();
-		
+		$headerData = $request->header();
 		//get exception message
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
@@ -588,6 +600,13 @@ class BillTransformer
 		{
 			$tBillArray['inventory'] = $tempArray;
 		}
+		$authenticateModel = new AuthenticateModel();
+ 		$userId = $authenticateModel->getActiveUser($headerData);
+		
+		$tUpdatedBy = isset($userId[0]->user_id) ? $userId[0]->user_id : 0;
+		$tBillArray['updated_by'] = $tUpdatedBy;
+		//get user-id and add it to the database product-insertion operation
+ 		
 		
 		return $tBillArray;
 	}
