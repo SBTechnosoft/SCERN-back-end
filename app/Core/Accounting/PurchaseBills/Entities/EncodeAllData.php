@@ -27,6 +27,7 @@ class EncodeAllData extends LedgerService
 			$purchaseId[$decodedData] = $deocodedJsonData[$decodedData]->purchase_id;
 			$transactionDate[$decodedData] = $deocodedJsonData[$decodedData]->transaction_date;
 			$entryDate[$decodedData] = $deocodedJsonData[$decodedData]->entry_date;
+			$dueDate[$decodedData] = $deocodedJsonData[$decodedData]->due_date;
 			$transactionType[$decodedData] = $deocodedJsonData[$decodedData]->transaction_type;
 			$billType[$decodedData] = $deocodedJsonData[$decodedData]->bill_type;
 			$productArray[$decodedData] = $deocodedJsonData[$decodedData]->product_array;
@@ -95,6 +96,14 @@ class EncodeAllData extends LedgerService
 			else
 			{
 				$getEntryDate[$decodedData] = Carbon\Carbon::createFromFormat('Y-m-d', $entryDate[$decodedData])->format('d-m-Y');
+			}
+			if(strcmp($dueDate[$decodedData],'0000-00-00')==0)
+			{
+				$getDueDate[$decodedData] = "00-00-0000";
+			}
+			else
+			{
+				$getDueDate[$decodedData] = Carbon\Carbon::createFromFormat('Y-m-d', $dueDate[$decodedData])->format('d-m-Y');
 			}
 			$documentId[$decodedData] = array();
 			$documentSaleId[$decodedData] = array();
@@ -187,6 +196,7 @@ class EncodeAllData extends LedgerService
 				'updatedAt'=>$getUpdatedDate[$jsonData],
 				'transactionDate'=>$getTransactionDate[$jsonData],
 				'entryDate'=>$getEntryDate[$jsonData],
+				'dueDate'=>$getDueDate[$jsonData],
 				'vendor' =>$decodedLedgerDetail[$jsonData],
 				'company' => array(	
 					'companyId' => $getCompanyDetails[$jsonData]['companyId'],

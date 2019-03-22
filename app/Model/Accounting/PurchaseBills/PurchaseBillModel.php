@@ -73,7 +73,7 @@ class PurchaseBillModel extends Model
 
 		//get latest purchase-id from database
 		DB::beginTransaction();
-		$purchaseIdResult = DB::connection($databaseName)->select("SELECT 
+		$purchaseIdResult = DB::connection($databaseName)->select("SELECT
 		max(purchase_id) purchase_id
 		FROM purchase_bill where deleted_at='0000-00-00 00:00:00' and is_purchaseorder = '".$isPurchaseOrderInsert."'");
 		DB::commit();
@@ -83,7 +83,7 @@ class PurchaseBillModel extends Model
 			$expenseCount = count($decodedJsonExpense);
 			for($expenseData=0;$expenseData<$expenseCount;$expenseData++)
 			{
-				//insertion in purchase_expense_dtl
+				//Insertion in purchase_expense_dtl
 				DB::beginTransaction();
 				$raw = DB::connection($databaseName)->statement("insert into purchase_expense_dtl(
 				expense_name,
@@ -296,6 +296,7 @@ class PurchaseBillModel extends Model
 			transaction_type,
 			transaction_date,
 			entry_date,
+			due_date,
 			bill_type,
 			remark,
 			company_id,
@@ -347,6 +348,7 @@ class PurchaseBillModel extends Model
 			transaction_type,
 			transaction_date,
 			entry_date,
+			due_date,
 			bill_type,
 			remark,
 			company_id,
@@ -472,6 +474,7 @@ class PurchaseBillModel extends Model
 			transaction_type,
 			transaction_date,
 			entry_date,
+			due_date,
 			bill_type,
 			remark,
 			company_id,
@@ -521,6 +524,7 @@ class PurchaseBillModel extends Model
 			transaction_type,
 			transaction_date,
 			entry_date,
+			due_date,
 			bill_type,
 			remark,
 			company_id,
@@ -588,6 +592,7 @@ class PurchaseBillModel extends Model
 			transaction_type,
 			transaction_date,
 			entry_date,
+			due_date,
 			bill_type,
 			remark,
 			company_id,
@@ -694,6 +699,7 @@ class PurchaseBillModel extends Model
 		transaction_type,
 		transaction_date,
 		entry_date,
+		due_date,
 		bill_type,
 		remark,
 		company_id,
@@ -745,6 +751,7 @@ class PurchaseBillModel extends Model
 		transaction_type,
 		transaction_date,
 		entry_date,
+		due_date,
 		bill_type,
 		remark,
 		company_id,
@@ -871,6 +878,7 @@ class PurchaseBillModel extends Model
 			transaction_type,
 			transaction_date,
 			entry_date,
+			due_date,
 			bill_type,
 			remark,
 			company_id,
@@ -919,6 +927,7 @@ class PurchaseBillModel extends Model
 			transaction_type,
 			transaction_date,
 			entry_date,
+			due_date,
 			bill_type,
 			remark,
 			company_id,
