@@ -290,7 +290,6 @@ class DocumentMpdf extends CurrencyToWordConversion
 				$display_product_name = $setting_language ? $decodedData[$productArray]->altProductName : $decodedData[$productArray]->productName;
 				$productColspan = $extraColumnColspan = "3";
 				$variantColumn = "";
-
 				/* Color/Size By Setting */
 					$extraFlag = 0;
 					$extraColumnValue = $advanceMeasureData->unitName;
@@ -318,7 +317,7 @@ class DocumentMpdf extends CurrencyToWordConversion
 							$d_length = $advanceMeasureData->lengthStatus == 'enable' ? ($decodedArray->inventory[$productArray]->lengthValue ? $decodedArray->inventory[$productArray]->lengthValue.'X ' : '') : "";
 							$d_width = $advanceMeasureData->widthStatus == 'enable' ? ($decodedArray->inventory[$productArray]->widthValue ? $decodedArray->inventory[$productArray]->widthValue.'X ' : '') : "";
 							$d_height = $advanceMeasureData->heightStatus == 'enable' ? ($decodedArray->inventory[$productArray]->heightValue ? $decodedArray->inventory[$productArray]->heightValue.'X' : '') : "";
-							if ($d_length != "" || $d_width != "" || $d_height != "") {
+						if ($d_length != "" || $d_width != "" || $d_height != "") {
 								$display_product_name .= " <span style='float:right'>".$d_length.$d_width.$d_height."</span>";
 							}
 						/* End */

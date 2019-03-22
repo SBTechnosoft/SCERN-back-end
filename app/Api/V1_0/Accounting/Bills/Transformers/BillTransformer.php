@@ -482,7 +482,7 @@ class BillTransformer
 				for($inventoryArray=0;$inventoryArray<count($billArrayData['inventory']);$inventoryArray++)
 				{
 					$tempArrayFlag=1;
-					$tempArray[$inventoryArray] = array();
+					$tempArray[$inventoryArray] = $billArrayData['inventory'][$inventoryArray];
 					$tempArray[$inventoryArray]['productId'] = trim($billArrayData['inventory'][$inventoryArray]['productId']);
 					$tempArray[$inventoryArray]['discount'] = trim($billArrayData['inventory'][$inventoryArray]['discount']);
 					$tempArray[$inventoryArray]['discountType'] = trim($billArrayData['inventory'][$inventoryArray]['discountType']);
