@@ -104,7 +104,7 @@ class PurchaseBillTransformer
 			$inventoryData = array();
 			for($inventoryArray=0;$inventoryArray<$inventoryCount;$inventoryArray++)
 			{
-				$inventoryData[$inventoryArray] = $request->input()['inventory'][$inventoryArray];
+				$purchaseBillArray['inventory'][$inventoryArray] = $inventoryData[$inventoryArray] = $request->input()['inventory'][$inventoryArray];
 				$purchaseBillArray['inventory'][$inventoryArray]['productId'] = array_key_exists('productId',$inventoryData[$inventoryArray])? trim($inventoryData[$inventoryArray]['productId']) : 0;
 				$purchaseBillArray['inventory'][$inventoryArray]['productName'] = array_key_exists('productName',$inventoryData[$inventoryArray])? trim($inventoryData[$inventoryArray]['productName']) : 0;
 				$purchaseBillArray['inventory'][$inventoryArray]['measurementUnit'] = array_key_exists('measurementUnit',$inventoryData[$inventoryArray])? trim($inventoryData[$inventoryArray]['measurementUnit']) : 0;

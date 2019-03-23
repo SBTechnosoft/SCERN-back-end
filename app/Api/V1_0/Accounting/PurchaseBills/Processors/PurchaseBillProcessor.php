@@ -385,6 +385,7 @@ class PurchaseBillProcessor extends BaseProcessor
 		$journalInventory = array();
 		for($inventoryArray=0;$inventoryArray<$inventoryCount;$inventoryArray++)
 		{
+			$journalInventory[$inventoryArray]=$trimRequest['inventory'][$inventoryArray];
 			$journalInventory[$inventoryArray]['productId']=$trimRequest['inventory'][$inventoryArray]['productId'];
 			$journalInventory[$inventoryArray]['discount']=$trimRequest['inventory'][$inventoryArray]['discount'];
 			$journalInventory[$inventoryArray]['price']=$trimRequest['inventory'][$inventoryArray]['price'];
@@ -444,6 +445,7 @@ class PurchaseBillProcessor extends BaseProcessor
 					return $processedData;
 				}
 			}
+
 		}
 		return $jsonDecodedJfId;
 	}
@@ -485,13 +487,15 @@ class PurchaseBillProcessor extends BaseProcessor
 			$value = array();
 			$data=0;
 			$inventoryFlag=0;
+			if (!is_array($tRequest)) {
+				return $tRequest;
+			}
 			//make an journal array 
 			if(array_key_exists('inventory',$request->input()))
 			{
 				$inventoryFlag=1;
 				$tRequest['isPurchaseOrder'] = array_key_exists('ispurchaseorder',$request->header()) ? 'ok':'not';
 				$journalResult = $this->makeJournalArray($tRequest,'update',$purchaseId);
-				
 				unset($tRequest['isPurchaseOrder']);
 
 				if(strcmp($journalResult,$exceptionArray['content'])!=0 && strcmp($journalResult,$exceptionArray['204'])!=0)
@@ -554,7 +558,7 @@ class PurchaseBillProcessor extends BaseProcessor
 							return $itemizeBatchInsertion;
 						}
 					}else{
-						$itemizeDelete = $productService->deleteInOutwardItemizeData($jfId,$exceptionArray['purchase']);
+						$itemizeDelete = $productService->deleteInOutwardItemizeData($jfId,$constantArray['purchase']);
 						if (strcmp($itemizeDelete, $exceptionArray['200']) != 0) {
 							return $itemizeDelete;
 						}

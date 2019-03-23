@@ -818,7 +818,26 @@ class ProductTransformer extends ExceptionMessage
 		
 		$constantClass = new ConstantClass();
 		$constantArray = $constantClass->constantVariable();
-		
+				//get exception message
+		$exception = new ProductTransformer();
+		$exceptionArray = $exception->messageArrays();
+
+		$settingService = new SettingService();
+		$settingStatus = $settingService->getData();
+		if (strcmp($exceptionArray['204'], $settingStatus)==0) {
+			return $settingStatus;
+		}
+
+		$settingArray = json_decode($settingStatus,true);
+		$productSetting = array_first($settingArray, function($key, $value) use ($constantArray)
+		{
+		    return $value['settingType'] == $constantArray['productSetting'];
+		},$exceptionArray['204']);
+
+		$productMeasurementType = $productSetting['productMeasurementType'];
+		$measurementTypes = $constantClass->measurementTypeConstants();
+
+
 		//data get from body and trim an input
 		$companyId = trim($request->input()['companyId']); 
 		$transactionDate = trim($request->input()['transactionDate']); 
@@ -861,41 +880,58 @@ class ProductTransformer extends ExceptionMessage
 			$tempArray[$arrayData][3] = trim($request->input()['inventory'][$arrayData]['price']);
 			$tempArray[$arrayData][4] = trim($request->input()['inventory'][$arrayData]['qty']);
 			// Get Product Units to tranform Qty into primary unit Qty
-			if (isset($request->input()['inventory'][$arrayData]['measurementUnit'])) {
-				
-				$ProductService = new ProductService();
-				$productTransformData = json_decode($ProductService->getProductData($request->input()['inventory'][$arrayData]['productId']));
-				$highestMeasurementUnit = $productTransformData->highestMeasurementUnitId;
-				$higherMeasurementUnit = $productTransformData->higherMeasurementUnitId;
-				$mediumMeasurementUnit = $productTransformData->mediumMeasurementUnitId;
-				$mediumLowerMeasurementUnit = $productTransformData->mediumLowerMeasurementUnitId;
-				$lowerMeasurementUnit = $productTransformData->lowerMeasurementUnitId;
-				$lowestMeasurementUnit = $productTransformData->measurementUnitId;
-				$primaryMeasurement = $productTransformData->primaryMeasureUnit;
-				$currentQty = trim($request->input()['inventory'][$arrayData]['qty']);
-				$currentMeasurementUnit = $request->input()['inventory'][$arrayData]['measurementUnit'];
-				switch ($currentMeasurementUnit) {
-					case $highestMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->highestMouConv);
-						break;
-					case $higherMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->higherMouConv);
-						break;
-					case $mediumMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->mediumMouConv);
-						break;
-					case $mediumLowerMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->mediumLowerMouConv);
-						break;
-					case $lowerMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->lowerMouConv);
-						break;
-					
-					default:
-							$currentQty = round($currentQty * $productTransformData->lowestMouConv);
-						break;
+			if (strcmp($measurementTypes['unit'], $productMeasurementType)==0) {
+
+				if (array_key_exists('stockFt', $request->input()['inventory'][$arrayData]) &&
+					$request->input()['inventory'][$arrayData]['stockFt'] != 'undefined' &&
+					$request->input()['inventory'][$arrayData]['stockFt'] != 0 ) {
+
+					$tempArray[$arrayData][4] = trim($request->input()['inventory'][$arrayData]['stockFt']);
+
+				}elseif (array_key_exists('totalFt', $request->input()['inventory'][$arrayData]) &&
+					$request->input()['inventory'][$arrayData]['totalFt'] != 'undefined' &&
+					$request->input()['inventory'][$arrayData]['totalFt'] != 0 ){
+
+					$tempArray[$arrayData][4] = trim($request->input()['inventory'][$arrayData]['totalFt']);
 				}
-				$tempArray[$arrayData][4] = $currentQty;
+			}elseif (strcmp($measurementTypes['advance'], $productMeasurementType)==0) {
+
+				if (array_key_exists('measurementUnit', $request->input()['inventory'][$arrayData])) {
+					// Get Product Units to tranform Qty into primary unit Qty
+					$productTransformData = json_decode($ProductService->getProductData($request->input()['inventory'][$arrayData]['productId']));
+					$highestMeasurementUnit = $productTransformData->highestMeasurementUnitId;
+					$higherMeasurementUnit = $productTransformData->higherMeasurementUnitId;
+					$mediumMeasurementUnit = $productTransformData->mediumMeasurementUnitId;
+					$mediumLowerMeasurementUnit = $productTransformData->mediumLowerMeasurementUnitId;
+					$lowerMeasurementUnit = $productTransformData->lowerMeasurementUnitId;
+					$lowestMeasurementUnit = $productTransformData->measurementUnitId;
+					$primaryMeasurement = $productTransformData->primaryMeasureUnit;
+					$currentQty = trim($request->input()['inventory'][$arrayData]['qty']);
+					$currentMeasurementUnit = $request->input()['inventory'][$arrayData]['measurementUnit'];
+					switch ($currentMeasurementUnit) {
+						case $highestMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->highestMouConv);
+							break;
+						case $higherMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->higherMouConv);
+							break;
+						case $mediumMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->mediumMouConv);
+							break;
+						case $mediumLowerMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->mediumLowerMouConv);
+							break;
+						case $lowerMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->lowerMouConv);
+							break;
+						
+						default:
+								$currentQty = round($currentQty * $productTransformData->lowestMouConv);
+							break;
+					}
+					$tempArray[$arrayData][4] = $currentQty;
+				}
+
 			}
 			// Unitwise qty Conversion ends.
 			
@@ -1165,8 +1201,6 @@ class ProductTransformer extends ExceptionMessage
 							$productArray['inventory'][$arrayElement]['totalFt'] != 0 ){
 
 							$tempArray[$arrayElement]['qty'] = trim($productArray['inventory'][$arrayElement]['totalFt']);
-						}else{
-							return $exceptionArray['content'];
 						}
 					}elseif (strcmp($measurementTypes['advance'], $productMeasurementType)==0) {
 
