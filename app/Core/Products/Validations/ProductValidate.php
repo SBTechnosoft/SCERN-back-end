@@ -303,7 +303,7 @@ class ProductValidate extends ProductModel
 			$rules = array(
 				'discount'=> 'regex:/^[0-9 .]*$/', 
 				'price'=> 'regex:/^[0-9 .]*$/', 
-				'qty'=> 'regex:/^[0-9]*$/', 
+				'qty'=> 'regex:/^\s*(?=.*[1-9])\d*(?:\.\d{1,2})?\s*$/', 
 			);
 			$messages = [
 				'discount.regex' => 'discount contains character from "0-9 ." only',
