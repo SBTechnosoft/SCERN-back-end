@@ -174,7 +174,6 @@ class PurchaseBillService
 		//data pass to the model object for getData
 		$purchaseBillModel = new PurchaseBillModel();
 		$billResult = $purchaseBillModel->getSpecifiedData($companyId,$data);
-		
 		if(strcmp($billResult,$exceptionArray['404'])==0)
 		{
 			return $billResult;
