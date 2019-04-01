@@ -355,7 +355,7 @@ class ProductCategoryModel extends Model
 		from product_category_mst 
 		where deleted_at='0000-00-00 00:00:00'");
 		DB::commit();
-		
+
 		for($dataArray=0;$dataArray<count($categoryResult);$dataArray++)
 		{
 			$convertedCatString = strtoupper($categoryResult[$dataArray]->product_category_name);

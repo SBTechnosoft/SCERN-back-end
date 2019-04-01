@@ -18,6 +18,7 @@ use ERP\Model\Companies\CompanyModel;
 use ERP\Model\Authenticate\AuthenticateModel;
 use ERP\Core\Settings\Services\SettingService;
 use ERP\Core\Products\Services\ProductService;
+use Log;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -329,7 +330,7 @@ class ProductTransformer extends ExceptionMessage
 		
 		//data mapping
 		$mappingResult = $this->mappingData($request->input());
-		
+
 		if(is_array($mappingResult))
 		{
 			$data = array();
@@ -349,7 +350,7 @@ class ProductTransformer extends ExceptionMessage
 
 				//trim an input
 				$tProductName = trim($inputRequestData[$arrayData]['productName']);
-				$tAltProductName = trim($inputRequestData[$arrayData]['altProductName']);
+				// $tAltProductName = trim($inputRequestData[$arrayData]['altProductName']);
 				$tMeasUnit = trim($inputRequestData[$arrayData]['measurementUnit']);
 				$tColor = array_key_exists("color",$inputRequestData[$arrayData]) ? trim($inputRequestData[$arrayData]['color']) : "XX";
 				$tSize = array_key_exists("size",$inputRequestData[$arrayData]) ? trim($inputRequestData[$arrayData]['size']) : "ZZ";
@@ -369,9 +370,9 @@ class ProductTransformer extends ExceptionMessage
 				$tAdditionalTax = trim($inputRequestData[$arrayData]['additionalTax']);
 				$tMinimumStockLevel = trim($inputRequestData[$arrayData]['minimumStockLevel']);
 
-				$tHigherUnitQty = trim($inputRequestData[$arrayData]['higherUnitQty']);
-				$tHighestUnitQty = trim($inputRequestData[$arrayData]['highestUnitQty']);
-				$tLowestUnitQty = trim($inputRequestData[$arrayData]['lowestUnitQty']);
+				// $tHigherUnitQty = trim($inputRequestData[$arrayData]['higherUnitQty']);
+				// $tHighestUnitQty = trim($inputRequestData[$arrayData]['highestUnitQty']);
+				// $tLowestUnitQty = trim($inputRequestData[$arrayData]['lowestUnitQty']);
 
 
 				if(strcmp("product",strtolower(trim($inputRequestData[$arrayData]['productType'])))==0 || strcmp("accessories",strtolower(trim($inputRequestData[$arrayData]['productType'])))==0 || 
@@ -404,16 +405,16 @@ class ProductTransformer extends ExceptionMessage
 					$tNotForSale =  trim($inputRequestData[$arrayData]['notForSale']);
 					$notForSale=2;
 				}
-				if(strcmp("inclusive",strtolower(trim($inputRequestData[$arrayData]['taxInclusive'])))==0 || strcmp("exclusive",strtolower(trim($inputRequestData[$arrayData]['taxInclusive'])))==0 || 
-					strcmp("",trim($inputRequestData[$arrayData]['taxInclusive']))==0)
-				{
-					$tTaxInclusive =  trim($inputRequestData[$arrayData]['taxInclusive']);
-				}
-				else
-				{
-					$tTaxInclusive =  trim($inputRequestData[$arrayData]['taxInclusive']);
-					$taxInclusive=2;
-				}
+				// if(strcmp("inclusive",strtolower(trim($inputRequestData[$arrayData]['taxInclusive'])))==0 || strcmp("exclusive",strtolower(trim($inputRequestData[$arrayData]['taxInclusive'])))==0 || 
+				// 	strcmp("",trim($inputRequestData[$arrayData]['taxInclusive']))==0)
+				// {
+				// 	$tTaxInclusive =  trim($inputRequestData[$arrayData]['taxInclusive']);
+				// }
+				// else
+				// {
+				// 	$tTaxInclusive =  trim($inputRequestData[$arrayData]['taxInclusive']);
+				// 	$taxInclusive=2;
+				// }
 				if(strcmp("day",strtolower(trim($inputRequestData[$arrayData]['bestBeforeType'])))==0 || strcmp("month",strtolower(trim($inputRequestData[$arrayData]['bestBeforeType'])))==0 || 
 					strcmp("year",strtolower(trim($inputRequestData[$arrayData]['bestBeforeType'])))==0 || strcmp("",trim($inputRequestData[$arrayData]['bestBeforeType']))==0)
 				{
@@ -442,7 +443,8 @@ class ProductTransformer extends ExceptionMessage
 				$tProductCatId = trim($inputRequestData[$arrayData]['productCategoryId']);
 				$tProductGrpId = trim($inputRequestData[$arrayData]['productGroupId']);
 				$tBranchId = trim($inputRequestData[$arrayData]['branchId']);
-				$tBarcodeNo = trim($inputRequestData[$arrayData]['productCode']);
+
+				// $tBarcodeNo = trim($inputRequestData[$arrayData]['productCode']);
 				
 				$tProductName = preg_replace('/[^a-zA-Z0-9 &,\/_`#().\'-]/', '',$tProductName);
 				$enumIsDispArray = array();
@@ -468,33 +470,33 @@ class ProductTransformer extends ExceptionMessage
 					}
 				}
 				
-				$enumMeasurementUnitArray = array();
-				$measurementUnitEnum = new measurementUnitEnum();
-				$enumMeasurementUnitArray = $measurementUnitEnum->enumArrays();
-				if($tMeasUnit!="")
-				{
-					foreach ($enumMeasurementUnitArray as $key => $value)
-					{
-						if(strcmp($value,$tMeasUnit)==0)
-						{
-							$measurementUnitFlag=1;
-							break;
-						}
-						else
-						{
-							$measurementUnitFlag=2;
-						}
-					}
-				}
-				if($isDisplayFlag==2 || $measurementUnitFlag==2 || $notForSale==2 || $taxInclusive==2 || $productType==2 || $productMenu==2 || $bestBeforeType==2)
+				// $enumMeasurementUnitArray = array();
+				// $measurementUnitEnum = new measurementUnitEnum();
+				// $enumMeasurementUnitArray = $measurementUnitEnum->enumArrays();
+				// if($tMeasUnit!="")
+				// {
+				// 	foreach ($enumMeasurementUnitArray as $key => $value)
+				// 	{
+				// 		if(strcmp($value,$tMeasUnit)==0)
+				// 		{
+				// 			$measurementUnitFlag=1;
+				// 			break;
+				// 		}
+				// 		else
+				// 		{
+				// 			$measurementUnitFlag=2;
+				// 		}
+				// 	}
+				// }
+				if($isDisplayFlag==2 || $notForSale==2 || $productType==2 || $productMenu==2 || $bestBeforeType==2)
 				{
 					$errorArray[$errorIndex] = array();
 					$errorArray[$errorIndex]['productName'] = $tProductName;
-					$errorArray[$errorIndex]['altProductName'] = $tAltProductName;
+					// $errorArray[$errorIndex]['altProductName'] = $tAltProductName;
 					$errorArray[$errorIndex]['measurementUnit'] = $tMeasUnit;
 					$errorArray[$errorIndex]['color'] = $tColor;
 					$errorArray[$errorIndex]['size'] = $tSize;
-					$errorArray[$errorIndex]['variant'] = $tVariant;
+					// $errorArray[$errorIndex]['variant'] = $tVariant;
 					$errorArray[$errorIndex]['isDisplay'] = $tIsDisplay;
 					$errorArray[$errorIndex]['purchasePrice'] = $tPurchasePrice;
 					$errorArray[$errorIndex]['wholesaleMargin'] = $tWholeSaleMargin;
@@ -503,9 +505,9 @@ class ProductTransformer extends ExceptionMessage
 					$errorArray[$errorIndex]['vat'] = $tVat;
 					$errorArray[$errorIndex]['mrp'] = $tMrp;
 
-					$errorArray[$errorIndex]['higherUnitQty'] = $tHigherUnitQty;
-					$errorArray[$errorIndex]['highestUnitQty'] = $tHighestUnitQty;
-					$errorArray[$errorIndex]['lowestUnitQty'] = $tLowestUnitQty;
+					// $errorArray[$errorIndex]['higherUnitQty'] = $tHigherUnitQty;
+					// $errorArray[$errorIndex]['highestUnitQty'] = $tHighestUnitQty;
+					// $errorArray[$errorIndex]['lowestUnitQty'] = $tLowestUnitQty;
 					// $errorArray[$errorIndex]['igst'] = $tIgst;
 					// $errorArray[$errorIndex]['hsn'] = $tHsn;
 					$errorArray[$errorIndex]['margin'] = $tMargin;
@@ -517,7 +519,7 @@ class ProductTransformer extends ExceptionMessage
 					$errorArray[$errorIndex]['productType'] = $tProductType;
 					$errorArray[$errorIndex]['maxSaleQty'] = $tMaxSaleQty;
 					$errorArray[$errorIndex]['notForSale'] = $tNotForSale;
-					$errorArray[$errorIndex]['taxInclusive'] = $tTaxInclusive;
+					// $errorArray[$errorIndex]['taxInclusive'] = $tTaxInclusive;
 					$errorArray[$errorIndex]['bestBeforeTime'] = $tBestBeforeTime;
 					$errorArray[$errorIndex]['bestBeforeType'] = $tBestBeforeType;
 					$errorArray[$errorIndex]['cessFlat'] = $tCessFlat;
@@ -530,7 +532,7 @@ class ProductTransformer extends ExceptionMessage
 					$errorArray[$errorIndex]['productCategoryId'] = $tProductCatId;
 					$errorArray[$errorIndex]['productGroupId'] = $tProductGrpId;
 					$errorArray[$errorIndex]['branchId'] = $tBranchId;
-					$errorArray[$errorIndex]['product_code'] = $tBarcodeNo;
+					// $errorArray[$errorIndex]['product_code'] = $tBarcodeNo;
 					if($isDisplayFlag==2)
 					{
 						$errorArray[$errorIndex]['remark'] = $exceptionArray['isDisplayEnum'];
@@ -567,22 +569,22 @@ class ProductTransformer extends ExceptionMessage
 					//make an array
 					$data[$dataIndex] = array();
 					$data[$dataIndex]['product_name'] = $tProductName;
-					$data[$dataIndex]['alt_product_name'] = $tAltProductName;
+					// $data[$dataIndex]['alt_product_name'] = $tAltProductName;
 					$data[$dataIndex]['measurement_unit'] = $tMeasUnit;
 					$data[$dataIndex]['color'] = $tColor;
 					$data[$dataIndex]['size'] = $tSize;
-					$data[$dataIndex]['variant'] = $tVariant;
+					// $data[$dataIndex]['variant'] = $tVariant;
 					$data[$dataIndex]['is_display'] = $tIsDisplay;
 					$data[$dataIndex]['purchase_price'] = $tPurchasePrice;
 					$data[$dataIndex]['wholesale_margin'] = $tWholeSaleMargin;
 					$data[$dataIndex]['wholesale_margin_flat'] = $tWholeSaleMarginFlat;
 					$data[$dataIndex]['vat'] = $tVat;
 					$data[$dataIndex]['mrp'] = $tMrp;
-					$data[$dataIndex]['product_code'] = $tBarcodeNo;
+					// $data[$dataIndex]['product_code'] = $tBarcodeNo;
 
-					$data[$dataIndex]['higherUnitQty'] = $tHigherUnitQty;
-					$data[$dataIndex]['highestUnitQty'] = $tHighestUnitQty;
-					$data[$dataIndex]['lowestUnitQty'] = $tLowestUnitQty;
+					// $data[$dataIndex]['higherUnitQty'] = $tHigherUnitQty;
+					// $data[$dataIndex]['highestUnitQty'] = $tHighestUnitQty;
+					// $data[$dataIndex]['lowestUnitQty'] = $tLowestUnitQty;
 					// $data[$dataIndex]['igst'] = $tIgst;
 					// $data[$dataIndex]['hsn'] = $tHsn;
 					$data[$dataIndex]['margin'] = $tMargin;
@@ -594,7 +596,7 @@ class ProductTransformer extends ExceptionMessage
 					$data[$dataIndex]['product_type'] = $tProductType;
 					$data[$dataIndex]['max_sale_qty'] = $tMaxSaleQty;
 					$data[$dataIndex]['not_for_sale'] = $tNotForSale;
-					$data[$dataIndex]['tax_inclusive'] = $tTaxInclusive;
+					// $data[$dataIndex]['tax_inclusive'] = $tTaxInclusive;
 					$data[$dataIndex]['best_before_time'] = $tBestBeforeTime;
 					$data[$dataIndex]['best_before_type'] = $tBestBeforeType;
 					$data[$dataIndex]['cess_flat'] = $tCessFlat;
@@ -645,15 +647,23 @@ class ProductTransformer extends ExceptionMessage
 				return $exceptionArray['mapping'];
 			}
 		}
+
 		// Git missed change
 		// if(count($mappingArray)!=30)
 		if(count($mappingArray)!=28)
 		{
 			return $exceptionArray['missingField'];
 		}
-		
+			
 		$requestArray = array();
 		$categoryId = array();
+		
+		//Duplication Reduction Array
+		$pro_categoryArray = array();
+		$pro_groupArray = array();
+		$pro_companyArray = array();
+		$pro_branchArray = array();
+
 		//make an requested array
 		for($arrayData=0;$arrayData<count($dataArray);$arrayData++)
 		{
@@ -672,17 +682,21 @@ class ProductTransformer extends ExceptionMessage
 				//database selection
 				$categoryModel = new ProductCategoryModel();
 				$convertedCatString = strtoupper($convertedCatString);
-				$categoryResult = $categoryModel->getCategoryId($convertedCatString);
-				if(strcmp($categoryResult,$exceptionArray['204'])==0)
+
+				if (!isset($pro_categoryArray[$convertedCatString])) {
+					$pro_categoryArray[$convertedCatString] = $categoryModel->getCategoryId($convertedCatString);
+				}
+				
+				if(strcmp($pro_categoryArray[$convertedCatString],$exceptionArray['204'])==0)
 				{
 					$categoryFlag=1;
 				}
 				else
 				{
-					$dataArray[$arrayData][$arrayKey[0]] = $categoryResult;
+					$dataArray[$arrayData][$arrayKey[0]] = $pro_categoryArray[$convertedCatString];
 				}
 			}
-			
+
 			//replace group-name with their id
 			if(in_array("productGroupId",$mappingArray))
 			{
@@ -692,36 +706,19 @@ class ProductTransformer extends ExceptionMessage
 				$convertedGrpString = strtoupper($convertedGrpString);
 				// database selection
 				$groupModel = new ProductGroupModel();
-				$groupResult = $groupModel->getGroupId($convertedGrpString);
-				
+				if (!isset($pro_groupArray[$convertedGrpString])) {
+					$pro_groupArray[$convertedGrpString] = $groupModel->getGroupId($convertedGrpString);
+				}
+				$groupResult = $pro_groupArray[$convertedGrpString];
+
 				if(strcmp($groupResult,$exceptionArray['204'])==0)
 				{
+					Log::info("GroupName: ".$convertedGrpString." and  Result: ".$groupResult);
 					$groupFlag=1;
 				}
 				else
 				{
 					$dataArray[$arrayData][$arrayKey[0]] = $groupResult;
-				}
-			}
-			
-			//replace branch-name with their id
-			if(in_array("branchId",$mappingArray))
-			{
-				$arrayKey = array_keys($mappingArray,"branchId");
-				// replace group-name with parent-group-id
-				$convertedBranchString = preg_replace('/[^A-Za-z0-9]/', '',$dataArray[$arrayData][$arrayKey[0]]);
-				$convertedBranchString = strtoupper($convertedBranchString);
-				// database selection
-				$branchModel = new BranchModel();
-				
-				$branchResult = $branchModel->getBranchId($convertedBranchString);
-				if(strcmp($branchResult,$exceptionArray['204'])==0)
-				{
-					$branchFlag=1;
-				}
-				else
-				{
-					$dataArray[$arrayData][$arrayKey[0]] = $branchResult;
 				}
 			}
 			
@@ -734,9 +731,11 @@ class ProductTransformer extends ExceptionMessage
 				$convertedCompanyString = strtoupper($convertedCompanyString);
 				// database selection
 				$companyModel = new CompanyModel();
-				
-				$companyResult = $companyModel->getCompanyId($convertedCompanyString);
-				
+				if (!isset($pro_companyArray[$convertedCompanyString])) {
+					$pro_companyArray[$convertedCompanyString] = $companyModel->getCompanyId($convertedCompanyString);
+				}
+				$companyResult = $pro_companyArray[$convertedCompanyString];
+
 				if(strcmp($companyResult,$exceptionArray['204'])==0)
 				{
 					$companyFlag=1;
@@ -744,6 +743,33 @@ class ProductTransformer extends ExceptionMessage
 				else
 				{
 					$dataArray[$arrayData][$arrayKey[0]] = $companyResult;
+				}
+			}
+
+			//replace branch-name with their id
+			if(in_array("branchId",$mappingArray))
+			{ 
+				if (!$companyFlag) {
+					$arrayKey = array_keys($mappingArray,"branchId");
+					// replace group-name with parent-group-id
+					$convertedBranchString = preg_replace('/[^A-Za-z0-9]/', '',$dataArray[$arrayData][$arrayKey[0]]);
+					$convertedBranchString = strtoupper($convertedBranchString);
+					// database selection
+					$branchModel = new BranchModel();
+					if (!isset($pro_branchArray[$companyResult.$convertedBranchString.$companyResult])) {
+						$pro_branchArray[$companyResult.$convertedBranchString.$companyResult] = $branchModel->getBranchId($convertedBranchString,$companyResult);
+					}
+					$branchResult = $pro_branchArray[$companyResult.$convertedBranchString.$companyResult];
+					if(strcmp($branchResult,$exceptionArray['204'])==0)
+					{
+						$branchFlag=1;
+					}
+					else
+					{
+						$dataArray[$arrayData][$arrayKey[0]] = $branchResult;
+					}
+				} else {
+					$branchFlag=1;
 				}
 			}
 			
@@ -769,39 +795,44 @@ class ProductTransformer extends ExceptionMessage
 			else
 			{
 				$requestArray[$arrayData] = array();
-				$requestArray[$arrayData][array_keys($keyNameCount)[0]] = $dataArray[$arrayData][0];
-				$requestArray[$arrayData][array_keys($keyNameCount)[1]] = $dataArray[$arrayData][1];
-				$requestArray[$arrayData][array_keys($keyNameCount)[2]] = $dataArray[$arrayData][2];
-				$requestArray[$arrayData][array_keys($keyNameCount)[3]] = $dataArray[$arrayData][3];
-				$requestArray[$arrayData][array_keys($keyNameCount)[4]] = $dataArray[$arrayData][4];
-				$requestArray[$arrayData][array_keys($keyNameCount)[5]] = $dataArray[$arrayData][5];
-				$requestArray[$arrayData][array_keys($keyNameCount)[6]] = $dataArray[$arrayData][6];
-				$requestArray[$arrayData][array_keys($keyNameCount)[7]] = $dataArray[$arrayData][7];
-				$requestArray[$arrayData][array_keys($keyNameCount)[8]] = $dataArray[$arrayData][8];
-				$requestArray[$arrayData][array_keys($keyNameCount)[9]] = $dataArray[$arrayData][9];
-				$requestArray[$arrayData][array_keys($keyNameCount)[10]] = $dataArray[$arrayData][10];
-				$requestArray[$arrayData][array_keys($keyNameCount)[11]] = $dataArray[$arrayData][11];
-				$requestArray[$arrayData][array_keys($keyNameCount)[12]] = $dataArray[$arrayData][12];
-				$requestArray[$arrayData][array_keys($keyNameCount)[13]] = $dataArray[$arrayData][13];
-				$requestArray[$arrayData][array_keys($keyNameCount)[14]] = $dataArray[$arrayData][14];
-				$requestArray[$arrayData][array_keys($keyNameCount)[15]] = $dataArray[$arrayData][15];
-				$requestArray[$arrayData][array_keys($keyNameCount)[16]] = $dataArray[$arrayData][16];
-				$requestArray[$arrayData][array_keys($keyNameCount)[17]] = $dataArray[$arrayData][17];
-				$requestArray[$arrayData][array_keys($keyNameCount)[18]] = $dataArray[$arrayData][18];
-				$requestArray[$arrayData][array_keys($keyNameCount)[19]] = $dataArray[$arrayData][19];
-				$requestArray[$arrayData][array_keys($keyNameCount)[20]] = $dataArray[$arrayData][20];
-				$requestArray[$arrayData][array_keys($keyNameCount)[21]] = $dataArray[$arrayData][21];
-				$requestArray[$arrayData][array_keys($keyNameCount)[22]] = $dataArray[$arrayData][22];
-				$requestArray[$arrayData][array_keys($keyNameCount)[23]] = $dataArray[$arrayData][23];
-				$requestArray[$arrayData][array_keys($keyNameCount)[24]] = $dataArray[$arrayData][24];
-				$requestArray[$arrayData][array_keys($keyNameCount)[25]] = $dataArray[$arrayData][25];
-				$requestArray[$arrayData][array_keys($keyNameCount)[26]] = $dataArray[$arrayData][26];
-				$requestArray[$arrayData][array_keys($keyNameCount)[27]] = $dataArray[$arrayData][27];
+				$arrayKeys = array_keys($keyNameCount);
+				for ($reqIndex=0; $reqIndex < 28; $reqIndex++) { 
+					$requestArray[$arrayData][$arrayKeys[$reqIndex]] = $dataArray[$arrayData][$reqIndex];
+				}
+				// $requestArray[$arrayData][array_keys($keyNameCount)[0]] = $dataArray[$arrayData][0];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[1]] = $dataArray[$arrayData][1];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[2]] = $dataArray[$arrayData][2];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[3]] = $dataArray[$arrayData][3];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[4]] = $dataArray[$arrayData][4];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[5]] = $dataArray[$arrayData][5];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[6]] = $dataArray[$arrayData][6];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[7]] = $dataArray[$arrayData][7];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[8]] = $dataArray[$arrayData][8];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[9]] = $dataArray[$arrayData][9];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[10]] = $dataArray[$arrayData][10];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[11]] = $dataArray[$arrayData][11];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[12]] = $dataArray[$arrayData][12];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[13]] = $dataArray[$arrayData][13];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[14]] = $dataArray[$arrayData][14];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[15]] = $dataArray[$arrayData][15];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[16]] = $dataArray[$arrayData][16];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[17]] = $dataArray[$arrayData][17];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[18]] = $dataArray[$arrayData][18];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[19]] = $dataArray[$arrayData][19];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[20]] = $dataArray[$arrayData][20];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[21]] = $dataArray[$arrayData][21];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[22]] = $dataArray[$arrayData][22];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[23]] = $dataArray[$arrayData][23];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[24]] = $dataArray[$arrayData][24];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[25]] = $dataArray[$arrayData][25];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[26]] = $dataArray[$arrayData][26];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[27]] = $dataArray[$arrayData][27];
 				// Git missed change
 				// $requestArray[$arrayData][array_keys($keyNameCount)[28]] = $dataArray[$arrayData][28];
 				// $requestArray[$arrayData][array_keys($keyNameCount)[29]] = $dataArray[$arrayData][29];
 			}
 		}
+		
 		return $requestArray;
 	}
 	
