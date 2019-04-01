@@ -18,6 +18,9 @@ class EncodeAllData extends StateService
 		$encodeAllData =  array();
 		$decodedJson = json_decode($status,true);
 		$city = new City();
+		$data = array();
+		$stateArray = array();
+		$encodeDataClass = new EncodeAllData();
 		for($decodedData=0;$decodedData<count($decodedJson);$decodedData++)
 		{
 			$createdAt[$decodedData] = $decodedJson[$decodedData]['created_at'];
@@ -28,8 +31,12 @@ class EncodeAllData extends StateService
 			$stateAbb[$decodedData] = $decodedJson[$decodedData]['state_abb'];	
 			
 			//get the state details from database
-			$encodeDataClass = new EncodeAllData();
-			$stateStatus[$decodedData] = $encodeDataClass->getStateData($stateAbb[$decodedData]);
+			
+			if (!isset($stateArray[$stateAbb[$decodedData]])) {
+				$stateArray[$stateAbb[$decodedData]] = $encodeDataClass->getStateData($stateAbb[$decodedData]);
+			}
+			$stateStatus[$decodedData] = $stateArray[$stateAbb[$decodedData]];
+			
 			$stateDecodedJson[$decodedData] = json_decode($stateStatus[$decodedData],true);
 			$stateName[$decodedData]= $stateDecodedJson[$decodedData]['stateName'];
 			$stateIsDisplay[$decodedData]= $stateDecodedJson[$decodedData]['isDisplay'];
@@ -51,24 +58,19 @@ class EncodeAllData extends StateService
 				$city->setUpdated_at($convertedUpdatedDate[$decodedData]);
 				$getUpdatedDate[$decodedData] = $city->getUpdated_at();
 			}
-		}
-		
-		$data = array();
-		for($jsonData=0;$jsonData<count($decodedJson);$jsonData++)
-		{
-			$data[$jsonData]= array(
-				'cityName' => $cityName[$jsonData],
-				'isDisplay' => $isDisplay[$jsonData],
-				'cityId' => $cityId[$jsonData],
-				'createdAt' => $getCreatedDate[$jsonData],
-				'updatedAt' =>$getUpdatedDate[$jsonData],
+			$data[$decodedData]= array(
+				'cityName' => $cityName[$decodedData],
+				'isDisplay' => $isDisplay[$decodedData],
+				'cityId' => $cityId[$decodedData],
+				'createdAt' => $getCreatedDate[$decodedData],
+				'updatedAt' =>$getUpdatedDate[$decodedData],
 				
 				'state' => array(
-					'stateAbb' =>$stateAbb[$jsonData],
-					'stateName' => $stateName[$jsonData],
-					'isDisplay' => $stateIsDisplay[$jsonData],
-					'createdAt' => $stateCreatedAt[$jsonData],
-					'updatedAt' => $stateUpdatedAt[$jsonData]
+					'stateAbb' =>$stateAbb[$decodedData],
+					'stateName' => $stateName[$decodedData],
+					'isDisplay' => $stateIsDisplay[$decodedData],
+					'createdAt' => $stateCreatedAt[$decodedData],
+					'updatedAt' => $stateUpdatedAt[$decodedData]
 				)
 			);
 		}

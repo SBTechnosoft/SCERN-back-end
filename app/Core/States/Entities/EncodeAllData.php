@@ -16,6 +16,7 @@ class EncodeAllData
 		$encodeAllData =  array();
 		$decodedJson = json_decode($status,true);
 		$state = new State();
+		$data = array();
 		for($decodedData=0;$decodedData<count($decodedJson);$decodedData++)
 		{
 			$createdAt[$decodedData] = $decodedJson[$decodedData]['created_at'];
@@ -40,19 +41,15 @@ class EncodeAllData
 				$state->setUpdated_at($convertedUpdatedDate[$decodedData]);
 				$getUpdatedDate[$decodedData] = $state->getUpdated_at();
 			}
-		}
-		$data = array();
-		for($jsonData=0;$jsonData<count($decodedJson);$jsonData++)
-		{
-			$data[$jsonData]= array(
-				'stateName' => $stateName[$jsonData],
-				'stateAbb' =>$stateAbb[$jsonData],
-				'isDisplay' => $isDisplay[$jsonData],
-				'stateCode' => $stateCode[$jsonData],
-				'createdAt' => $getCreatedDate[$jsonData],
-				'updatedAt' =>$getUpdatedDate[$jsonData]
+			$data[$decodedData]= array(
+				'stateName' => $stateName[$decodedData],
+				'stateAbb' =>$stateAbb[$decodedData],
+				'isDisplay' => $isDisplay[$decodedData],
+				'stateCode' => $stateCode[$decodedData],
+				'createdAt' => $getCreatedDate[$decodedData],
+				'updatedAt' =>$getUpdatedDate[$decodedData]
 				
-			);	
+			);
 		}
 		return json_encode($data);
 	}

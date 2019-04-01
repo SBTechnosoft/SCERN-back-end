@@ -30,6 +30,14 @@ class EncodeAllData extends StateService
 		
 		$constantClass = new ConstantClass();
 		$constantArray = $constantClass->constantVariable();
+
+		$stateArray = array();
+		$cityArray = array();
+		$professionArray = array();
+		$encodeDataClass = new EncodeAllData();
+		$cityDetail = new CityDetail();
+		$professionService = new ProfessionService();
+		
 		for($decodedData=0;$decodedData<count($decodedJson);$decodedData++)
 		{
 			$createdAt[$decodedData] = $decodedJson[$decodedData]['created_at'];
@@ -50,8 +58,12 @@ class EncodeAllData extends StateService
 			$professionIdArray[$decodedData] = $decodedJson[$decodedData]['profession_id'];
 			
 			//get the state detail from database
-			$encodeDataClass = new EncodeAllData();
-			$stateStatus[$decodedData] = $encodeDataClass->getStateData($stateAbb[$decodedData]);
+			
+			if (!isset($stateArray[$stateAbb[$decodedData]])) {
+				$stateArray[$stateAbb[$decodedData]] = $encodeDataClass->getStateData($stateAbb[$decodedData]);
+			}
+			$stateStatus[$decodedData] = $stateArray[$stateAbb[$decodedData]];
+
 			$stateDecodedJson[$decodedData] = json_decode($stateStatus[$decodedData],true);
 			$stateName[$decodedData]= $stateDecodedJson[$decodedData]['stateName'];
 			$stateIsDisplay[$decodedData]= $stateDecodedJson[$decodedData]['isDisplay'];
@@ -59,12 +71,20 @@ class EncodeAllData extends StateService
 			$stateUpdatedAt[$decodedData]= $stateDecodedJson[$decodedData]['updatedAt'];
 			
 			//get the city details from database
-			$cityDetail = new CityDetail();
-			$getCityDetail[$decodedData] = $cityDetail->getCityDetail($cityId[$decodedData]);
+			if (!isset($cityArray[$cityId[$decodedData]])) {
+				$cityArray[$cityId[$decodedData]] = $cityDetail->getCityDetail($cityId[$decodedData]);
+			}
+			
+			$getCityDetail[$decodedData] = $cityArray[$cityId[$decodedData]];
 			 
 			//get all profession details from database 
-			$professionService = new ProfessionService();
-			$professionDetail[$decodedData] = $professionService->getProfessionData($professionIdArray[$decodedData]);
+			
+
+			if (!isset($professionArray[$professionIdArray[$decodedData]])) {
+				$professionArray[$professionIdArray[$decodedData]] = $professionService->getProfessionData($professionIdArray[$decodedData]);
+			}
+			$professionDetail[$decodedData] = $professionArray[$professionIdArray[$decodedData]];
+
 			
 			//date format conversion
 			$convertedCreatedDate[$decodedData] = Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $createdAt[$decodedData])->format('d-m-Y');

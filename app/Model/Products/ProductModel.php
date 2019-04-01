@@ -1374,21 +1374,6 @@ class ProductModel extends Model
 		from product_mst as pmst LEFT JOIN product_trn_summary as ptrm ON ptrm.product_id = pmst.product_id where pmst.deleted_at='0000-00-00 00:00:00'");
 		DB::commit();  // 348 ms
 
-		// echo "==> Company \n";
-		// $companyIds = array_unique(array_map(function ($i) { return $i->company_id; }, $raw));
-		// $branchIds = array_unique(array_map(function ($i) { return $i->branch_id; }, $raw));
-		// $categoryIds = array_unique(array_map(function ($i) { return $i->product_category_id; }, $raw));
-		// $groupIds = array_unique(array_map(function ($i) { return $i->product_group_id; }, $raw));
-
-
-		// print_r($companyIds);
-		// echo "==> Branch \n";
-		// print_r($branchIds);
-		// echo "==> Product Category \n";
-		// print_r($categoryIds);
-		// echo "==> Product Group \n";
-		// print_r($groupIds);
-		// exit;
 
 		//get exception message
 		$exception = new ExceptionMessage();
