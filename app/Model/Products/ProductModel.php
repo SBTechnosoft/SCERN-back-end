@@ -288,54 +288,61 @@ class ProductModel extends Model
 		$mytime = Carbon\Carbon::now();
 		$getProductData = array();
 		$getErrorArray = array();
-		$getproductKey = array();
+		// $getproductKey = array();
 		$getProductData = func_get_arg(0);
-		$getProductKey = func_get_arg(1);
-		$getErrorArray = func_get_arg(2);
+		// $getProductKey = func_get_arg(1);
+	
+		$getErrorArray = func_get_arg(1);
 		$raw=0;
 		$getErrorCount = count($getErrorArray);
 		for($dataArray=0;$dataArray<count($getProductData);$dataArray++)
 		{
 			$productData="";
-			$productCode='';
 			$keyName = "";
-			for($data=0;$data<count($getProductData[$dataArray]);$data++)
-			{
-				if(strcmp('product_code',$getProductKey[$dataArray][$data])==0)
-				{
-					$getProductData[$dataArray][$data];
-					$productCode = $getProductData[$dataArray][$data];
-					$index = $data;
-				}
-				if(strcmp('company_id',$getProductKey[$dataArray][$data])==0)
-				{
-					$companyId = $getProductData[$dataArray][$data];
-				}
-			}
+			$productCode = $getProductData[$dataArray]['product_code'];
+			$companyId = $getProductData[$dataArray]['company_id'];
+			// for($data=0;$data<count($getProductData[$dataArray]);$data++)
+			// {
+			// 	if(strcmp('product_code',$getProductKey[$dataArray][$data])==0)
+			// 	{
+			// 		$getProductData[$dataArray][$data];
+			// 		$productCode = $getProductData[$dataArray][$data];
+			// 		$index = $data;
+			// 	}
+			// 	if(strcmp('company_id',$getProductKey[$dataArray][$data])==0)
+			// 	{
+			// 		$companyId = $getProductData[$dataArray][$data];
+			// 	}
+			// }
 			$indexNumber=0;
 			
 			//check product-code
 			$productCodeResult = $this->batchRepeatProductCodeValidate($productCode,$companyId,$indexNumber);
-			$getProductData[$dataArray][$index] = $productCodeResult;
-			for($data=0;$data<count($getProductData[$dataArray]);$data++)
+			$getProductData[$dataArray]['product_code'] = $productCodeResult;
+			// for($data=0;$data<count($getProductData[$dataArray]);$data++)
+			$separator = '';
+			foreach($getProductData[$dataArray] as $key => $value)
 			{
-				if($data == (count($getProductData[$dataArray])-1))
-				{
-					$productData = $productData."'".$getProductData[$dataArray][$data]."'";
-					$keyName =$keyName.$getProductKey[$dataArray][$data];
-				}
-				else
-				{
-					$productData = $productData."'".$getProductData[$dataArray][$data]."',";
-					$keyName = $keyName.$getProductKey[$dataArray][$data].",";
-				}
+				$productData = $productData.$separator."'$value'";
+				$keyName = $keyName.$separator."$key";
+				$separator = ',';
+				// if($data == (count($getProductData[$dataArray])-1))
+				// {
+				// 	$productData = $productData."'".$getProductData[$dataArray][$data]."'";
+				// 	$keyName =$keyName.$getProductKey[$dataArray][$data];
+				// }
+				// else
+				// {
+				// 	$productData = $productData."'".$getProductData[$dataArray][$data]."',";
+				// 	$keyName = $keyName.$getProductKey[$dataArray][$data].",";
+				// }
 			}
 			
 			//make unique name of barcode svg image
 			$dateTime = date("d-m-Y h-i-s");
 			$convertedDateTime = str_replace(" ","-",$dateTime);
 			$splitDateTime = explode("-",$convertedDateTime);
-			$combineDateTime = $splitDateTime[0].$splitDateTime[1].$dataArray.$splitDateTime[2].$splitDateTime[3].$data.$splitDateTime[4].$splitDateTime[5];
+			$combineDateTime = $splitDateTime[0].$splitDateTime[1].$dataArray.$splitDateTime[2].$splitDateTime[3].$splitDateTime[4].$splitDateTime[5];
 			$documentName = $combineDateTime.mt_rand(1,9999).mt_rand(1,9999).".svg";
 			$documentPath = $path.$documentName;
 			

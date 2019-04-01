@@ -92,7 +92,7 @@ class ProductGroupTransformer  extends ExceptionMessage
 				//data get from body
 				$productGroupName = $requestInputData[$arrayData]['productGroupName']; 
 				$productGroupDesc = $requestInputData[$arrayData]['productGroupDescription']; 
-				$productGroupParentId = $requestInputData[$arrayData]['productGroupParentId']; 
+				$productGroupParentId = @$requestInputData[$arrayData]['productGroupParentId']; 
 				$isDisplay = $requestInputData[$arrayData]['isDisplay']; 			
 				
 				//trim an input
