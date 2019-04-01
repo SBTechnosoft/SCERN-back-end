@@ -1791,12 +1791,14 @@ class BillProcessor extends BaseProcessor
 					}
 				}
 				$billPersistable[$billArrayData]->setProductArray(json_encode($productArray));
+				$billPersistable[$billArrayData]->setName('getProductArray');
+				$billPersistable[$billArrayData]->setKey('product_array');
 				$billPersistable[$billArrayData]->setSaleId($saleId);
 			}
 		}
 		if($invFlag==1)
 		{
-			$billPersistable[count($billPersistable)] = 'flag';
+			// $billPersistable[count($billPersistable)] = 'flag';
 		}
 
 		$documentPath = $constantArray['billDocumentUrl'];
@@ -1827,8 +1829,15 @@ class BillProcessor extends BaseProcessor
 			{
 				if (count($billPersistable) == 0){
 					$billPersistable = new BillPersistable();
+					$billPersistable->setClientId($clientId);
+				} else {
+					$lastCount = count($billPersistable);
+					$billPersistable[$lastCount] = new BillPersistable();
+					$billPersistable[$lastCount]->setClientId($clientId);
+					$billPersistable[$lastCount]->setName('getClientId');
+					$billPersistable[$lastCount]->setKey('client_id');
+					$billPersistable[$lastCount]->setSaleId($saleId);
 				}
-				$billPersistable->setClientId($clientId);
 			}
 		}
 
