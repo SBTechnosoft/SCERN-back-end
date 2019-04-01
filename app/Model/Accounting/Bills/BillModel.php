@@ -967,14 +967,12 @@ class BillModel extends Model
 			s.company_id='".$companyId."' and 
 			s.deleted_at='0000-00-00 00:00:00' and s.is_draft='no' and ".$isSalesOrder.$branch_check);;
 			DB::commit();
-			
 			if(count($raw)==0)
 			{
 				return $exceptionArray['404']; 
 			}
 			else
 			{
-				// print_r($raw);exit();
 				return json_encode($raw);
 			}
 		}
