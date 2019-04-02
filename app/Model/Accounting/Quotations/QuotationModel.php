@@ -388,140 +388,159 @@ class QuotationModel extends Model
 	*/
 	public function getSpecifiedData($headerData)
 	{
-		if(array_key_exists('previousquotationid',$headerData) || array_key_exists('nextquotationid',$headerData)
-			|| array_key_exists('operation',$headerData))
+		$quotationArray = new QuotationArray();
+		$quotationArrayData = $quotationArray->searchQuotationData();
+		$queryParameter="";
+		foreach ($quotationArrayData as $key => $value) {
+			if(array_key_exists($value,$headerData))
+			{
+				$queryParameter = $queryParameter." and quotation_bill_dtl.".$key."='".$headerData[$value][0]."'";
+			}
+		}
+		if (array_key_exists('companyid', $headerData)) {
+			$queryParameter .= " and quotation_bill_dtl.company_id = '".$headerData['companyid'][0]."'";
+		}
+		if (array_key_exists('fromdate', $headerData)) {
+			$toDate = Carbon\Carbon::now();
+			if (array_key_exists('todate', $headerData)) {
+				$toDate = Carbon\Carbon::createFromFormat('d-m-Y', $headerData['todate'][0])->format('Y-m-d');
+			}
+			$fromDate = Carbon\Carbon::createFromFormat('d-m-Y', $headerData['fromdate'][0])->format('Y-m-d');;
+			$queryParameter .= " AND (quotation_bill_dtl.entry_date BETWEEN '".$fromDate."' AND '".$toDate."')";
+		}
+		if (array_key_exists('previousquotationid',$headerData)) {
+			$queryParameter .= $headerData['previousquotationid'][0]==0 ? '' : ' and quotation_bill_dtl.quotation_bill_id < '.$headerData['previousquotationid'][0];
+			$queryParameter .= ' order by quotation_bill_dtl.quotation_bill_id desc';
+		}elseif (array_key_exists('nextquotationid',$headerData)) {
+			$queryParameter .= $headerData['nextquotationid'][0]==0 ? '' : ' and quotation_bill_dtl.quotation_bill_id > '.$headerData['nextquotationid'][0];
+			$queryParameter .= ' order by quotation_bill_dtl.quotation_bill_id asc';
+		}elseif(array_key_exists('operation',$headerData)) {
+			if (strcmp($headerData['operation'][0],'first')==0) {
+				$queryParameter .= ' order by quotation_bill_dtl.quotation_bill_id asc';
+			}elseif (strcmp($headerData['operation'][0],'last')==0) {
+				$queryParameter .= ' order by quotation_bill_dtl.quotation_bill_id desc';
+			}else{
+				return $exceptionArray['204'];
+			}
+		}
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		
+		DB::beginTransaction();		
+		if (array_key_exists('isquotationprocess', $headerData)) {
+			$raw = DB::connection($databaseName)->select("select 
+			quotation_bill_dtl.quotation_bill_id,
+			quotation_bill_dtl.product_array,
+			quotation_bill_dtl.quotation_number,
+			quotation_bill_dtl.total,
+			quotation_bill_dtl.total_discounttype,
+			quotation_bill_dtl.total_discount,
+			quotation_bill_dtl.total_cgst_percentage,
+			quotation_bill_dtl.total_sgst_percentage,
+			quotation_bill_dtl.total_igst_percentage,
+			quotation_bill_dtl.extra_charge,
+			quotation_bill_dtl.tax,
+			quotation_bill_dtl.grand_total,
+			quotation_bill_dtl.remark,
+			quotation_bill_dtl.entry_date,
+			quotation_bill_dtl.client_id,
+			quotation_bill_dtl.company_id,
+			quotation_bill_dtl.branch_id,
+			quotation_bill_dtl.jf_id,
+			quotation_bill_dtl.created_at,
+			quotation_bill_dtl.updated_at,
+			process_status_dtl.workflow_status_id,
+			process_status_dtl.process_status_dtl_id,
+			process_status_dtl.assigned_to,
+			process_status_dtl.assigned_by,
+			d.file
+			from quotation_bill_dtl 
+			LEFT JOIN process_status_dtl on process_status_dtl.quotation_id = quotation_bill_dtl.quotation_bill_id
+			LEFT JOIN (
+				SELECT 
+					quotation_bill_id, 
+					CONCAT( 
+						'[', 
+							GROUP_CONCAT( CONCAT( 
+								'{\"documentId\":', document_id,
+								 	', \"quotationBillId\":', IFNULL(quotation_bill_id,0),
+								 	', \"documentName\":\"', IFNULL(document_name,''),
+								 	'\", \"documentSize\":\"', IFNULL(document_size,''),
+								 	'\", \"documentFormat\":\"', IFNULL(document_format,''),
+								 	'\", \"documentType\":\"', IFNULL(document_type,''),
+								 	'\", \"createdAt\":\"', DATE_FORMAT(created_at, '%d-%m-%Y'),
+								 	'\", \"updatedAt\":\"', DATE_FORMAT(updated_at, '%d-%m-%Y'),
+							 	'\" }'
+							 ) SEPARATOR ', '),
+						']'
+					) file
+				FROM quotation_bill_doc_dtl
+				WHERE deleted_at='0000-00-00 00:00:00'
+				GROUP BY quotation_bill_id 
+			) d ON d.quotation_bill_id = quotation_bill_dtl.quotation_bill_id
+			where quotation_bill_dtl.deleted_at='0000-00-00 00:00:00' ".$queryParameter);
+		}else{
+			$raw = DB::connection($databaseName)->select("select 
+			quotation_bill_dtl.quotation_bill_id,
+			quotation_bill_dtl.product_array,
+			quotation_bill_dtl.quotation_number,
+			quotation_bill_dtl.total,
+			quotation_bill_dtl.total_discounttype,
+			quotation_bill_dtl.total_discount,
+			quotation_bill_dtl.total_cgst_percentage,
+			quotation_bill_dtl.total_sgst_percentage,
+			quotation_bill_dtl.total_igst_percentage,
+			quotation_bill_dtl.extra_charge,
+			quotation_bill_dtl.tax,
+			quotation_bill_dtl.grand_total,
+			quotation_bill_dtl.remark,
+			quotation_bill_dtl.entry_date,
+			quotation_bill_dtl.client_id,
+			quotation_bill_dtl.company_id,
+			quotation_bill_dtl.branch_id,
+			quotation_bill_dtl.jf_id,
+			quotation_bill_dtl.created_at,
+			quotation_bill_dtl.updated_at,
+			d.file
+			from quotation_bill_dtl 
+			LEFT JOIN (
+				SELECT 
+					quotation_bill_id, 
+					CONCAT( 
+						'[', 
+							GROUP_CONCAT( CONCAT( 
+								'{\"documentId\":', document_id,
+								 	', \"quotationBillId\":', IFNULL(quotation_bill_id,0),
+								 	', \"documentName\":\"', IFNULL(document_name,''),
+								 	'\", \"documentSize\":\"', IFNULL(document_size,''),
+								 	'\", \"documentFormat\":\"', IFNULL(document_format,''),
+								 	'\", \"documentType\":\"', IFNULL(document_type,''),
+								 	'\", \"createdAt\":\"', DATE_FORMAT(created_at, '%d-%m-%Y'),
+								 	'\", \"updatedAt\":\"', DATE_FORMAT(updated_at, '%d-%m-%Y'),
+							 	'\" }'
+							 ) SEPARATOR ', '),
+						']'
+					) file
+				FROM quotation_bill_doc_dtl
+				WHERE deleted_at='0000-00-00 00:00:00'
+				GROUP BY quotation_bill_id 
+			) d ON d.quotation_bill_id = quotation_bill_dtl.quotation_bill_id
+			 where quotation_bill_dtl.deleted_at='0000-00-00 00:00:00' ".$queryParameter);
+		}
+		DB::commit();
+		
+		// get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if(count($raw)==0)
 		{
-			$resultData = $this->getPreviousNextData($headerData);
-			return $resultData;
+			return $exceptionArray['204'];
 		}
 		else
 		{
-			$quotationArray = new QuotationArray();
-			$quotationArrayData = $quotationArray->searchQuotationData();
-			$queryParameter="";
-			foreach ($quotationArrayData as $key => $value) {
-				if(array_key_exists($value,$headerData))
-				{
-					$queryParameter = $queryParameter."".$key."='".$headerData[$value][0]."' and ";
-				}
-			}
-			if (array_key_exists('companyid', $headerData)) {
-				$queryParameter .= "quotation_bill_dtl.company_id = '".$headerData['companyid'][0]."' and ";
-			}
-			if (array_key_exists('fromdate', $headerData)) {
-				$toDate = Carbon\Carbon::now();
-				if (array_key_exists('todate', $headerData)) {
-					$toDate = Carbon\Carbon::createFromFormat('d-m-Y', $headerData['todate'][0])->format('Y-m-d');
-				}
-				$fromDate = Carbon\Carbon::createFromFormat('d-m-Y', $headerData['fromdate'][0])->format('Y-m-d');;
-				$queryParameter .= "(quotation_bill_dtl.entry_date BETWEEN '".$fromDate."' AND '".$toDate."') AND ";
-			}
-			//database selection
-			$database = "";
-			$constantDatabase = new ConstantClass();
-			$databaseName = $constantDatabase->constantDatabase();
-			
-			DB::beginTransaction();		
-			if (array_key_exists('isquotationprocess', $headerData)) {
-				$raw = DB::connection($databaseName)->select("select 
-				quotation_bill_dtl.quotation_bill_id,
-				quotation_bill_dtl.product_array,
-				quotation_bill_dtl.quotation_number,
-				quotation_bill_dtl.total,
-				quotation_bill_dtl.total_discounttype,
-				quotation_bill_dtl.total_discount,
-				quotation_bill_dtl.total_cgst_percentage,
-				quotation_bill_dtl.total_sgst_percentage,
-				quotation_bill_dtl.total_igst_percentage,
-				quotation_bill_dtl.extra_charge,
-				quotation_bill_dtl.tax,
-				quotation_bill_dtl.grand_total,
-				quotation_bill_dtl.remark,
-				quotation_bill_dtl.entry_date,
-				quotation_bill_dtl.client_id,
-				quotation_bill_dtl.company_id,
-				quotation_bill_dtl.branch_id,
-				quotation_bill_dtl.jf_id,
-				quotation_bill_dtl.created_at,
-				quotation_bill_dtl.updated_at,
-				process_status_dtl.workflow_status_id,
-				process_status_dtl.process_status_dtl_id,
-				process_status_dtl.assigned_to,
-				process_status_dtl.assigned_by
-				from quotation_bill_dtl 
-				LEFT JOIN process_status_dtl on process_status_dtl.quotation_id = quotation_bill_dtl.quotation_bill_id
-				where ".$queryParameter." quotation_bill_dtl.deleted_at='0000-00-00 00:00:00'");
-			}else{
-				$raw = DB::connection($databaseName)->select("select 
-				quotation_bill_id,
-				product_array,
-				quotation_number,
-				total,
-				total_discounttype,
-				total_discount,
-				total_cgst_percentage,
-				total_sgst_percentage,
-				total_igst_percentage,
-				extra_charge,
-				tax,
-				grand_total,
-				remark,
-				entry_date,
-				client_id,
-				company_id,
-				branch_id,
-				jf_id,
-				created_at,
-				updated_at	
-				from quotation_bill_dtl where ".$queryParameter." deleted_at='0000-00-00 00:00:00'");
-			}
-			DB::commit();
-			
-			// get exception message
-			$exception = new ExceptionMessage();
-			$exceptionArray = $exception->messageArrays();
-			if(count($raw)==0)
-			{
-				return $exceptionArray['204'];
-			}
-			else
-			{
-				$documentResult = array();
-				for($quotationData=0;$quotationData<count($raw);$quotationData++)
-				{
-					DB::beginTransaction();
-					$documentResult[$quotationData] = DB::connection($databaseName)->select("select
-					document_id,
-					quotation_bill_id,
-					document_name,
-					document_size,
-					document_format,
-					document_type,
-					created_at,
-					updated_at
-					from quotation_bill_doc_dtl
-					where quotation_bill_id='".$raw[$quotationData]->quotation_bill_id."' and 
-					deleted_at='0000-00-00 00:00:00'");
-					DB::commit();
-					if(count($documentResult[$quotationData])==0)
-					{
-						$documentResult[$quotationData] = array();
-						$documentResult[$quotationData][0] = new stdClass();
-						$documentResult[$quotationData][0]->document_id = 0;
-						$documentResult[$quotationData][0]->quotation_bill_id = 0;
-						$documentResult[$quotationData][0]->document_name = '';
-						$documentResult[$quotationData][0]->document_size = 0;
-						$documentResult[$quotationData][0]->document_format = '';
-						$documentResult[$quotationData][0]->document_type ='quotation';
-						$documentResult[$quotationData][0]->created_at = '0000-00-00 00:00:00';
-						$documentResult[$quotationData][0]->updated_at = '0000-00-00 00:00:00';
-					}
-				}
-				$quotationArrayData = array();
-				$quotationArrayData['quotationData'] = json_encode($raw);
-				$quotationArrayData['documentData'] = json_encode($documentResult);
-				return json_encode($quotationArrayData);
-			}
+			return json_encode($raw);
 		}
 	}
 	

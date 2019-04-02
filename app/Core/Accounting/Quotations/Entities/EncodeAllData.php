@@ -19,10 +19,14 @@ class EncodeAllData extends ClientService
 		$constantArray = $constantClass->constantVariable();
 		$convertedCreatedDate =  array();
 		$convertedUpdatedDate =  array();
-		$decodedJson = json_decode($status,true);
-		$deocodedJsonData = json_decode($decodedJson['quotationData']);
-		$decodedDocumentData = json_decode($decodedJson['documentData']);
+		$deocodedJsonData = json_decode($status);
 		$quotation = new Quotation();
+		$clientArray = array();
+		$companyArray = array();
+		$branchArray = array();
+		$encodeAllData = new EncodeAllData();
+		$companyDetail  = new CompanyDetail();
+		$branchDetail  = new BranchDetail();
 		for($decodedData=0;$decodedData<count($deocodedJsonData);$decodedData++)
 		{
 			$quotationBillId[$decodedData] = $deocodedJsonData[$decodedData]->quotation_bill_id;
@@ -45,19 +49,27 @@ class EncodeAllData extends ClientService
 			$branchId[$decodedData] = $deocodedJsonData[$decodedData]->branch_id;
 			$createdAt[$decodedData] = $deocodedJsonData[$decodedData]->created_at;
 			$updatedAt[$decodedData] = $deocodedJsonData[$decodedData]->updated_at;
+			$decodedDocumentData = $deocodedJsonData[$decodedData]->file;
 			
 
 			//get the client detail from database
-			$encodeAllData = new EncodeAllData();
-			$getClientDetails[$decodedData] = $encodeAllData->getClientData($clientId[$decodedData]);
+			if (!isset($clientArray[$clientId[$decodedData]])) {
+				$clientArray[$clientId[$decodedData]] = $encodeAllData->getClientData($clientId[$decodedData]);
+			}
+			
+			$getClientDetails[$decodedData] = $clientArray[$clientId[$decodedData]];
 
 			//get the company detail from database
-			$companyDetail  = new CompanyDetail();
-			$getCompanyDetails[$decodedData] = $companyDetail->getCompanyDetails($companyId[$decodedData]);
+			if (!isset($companyArray[$companyId[$decodedData]])) {
+				$companyArray[$companyId[$decodedData]] = $companyDetail->getCompanyDetails($companyId[$decodedData]);
+			}
+			$getCompanyDetails[$decodedData] = $companyArray[$companyId[$decodedData]];
 
 			//get the Branch detail from database
-			$branchDetail  = new BranchDetail();
-			$getBranchDetails[$decodedData] = $branchDetail->getBranchDetails($branchId[$decodedData]);
+			if (!isset($branchArray[$branchId[$decodedData]])) {
+				$branchArray[$branchId[$decodedData]] = $branchDetail->getBranchDetails($branchId[$decodedData]);
+			}
+			$getBranchDetails[$decodedData] = $branchArray[$branchId[$decodedData]];
 
 			//convert amount(round) into their company's selected decimal points
 			$total[$decodedData] = number_format($total[$decodedData],$getCompanyDetails[$decodedData]['noOfDecimalPoints'],'.','');
@@ -94,109 +106,40 @@ class EncodeAllData extends ClientService
 				$quotation->setEntryDate($convertedEntryDate);
 				$getEntryDate[$decodedData] = $quotation->getEntryDate();
 			}
-			$documentId[$decodedData] = array();
-			$documentQuotationId[$decodedData] = array();
-			$documentName[$decodedData] = array();
-			$documentSize[$decodedData] = array();
-			$documentFormat[$decodedData] = array();
-			$documentType[$decodedData] = array();
-			$documentCreatedAt[$decodedData] = array();
-			$documentUpdatedAt[$decodedData] = array();
-			$getDocumentCreatedDate[$decodedData] = array();
-			$getDocumentUpdatedDate[$decodedData] = array();
-			
-			//get document data
-			for($documentArray=0;$documentArray<count($decodedDocumentData[$decodedData]);$documentArray++)
-			{
-				$documentId[$decodedData][$documentArray] = $decodedDocumentData[$decodedData][$documentArray]->document_id;
-				$documentQuotationId[$decodedData][$documentArray] = $decodedDocumentData[$decodedData][$documentArray]->quotation_bill_id;
-				$documentName[$decodedData][$documentArray] = $decodedDocumentData[$decodedData][$documentArray]->document_name;
-				$documentSize[$decodedData][$documentArray] = $decodedDocumentData[$decodedData][$documentArray]->document_size;
-				$documentFormat[$decodedData][$documentArray] = $decodedDocumentData[$decodedData][$documentArray]->document_format;
-				$documentType[$decodedData][$documentArray] = $decodedDocumentData[$decodedData][$documentArray]->document_type;
-				$documentCreatedAt[$decodedData][$documentArray] = $decodedDocumentData[$decodedData][$documentArray]->created_at;
-				$documentUpdatedAt[$decodedData][$documentArray] = $decodedDocumentData[$decodedData][$documentArray]->updated_at;
-			
-				//date format conversion
-				if(strcmp($documentCreatedAt[$decodedData][$documentArray],'0000-00-00 00:00:00')==0)
-				{
-					$getDocumentCreatedDate[$decodedData][$documentArray] = "00-00-0000";
-				}
-				else
-				{
-					$documentCreatedDate = Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $documentCreatedAt[$decodedData][$documentArray])->format('d-m-Y');
-					$quotation->setCreated_at($documentCreatedDate);
-					$getDocumentCreatedDate[$decodedData][$documentArray] = $quotation->getCreated_at();
-				}
-				if(strcmp($documentUpdatedAt[$decodedData][$documentArray],'0000-00-00 00:00:00')==0)
-				{
-					$getDocumentUpdatedDate[$decodedData][$documentArray] = "00-00-0000";
-				}
-				else
-				{
-					$documentUpdatedDate = Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $documentUpdatedAt[$decodedData][$documentArray])->format('d-m-Y');
-					$quotation->setUpdated_at($documentUpdatedDate);
-					$getDocumentUpdatedDate[$decodedData][$documentArray] = $quotation->getUpdated_at();
-				}
-			}
-		}
-		$documentData = array();
-		$innerArrayData = array();
-		$arrayData = array();
-		$data = array();
-		for($jsonData=0;$jsonData<count($deocodedJsonData);$jsonData++)
-		{
-			$arrayData[$jsonData] = array();
-			for($innerArrayData=0;$innerArrayData<count($decodedDocumentData[$jsonData]);$innerArrayData++)
-			{
-				if(strcmp($documentFormat[$jsonData][$innerArrayData],"pdf")==0)
-				{
-					$arrayData[$jsonData][$innerArrayData] = array(
-						'documentId'=>$documentId[$jsonData][$innerArrayData],
-						'quotationBillId'=>$documentQuotationId[$jsonData][$innerArrayData],
-						'documentName'=>$documentName[$jsonData][$innerArrayData],
-						'documentSize'=>$documentSize[$jsonData][$innerArrayData],
-						'documentFormat'=>$documentFormat[$jsonData][$innerArrayData],
-						'documentType'=>$documentType[$jsonData][$innerArrayData],
-						'documentUrl'=>$constantArray['quotationDocUrl'],
-						'createdAt'=>$getDocumentCreatedDate[$jsonData][$innerArrayData],
-						'updatedAt'=>$getDocumentUpdatedDate[$jsonData][$innerArrayData]
-					);
-				}	
-				else
-				{
-					$arrayData[$jsonData][$innerArrayData] = array(
-						'documentId'=>$documentId[$jsonData][$innerArrayData],
-						'quotationBillId'=>$documentQuotationId[$jsonData][$innerArrayData],
-						'documentName'=>$documentName[$jsonData][$innerArrayData],
-						'documentSize'=>$documentSize[$jsonData][$innerArrayData],
-						'documentFormat'=>$documentFormat[$jsonData][$innerArrayData],
-						'documentType'=>$documentType[$jsonData][$innerArrayData],
-						'documentUrl'=>$constantArray['billDocumentUrl'],
-						'createdAt'=>$getDocumentCreatedDate[$jsonData][$innerArrayData],
-						'updatedAt'=>$getDocumentUpdatedDate[$jsonData][$innerArrayData]
-					);
-				}
-			}
-			$clientData = json_decode($getClientDetails[$jsonData]);
-			$data[$jsonData]= array(
-				'quotationBillId'=>$quotationBillId[$jsonData],
-				'productArray'=>$productArray[$jsonData],
-				'quotationNumber'=>$quotationNumber[$jsonData],
-				'total'=>$total[$jsonData],
-				'totalDiscounttype'=>$totalDiscounttype[$jsonData],
-				'totalDiscount'=>$totalDiscount[$jsonData],
-				'totalCgstPercentage'=>$totalCgstPercentage[$jsonData],
-				'totalSgstPercentage'=>$totalSgstPercentage[$jsonData],
-				'totalIgstPercentage'=>$totalIgstPercentage[$jsonData],
-				'extraCharge'=>$extraCharge[$jsonData],
-				'tax'=>$tax[$jsonData],
-				'grandTotal'=>$grandTotal[$jsonData],
-				'remark'=>$remark[$jsonData],
-				'jfId'=>$jfId[$jsonData],
-				'createdAt'=>$getCreatedDate[$jsonData],
-				'updatedAt'=>$getUpdatedDate[$jsonData],
-				'entryDate'=>$getEntryDate[$jsonData],
+			$defaultFileArray = array([
+				'documentId'=>0,
+				'quotationBillId'=>0,
+				'documentName'=>'',
+				'documentSize'=>0,
+				'documentFormat'=>'',
+				'documentType'=>'quotation',
+				'createdAt'=>'0000-00-00 00:00:00',
+				'updatedAt'=>'0000-00-00 00:00:00'
+			]);
+			$arrayData = $decodedDocumentData ? json_decode($decodedDocumentData,true) : $defaultFileArray;
+			$arrayData = array_map(function($ar) use ($constantArray){
+				$ar['documentUrl'] = strcmp($ar['documentFormat'],"pdf")==0 ? $constantArray['quotationDocUrl'] : $constantArray['billDocumentUrl'];
+				return $ar;
+			}, $arrayData);
+			$clientData = json_decode($getClientDetails[$decodedData]);
+			$data[$decodedData]= array(
+				'quotationBillId'=>$quotationBillId[$decodedData],
+				'productArray'=>$productArray[$decodedData],
+				'quotationNumber'=>$quotationNumber[$decodedData],
+				'total'=>$total[$decodedData],
+				'totalDiscounttype'=>$totalDiscounttype[$decodedData],
+				'totalDiscount'=>$totalDiscount[$decodedData],
+				'totalCgstPercentage'=>$totalCgstPercentage[$decodedData],
+				'totalSgstPercentage'=>$totalSgstPercentage[$decodedData],
+				'totalIgstPercentage'=>$totalIgstPercentage[$decodedData],
+				'extraCharge'=>$extraCharge[$decodedData],
+				'tax'=>$tax[$decodedData],
+				'grandTotal'=>$grandTotal[$decodedData],
+				'remark'=>$remark[$decodedData],
+				'jfId'=>$jfId[$decodedData],
+				'createdAt'=>$getCreatedDate[$decodedData],
+				'updatedAt'=>$getUpdatedDate[$decodedData],
+				'entryDate'=>$getEntryDate[$decodedData],
 				'client' => array(
 					'clientId'=>$clientData->clientId,
 					'clientName'=>$clientData->clientName,
@@ -213,16 +156,16 @@ class EncodeAllData extends ClientService
 					'stateAbb'=>$clientData->state->stateAbb,
 					'cityId'=>$clientData->city->cityId
 				),
-				'company' => $getCompanyDetails[$jsonData],
-				'branch' => $getBranchDetails[$jsonData]
+				'company' => $getCompanyDetails[$decodedData],
+				'branch' => $getBranchDetails[$decodedData]
 			);
-			if (isset($deocodedJsonData[$jsonData]->workflow_status_id)) {
-				$data[$jsonData]['statusId'] = $deocodedJsonData[$jsonData]->workflow_status_id;
-				$data[$jsonData]['processStatusDtlId'] = $deocodedJsonData[$jsonData]->process_status_dtl_id;
-				$data[$jsonData]['assignedTo'] = $deocodedJsonData[$jsonData]->assigned_to;
-				$data[$jsonData]['assignedBy'] = $deocodedJsonData[$jsonData]->assigned_by;
+			if (isset($deocodedJsonData[$decodedData]->workflow_status_id)) {
+				$data[$decodedData]['statusId'] = $deocodedJsonData[$decodedData]->workflow_status_id;
+				$data[$decodedData]['processStatusDtlId'] = $deocodedJsonData[$decodedData]->process_status_dtl_id;
+				$data[$decodedData]['assignedTo'] = $deocodedJsonData[$decodedData]->assigned_to;
+				$data[$decodedData]['assignedBy'] = $deocodedJsonData[$decodedData]->assigned_by;
 			}
-			$data[$jsonData]['file'] = $arrayData[$jsonData];
+			$data[$decodedData]['file'] = $arrayData;
 		}
 		$jsonEncodedData = json_encode($data);
 		return $jsonEncodedData;
