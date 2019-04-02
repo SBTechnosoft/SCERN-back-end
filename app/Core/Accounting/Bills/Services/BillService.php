@@ -173,9 +173,9 @@ class BillService
 	 /**
      * get the data from persistable object and call the model for database get opertation
      * @param BillPersistable $persistable
-     * @return status/error message
+     * @return status/error message 
      */
-	public function getData()
+	public function getData() #done
 	{
 		$data = func_get_arg(0);
 		$companyId = func_get_arg(1);
@@ -260,7 +260,7 @@ class BillService
      * @param headerData
      * @return sale-data/error message
      */
-	public function getPreviousNextData($headerData)
+	public function getPreviousNextData($headerData) #done
 	{
 		// get exception message
 		$exception = new ExceptionMessage();
@@ -286,7 +286,7 @@ class BillService
      * @param headerData
      * @return sale-data/error message
      */
-	public function getBillByJfId($companyId,$jfId)
+	public function getBillByJfId($companyId,$jfId) #done
 	{
 		// get exception message
 		$exception = new ExceptionMessage();

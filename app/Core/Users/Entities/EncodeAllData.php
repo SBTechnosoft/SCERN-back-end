@@ -21,6 +21,15 @@ class EncodeAllData extends StateService
 		$decodedJson = json_decode($status,true);
 		$user = new User();
 		$data = array();
+		$encodeDataClass = new EncodeAllData();
+		$cityDetail = new CityDetail();
+		$companyDetail  = new CompanyDetail();
+		$branchDetail  = new BranchDetail();
+
+		$stateArray = array();
+		$cityArray = array();
+		$companyDetailArray = array();
+		$branchArray = array();
 
 		for($decodedData=0;$decodedData<count($decodedJson);$decodedData++)
 		{
@@ -45,8 +54,10 @@ class EncodeAllData extends StateService
 			$decodedPassword[$decodedData] = base64_decode($password[$decodedData]);
 			
 			//get the state details from database
-			$encodeDataClass = new EncodeAllData();
-			$stateStatus[$decodedData] = $encodeDataClass->getStateData($stateAbb[$decodedData]);
+			if (!isset($stateArray[$stateAbb[$decodedData]])) {
+				$stateArray[$stateAbb[$decodedData]] = $encodeDataClass->getStateData($stateAbb[$decodedData]);
+			}
+			$stateStatus[$decodedData] = $stateArray[$stateAbb[$decodedData]];
 			$stateDecodedJson[$decodedData] = json_decode($stateStatus[$decodedData],true);
 			$stateName[$decodedData]= $stateDecodedJson[$decodedData]['stateName'];
 			$stateIsDisplay[$decodedData]= $stateDecodedJson[$decodedData]['isDisplay'];
@@ -54,16 +65,22 @@ class EncodeAllData extends StateService
 			$stateUpdatedAt[$decodedData]= $stateDecodedJson[$decodedData]['updatedAt'];
 			
 			//get the city details from database
-			$cityDetail = new CityDetail();
-			$getCityDetail[$decodedData] = $cityDetail->getCityDetail($cityId[$decodedData]);
+			if (!isset($cityArray[$cityId[$decodedData]])) {
+				$cityArray[$cityId[$decodedData]] = $cityDetail->getCityDetail($cityId[$decodedData]);
+			}
+			$getCityDetail[$decodedData] = $cityArray[$cityId[$decodedData]];
 			
 			//get the company detail from database
-			$companyDetail  = new CompanyDetail();
-			$getCompanyDetails[$decodedData] = $companyDetail->getCompanyDetails($companyId[$decodedData]);
+			if (!isset($companyDetailArray[$companyId[$decodedData]])) {
+				$companyDetailArray[$companyId[$decodedData]] = $companyDetail->getCompanyDetails($companyId[$decodedData]);
+			}
+			$getCompanyDetails[$decodedData] = $companyDetailArray[$companyId[$decodedData]];
 			
 			//get the branch detail from database
-			$branchDetail  = new BranchDetail();
-			$getBranchDetails[$decodedData] = $branchDetail->getBranchDetails($branchId[$decodedData]);
+			if (!isset($branchArray[$branchId[$decodedData]])) {
+				$branchArray[$branchId[$decodedData]] = $branchDetail->getBranchDetails($branchId[$decodedData]);
+			}
+			$getBranchDetails[$decodedData] = $branchArray[$branchId[$decodedData]];
 			
 			// date format conversion
 			$convertedCreatedDate[$decodedData] = Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $createdAt[$decodedData])->format('d-m-Y');
@@ -158,6 +175,5 @@ class EncodeAllData extends StateService
 		
 		$encodedData = json_encode($data);
 		return $encodedData;
-		// return $data;
 	}
 }
