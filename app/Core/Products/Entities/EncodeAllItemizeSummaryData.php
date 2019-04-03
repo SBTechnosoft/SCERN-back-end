@@ -23,7 +23,8 @@ class EncodeAllItemizeSummaryData extends ProductService
 		$encodeAllData =  array();
 		$decodedJson = json_decode($status,true);
 		$data = array();
-
+		$productArray = array();
+		$encodeDataClass = new EncodeAllItemizeSummaryData();
 		for($decodedData=0;$decodedData<count($decodedJson);$decodedData++)
 		{
 			$createdAt[$decodedData] = $decodedJson[$decodedData]['created_at'];
@@ -40,8 +41,11 @@ class EncodeAllItemizeSummaryData extends ProductService
 			
 			
 			//get the product detail from database
-			$encodeDataClass = new EncodeAllItemizeSummaryData();
-			$productStatus[$decodedData] = $encodeDataClass->getProductData($productId[$decodedData]);
+			
+			if (!isset($productArray[$productId[$decodedData]])) {
+				$productArray[$productId[$decodedData]] = $encodeDataClass->getProductData($productId[$decodedData]);
+			}
+			$productStatus[$decodedData] = $productArray[$productId[$decodedData]];
 			$productDecodedJson[$decodedData] = json_decode($productStatus[$decodedData],true);
 			if(strcmp($productStatus[$decodedData],$exceptionArray['404'])==0)
 			{

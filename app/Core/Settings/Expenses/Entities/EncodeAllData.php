@@ -17,15 +17,19 @@ class EncodeAllData extends CompanyService
 		$decodedJson = json_decode($status,true);
 		$expense = new Expense();
 		$data = array();
+		$encodeDataClass = new EncodeAllData();
+		$companyArray = array();
 		for($decodedData=0;$decodedData<count($decodedJson);$decodedData++)
 		{
 			$updatedAt[$decodedData] = $decodedJson[$decodedData]['updated_at'];
 			$createdAt[$decodedData] = $decodedJson[$decodedData]['created_at'];
 			$companyId[$decodedData] = $decodedJson[$decodedData]['company_id'];
 			//get the company detail from database
-			$encodeDataClass = new EncodeAllData();
-			$companyStatus[$decodedData] = $encodeDataClass->getCompanyData($companyId[$decodedData]);
-			$companyDecodedJson[$decodedData] = json_decode($companyStatus[$decodedData],true);
+			if (!isset($companyArray[$companyId[$decodedData]])) {
+				$companyStatus[$decodedData] = $encodeDataClass->getCompanyData($companyId[$decodedData]);
+				$companyArray[$companyId[$decodedData]] = json_decode($companyStatus[$decodedData],true);
+			}
+			$companyDecodedJson[$decodedData] = $companyArray[$companyId[$decodedData]];
 			//date format conversion
 			$convertedCreatedDate[$decodedData] = Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $createdAt[$decodedData])->format('d-m-Y');
 			$expense->setCreated_at($convertedCreatedDate[$decodedData]);

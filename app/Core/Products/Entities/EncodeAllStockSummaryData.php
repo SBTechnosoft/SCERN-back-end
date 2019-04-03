@@ -27,7 +27,8 @@ class EncodeAllStockSummaryData extends ProductService
 		$decodedJson = json_decode($status,true);
 		$ledger = new Ledger();
 		$data = array();
-
+		$encodeDataClass = new EncodeAllStockSummaryData();
+		$productArray = array();
 		for($decodedData=0;$decodedData<count($decodedJson);$decodedData++)
 		{
 			$createdAt[$decodedData] = $decodedJson[$decodedData]['created_at'];
@@ -40,9 +41,12 @@ class EncodeAllStockSummaryData extends ProductService
 			$productId[$decodedData] = $decodedJson[$decodedData]['product_id'];
 			
 			//get the product detail from database
-			$encodeDataClass = new EncodeAllStockSummaryData();
-			$productStatus[$decodedData] = $encodeDataClass->getProductData($productId[$decodedData]);
-			$productDecodedJson[$decodedData] = json_decode($productStatus[$decodedData],true);
+			if (!isset($productArray[$productId[$decodedData]])) {
+				$productStatus[$decodedData] = $encodeDataClass->getProductData($productId[$decodedData]);
+				$productArray[$productId[$decodedData]] = json_decode($productStatus[$decodedData],true);
+			}
+			
+			$productDecodedJson[$decodedData] = $productArray[$productId[$decodedData]];
 			if(strcmp($productStatus[$decodedData],$exceptionArray['404'])==0)
 			{
 				//remove deleted product from an array(splice and break)
@@ -50,14 +54,6 @@ class EncodeAllStockSummaryData extends ProductService
 				$decodedData = $decodedData-1;
 				continue;
 			}
-			//get the company details from database
-			// $companyDetail = new CompanyDetail();
-			// $getCompanyDetails[$decodedData] = $companyDetail->getCompanyDetails($companyId[$decodedData]);
-			
-			//get the branch detail from database
-			// $branchDetail  = new BranchDetail();
-			// $getBranchDetails[$decodedData] = $branchDetail->getBranchDetails($branchId[$decodedData]);
-			
 			//date format conversion
 			$convertedCreatedDate[$decodedData] = Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $createdAt[$decodedData])->format('d-m-Y');
 			$ledger->setCreated_at($convertedCreatedDate[$decodedData]);
@@ -86,15 +82,6 @@ class EncodeAllStockSummaryData extends ProductService
 			);
 
 		}
-
-		// $constantArray = new ConstantClass();
-		// $constantArrayData = $constantArray->constantVariable();
-		// $documentPath = $constantArrayData['productBarcode'];
-		
-		// for($jsonData=0;$jsonData<count($decodedJson);$jsonData++)
-		// {
-			
-		// }
 		$jsonEncodedData = json_encode($data);
 		return $jsonEncodedData;
 	}

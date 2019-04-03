@@ -20,7 +20,9 @@ class EncodeTrnAllData extends LedgerService
 		
 		$companyService = new CompanyService();
 		$ledger = new Ledger();
-		
+		$encodeDataClass = new EncodeTrnAllData();
+		$ledgerArray = array();
+		$companyArray = array();
 		for($decodedData=0;$decodedData<count($decodedJson);$decodedData++)
 		{
 			if(array_key_exists($ledgerId[0]->ledger_id.'_id',$decodedJson[$decodedData]))
@@ -39,12 +41,18 @@ class EncodeTrnAllData extends LedgerService
 				$currentBalanceType[$decodedData] = $decodedJson[$decodedData]['currentBalanceType'];
 				
 				// get the ledger detail from database
-				$encodeDataClass = new EncodeTrnAllData();
-				$ledgerStatus[$decodedData] = $encodeDataClass->getLedgerData($ledgersId[$decodedData]);
-				$ledgerDecodedJson[$decodedData] = json_decode($ledgerStatus[$decodedData],true);
+				if (!isset($ledgerArray[$ledgersId[$decodedData]])) {
+					$ledgerStatus[$decodedData] = $encodeDataClass->getLedgerData($ledgersId[$decodedData]);
+					$ledgerArray[$ledgersId[$decodedData]] = json_decode($ledgerStatus[$decodedData],true);
+				}
+				$ledgerDecodedJson[$decodedData] = $ledgerArray[$ledgersId[$decodedData]];
 				
-				$companyData[$decodedData] = $companyService->getCompanyData($ledgerDecodedJson[$decodedData]['company']['companyId']);
-				$companyDecodedData[$decodedData] = json_decode($companyData[$decodedData]);
+				if (!isset($companyArray[$ledgerDecodedJson[$decodedData]['company']['companyId']])) {
+					$companyData[$decodedData] = $companyService->getCompanyData($ledgerDecodedJson[$decodedData]['company']['companyId']);
+					$companyArray[$ledgerDecodedJson[$decodedData]['company']['companyId']] = json_decode($companyData[$decodedData]);
+				}
+				
+				$companyDecodedData[$decodedData] = $companyArray[$ledgerDecodedJson[$decodedData]['company']['companyId']];
 				
 				//convert amount(round) into their company's selected decimal points
 				$amount[$decodedData] = round($amount[$decodedData],$companyDecodedData[$decodedData]->noOfDecimalPoints);
@@ -92,13 +100,17 @@ class EncodeTrnAllData extends LedgerService
 				$currentBalanceType[$decodedData] = $decodedJson[$decodedData]['currentBalanceType'];
 				
 				// get the ledger detail from database
-				$encodeDataClass = new EncodeTrnAllData();
-				$ledgerStatus[$decodedData] = $encodeDataClass->getLedgerData($ledgersId[$decodedData]);
-				$ledgerDecodedJson[$decodedData] = json_decode($ledgerStatus[$decodedData],true);
+				if (!isset($ledgerArray[$ledgersId[$decodedData]])) {
+					$ledgerStatus[$decodedData] = $encodeDataClass->getLedgerData($ledgersId[$decodedData]);
+					$ledgerArray[$ledgersId[$decodedData]] = json_decode($ledgerStatus[$decodedData],true);
+				}
+				$ledgerDecodedJson[$decodedData] = $ledgerArray[$ledgersId[$decodedData]];
 				
-				$companyData[$decodedData] = $companyService->getCompanyData($ledgerDecodedJson[$decodedData]['company']['companyId']);
-				$companyDecodedData[$decodedData] = json_decode($companyData[$decodedData]);
-				
+				if (!isset($companyArray[$ledgerDecodedJson[$decodedData]['company']['companyId']])) {
+					$companyData[$decodedData] = $companyService->getCompanyData($ledgerDecodedJson[$decodedData]['company']['companyId']);
+					$companyArray[$ledgerDecodedJson[$decodedData]['company']['companyId']] = json_decode($companyData[$decodedData]);
+				}
+				$companyDecodedData[$decodedData] = $companyArray[$ledgerDecodedJson[$decodedData]['company']['companyId']];
 				//convert amount(number_format) into their company's selected decimal points
 				$amount[$decodedData] = number_format($amount[$decodedData],$companyDecodedData[$decodedData]->noOfDecimalPoints,'.','');
 				
@@ -128,55 +140,51 @@ class EncodeTrnAllData extends LedgerService
 					$getEntryDate[$decodedData] = $ledger->getEntryDate();
 				}
 			}
-			
-		}
-		$data = array();
-		for($jsonData=0;$jsonData<count($decodedJson);$jsonData++)
-		{
-			$data[$jsonData]= array(
-				'Id'=>$id[$jsonData],
-				'amount' => $amount[$jsonData],
-				'amountType' => $amountType[$jsonData],
-				'entryDate' => $getEntryDate[$jsonData],
-				'jfId' => $jfId[$jsonData],
-				'createdAt' => $getCreatedDate[$jsonData],
-				'updatedAt' => $getUpdatedDate[$jsonData],
-				'openingBalance' => $openingBalance[$jsonData],
-				'openingBalanceType' => $openingBalanceType[$jsonData],
-				'currentBalance' => $currentBalance[$jsonData],
-				'currentBalanceType' => $currentBalanceType[$jsonData],
+			$data[$decodedData]= array(
+				'Id'=>$id[$decodedData],
+				'amount' => $amount[$decodedData],
+				'amountType' => $amountType[$decodedData],
+				'entryDate' => $getEntryDate[$decodedData],
+				'jfId' => $jfId[$decodedData],
+				'createdAt' => $getCreatedDate[$decodedData],
+				'updatedAt' => $getUpdatedDate[$decodedData],
+				'openingBalance' => $openingBalance[$decodedData],
+				'openingBalanceType' => $openingBalanceType[$decodedData],
+				'currentBalance' => $currentBalance[$decodedData],
+				'currentBalanceType' => $currentBalanceType[$decodedData],
 				'ledger' => array(
-					'ledgerId' => $ledgerDecodedJson[$jsonData]['ledgerId'],
-					'ledgerName' => $ledgerDecodedJson[$jsonData]['ledgerName'],
-					'alias' => $ledgerDecodedJson[$jsonData]['alias'],
-					'inventoryAffected' => $ledgerDecodedJson[$jsonData]['inventoryAffected'],
-					'address1' => $ledgerDecodedJson[$jsonData]['address1'],
-					'address2' => $ledgerDecodedJson[$jsonData]['address2'],
-					'isDealer' => $ledgerDecodedJson[$jsonData]['isDealer'],
-					'contactNo' => $ledgerDecodedJson[$jsonData]['contactNo'],
-					'emailId' => $ledgerDecodedJson[$jsonData]['emailId'],
-					'invoiceNumber' => $ledgerDecodedJson[$jsonData]['invoiceNumber'],
-					'outstandingLimit' => $ledgerDecodedJson[$jsonData]['outstandingLimit'],
-					'outstandingLimitType' => $ledgerDecodedJson[$jsonData]['outstandingLimitType'],
-					'pan' => $ledgerDecodedJson[$jsonData]['pan'],
-					'tin' => $ledgerDecodedJson[$jsonData]['tin'],
-					'cgst' => $ledgerDecodedJson[$jsonData]['cgst'],
-					'sgst' => $ledgerDecodedJson[$jsonData]['sgst'],
-					'bankId' => $ledgerDecodedJson[$jsonData]['bankId'],
-					'bankDtlId' => $ledgerDecodedJson[$jsonData]['bankDtlId'],
-					'micrCode' => $ledgerDecodedJson[$jsonData]['micrCode'],
-					'createdAt' => $ledgerDecodedJson[$jsonData]['createdAt'],
-					'updatedAt' => $ledgerDecodedJson[$jsonData]['updatedAt'],
-					'openingBalance' => $ledgerDecodedJson[$jsonData]['openingBalance'],
-					'openingBalanceType' => $ledgerDecodedJson[$jsonData]['openingBalanceType'],
-					'currentBalance' => $ledgerDecodedJson[$jsonData]['currentBalance'],
-					'currentBalanceType' => $ledgerDecodedJson[$jsonData]['currentBalanceType'],
-					'ledgerGroupId' => $ledgerDecodedJson[$jsonData]['ledgerGroup']['ledgerGroupId'],
-					'stateAbb' => $ledgerDecodedJson[$jsonData]['state']['stateAbb'],
-					'cityId' => $ledgerDecodedJson[$jsonData]['city']['cityId'],
-					'companyId' => $ledgerDecodedJson[$jsonData]['company']['companyId']
+					'ledgerId' => $ledgerDecodedJson[$decodedData]['ledgerId'],
+					'ledgerName' => $ledgerDecodedJson[$decodedData]['ledgerName'],
+					'alias' => $ledgerDecodedJson[$decodedData]['alias'],
+					'inventoryAffected' => $ledgerDecodedJson[$decodedData]['inventoryAffected'],
+					'address1' => $ledgerDecodedJson[$decodedData]['address1'],
+					'address2' => $ledgerDecodedJson[$decodedData]['address2'],
+					'isDealer' => $ledgerDecodedJson[$decodedData]['isDealer'],
+					'contactNo' => $ledgerDecodedJson[$decodedData]['contactNo'],
+					'emailId' => $ledgerDecodedJson[$decodedData]['emailId'],
+					'invoiceNumber' => $ledgerDecodedJson[$decodedData]['invoiceNumber'],
+					'outstandingLimit' => $ledgerDecodedJson[$decodedData]['outstandingLimit'],
+					'outstandingLimitType' => $ledgerDecodedJson[$decodedData]['outstandingLimitType'],
+					'pan' => $ledgerDecodedJson[$decodedData]['pan'],
+					'tin' => $ledgerDecodedJson[$decodedData]['tin'],
+					'cgst' => $ledgerDecodedJson[$decodedData]['cgst'],
+					'sgst' => $ledgerDecodedJson[$decodedData]['sgst'],
+					'bankId' => $ledgerDecodedJson[$decodedData]['bankId'],
+					'bankDtlId' => $ledgerDecodedJson[$decodedData]['bankDtlId'],
+					'micrCode' => $ledgerDecodedJson[$decodedData]['micrCode'],
+					'createdAt' => $ledgerDecodedJson[$decodedData]['createdAt'],
+					'updatedAt' => $ledgerDecodedJson[$decodedData]['updatedAt'],
+					'openingBalance' => $ledgerDecodedJson[$decodedData]['openingBalance'],
+					'openingBalanceType' => $ledgerDecodedJson[$decodedData]['openingBalanceType'],
+					'currentBalance' => $ledgerDecodedJson[$decodedData]['currentBalance'],
+					'currentBalanceType' => $ledgerDecodedJson[$decodedData]['currentBalanceType'],
+					'ledgerGroupId' => $ledgerDecodedJson[$decodedData]['ledgerGroup']['ledgerGroupId'],
+					'stateAbb' => $ledgerDecodedJson[$decodedData]['state']['stateAbb'],
+					'cityId' => $ledgerDecodedJson[$decodedData]['city']['cityId'],
+					'companyId' => $ledgerDecodedJson[$decodedData]['company']['companyId']
 				)
 			);
+			
 		}
 		$jsonEncodedData = json_encode($data);
 		return $jsonEncodedData;

@@ -16,6 +16,8 @@ class EncodeAllBranchData extends BankService
 		$encodeAllData =  array();
 		$decodedJson = json_decode($status,true);
 		$encodeBranchData = array();
+		$encodeBranchData = new EncodeAllBranchData();
+		$bankBranchArray = array();
 		for($decodedData=0;$decodedData<count($decodedJson);$decodedData++)
 		{
 			$bankId[$decodedData] = $decodedJson[$decodedData]['bank_id'];
@@ -24,20 +26,18 @@ class EncodeAllBranchData extends BankService
 			$ifscCode[$decodedData] = $decodedJson[$decodedData]['ifsc_code'];
 			$isDefault[$decodedData] = $decodedJson[$decodedData]['is_default'];
 			
-			$encodeBranchData[$decodedData] = new EncodeAllBranchData();
-			$bankData[$decodedData] = $encodeBranchData[$decodedData]->getBankData($bankId[$decodedData]);
-			$bankDecodedJson[$decodedData] = json_decode($bankData[$decodedData],true);
-		}
-		$data = array();
-		for($jsonData=0;$jsonData<count($decodedJson);$jsonData++)
-		{
-			$data[$jsonData]= array(
-				'bankDtlId' => $bankDtlId[$jsonData],
-				'branchName' =>$branchName[$jsonData],
-				'ifscCode' =>$ifscCode[$jsonData],
-				'isDefault' =>$isDefault[$jsonData],
-				'bank' => $bankDecodedJson[$jsonData]
-			);	
+			if (!isset($bankBranchArray[$bankId[$decodedData]])) {
+				$bankData[$decodedData] = $encodeBranchData->getBankData($bankId[$decodedData]);
+				$bankBranchArray[$bankId[$decodedData]] = json_decode($bankData[$decodedData],true);
+			}
+			$bankDecodedJson[$decodedData] = $bankBranchArray[$bankId[$decodedData]];
+			$data[$decodedData]= array(
+				'bankDtlId' => $bankDtlId[$decodedData],
+				'branchName' =>$branchName[$decodedData],
+				'ifscCode' =>$ifscCode[$decodedData],
+				'isDefault' =>$isDefault[$decodedData],
+				'bank' => $bankDecodedJson[$decodedData]
+			);
 		}
 		return json_encode($data);
 	}
