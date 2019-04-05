@@ -655,11 +655,14 @@ class QuotationModel extends Model
 			flow_status_mst.status_name,
 			flow_status_mst.status_position,
 			( select 
-			count(sale_id)
+			count(DISTINCT(sales_bill.sale_id))
 			FROM sales_bill
+			JOIN sales_bill_doc_dtl ON sales_bill_doc_dtl.sale_id = sales_bill.sale_id
 			where $queryParameter 
-			company_id = '$companyId' and
-			deleted_at = '0000-00-00 00:00:00' and
+			sales_bill.company_id = '$companyId' and
+			sales_bill.sales_type = 'whole_sales' and
+			sales_bill.deleted_at = '0000-00-00 00:00:00' and
+			sales_bill_doc_dtl.deleted_at = '0000-00-00 00:00:00' and
 			is_salesorder = 'not' and dispatch_status = 0)
 			 as status_count
 			from flow_status_mst 
