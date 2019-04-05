@@ -394,7 +394,35 @@ class QuotationTransformer
 		
 		return $tQuotationArray;
 	}
-
+	/**
+	 * @param billdata and request data
+	 * @return trim data
+	 */
+	public function trimDispatchData(Request $request,$saleData)
+	{
+		$dispatchData = $request->input();
+		$toDispatchItemArray = array();
+		$dispatchedItemArray = array();
+		$productArray = json_decode($saleData['product_array'],true);
+		$dispatchStatus = trim($dispatchData['dispatchStatus']);
+		$statusId = trim($dispatchData['statusId']);
+		$trimData = [];
+		if ($dispatchStatus == 'ready') {
+			$inventoryArray = $productArray['inventory'];
+			$toDispatchItemArray = $inventoryArray;
+			
+		}else{
+			$tDispatched = trim($dispatchData['dispatchInv']);
+			$tRemain = trim($dispatchData['remainingInv']);
+			$dispatchedItemArray = json_decode($tDispatched);
+			$toDispatchItemArray = json_decode($tRemain);
+		}
+		$trimData['dispatchInv'] = json_encode($dispatchedItemArray);
+		$trimData['remainingInv'] = json_encode($toDispatchItemArray);
+		$trimData['saleId'] = $saleData['sale_id'];
+		$trimData['statusId'] = $statusId;
+		return $trimData;
+	}
 	/**
 	* check value
 	* @param integer value

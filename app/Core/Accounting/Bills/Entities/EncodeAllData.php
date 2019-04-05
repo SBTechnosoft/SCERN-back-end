@@ -206,6 +206,10 @@ class EncodeAllData extends ClientService
 				'branch' => $getBranchDetails	
 			);
 			$data[$decodedData]['file'] = $arrayData;
+			if (isset($deocodedJsonData[$decodedData]->dispatch_status)) {
+				$data[$decodedData]['dispatchStatus'] = $deocodedJsonData[$decodedData]->dispatch_status;
+			}
+			$data[$decodedData]['file'] = $arrayData;
 		}
 		
 		$jsonEncodedData = json_encode($data);

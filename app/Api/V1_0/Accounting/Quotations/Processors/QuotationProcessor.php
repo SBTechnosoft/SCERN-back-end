@@ -648,4 +648,20 @@ class QuotationProcessor extends BaseProcessor
 		$inputArray['inventory'] = $productArray['inventory'];
 		return $inputArray;
 	}
+	public function dispatchPersistable(Request $request,$saleData)
+	{
+		$this->request = $request;
+
+		//get exception message
+		$exception = new ExceptionMessage();
+		$msgArray = $exception->messageArrays();
+
+		//get constant variables array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		//trim an input 
+		$quotationTransformer = new QuotationTransformer();
+		$tRequest = $quotationTransformer->trimDispatchData($this->request,$saleData);
+		return $tRequest;
+	}
 }

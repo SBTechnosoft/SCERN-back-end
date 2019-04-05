@@ -208,7 +208,24 @@ class QuotationService
 			return $encodingResult;
 		}
 	}
-	
+	/**
+	 * @param trimmed request
+	 * @return status
+	 */
+	public function dispatch($dispatchData)
+	{
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		$dispatch = [];
+		foreach ($dispatchData as $key => $value) {
+			$key = strtolower(preg_replace("([A-Z])", "_$0", $key));
+			$dispatch[$key] = $value;
+		}
+		$quotationModel = new QuotationModel();
+		$status = $quotationModel->dispatchInsert($dispatch);
+		return $status;
+	}
 	/**
      * get quotation data as per given data in header
      * @param header-data
@@ -259,7 +276,17 @@ class QuotationService
 			return $encodingResult;
 		}
 	}
-	
+	public function getDispatched($saleId)
+	{
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+			
+		//data pass to the model object for getData
+		$quotationModel = new QuotationModel();
+		$result = $quotationModel->getDispatched($saleId);
+		return $result;
+	}
 	/**
      * update quotation data
      * @param QuotationPersistable $persistable

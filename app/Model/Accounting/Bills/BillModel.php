@@ -906,6 +906,7 @@ class BillModel extends Model
 			s.remark,
 			s.entry_date,
 			s.service_date,
+			s.dispatch_status,
 			s.client_id,
 			s.sales_type,
 			s.refund,
@@ -939,7 +940,7 @@ class BillModel extends Model
 				GROUP BY sale_id 
 			) e ON e.sale_id = s.sale_id
 
-			LEFT JOIN (
+			JOIN (
 				SELECT 
 					sale_id, 
 					CONCAT( 
@@ -1005,6 +1006,7 @@ class BillModel extends Model
 			s.entry_date,
 			s.service_date,
 			s.client_id,
+			s.dispatch_status,
 			s.sales_type,
 			s.refund,
 			s.jf_id,

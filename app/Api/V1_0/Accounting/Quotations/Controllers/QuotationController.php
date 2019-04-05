@@ -398,6 +398,79 @@ class QuotationController extends BaseController implements ContainerInterface
 		}
 	}
 	/**
+	 * update the specified resource 
+	 * @param  Request object[Request $request] and saleId
+	 * method calls the processer...after processing it calls the service and give the document-path of pdf
+	*/
+	public function dispatch(Request $request,$saleId)
+	{
+		//Authentication
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		// get exception message
+		$exception = new ExceptionMessage();
+		$msgArray = $exception->messageArrays();
+			
+		// get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			if(!empty($request->input()))
+			{
+				$billModel = new BillModel();
+				$status = $billModel->getSaleIdData($saleId);
+				if (strcmp($status, $msgArray['404'])==0) {
+					return $status;
+				}
+				$decodedData = json_decode($status,true);
+				$processor = new QuotationProcessor();
+				$persistable = $processor->dispatchPersistable($request,$decodedData[0]);
+				if (is_array($persistable)) {
+					$quotationService = new QuotationService();
+					$status = $quotationService->dispatch($persistable);
+					return $status;
+				}
+			}
+			else
+			{
+				return $msgArray['204'];
+			}
+		}
+		else
+		{
+			return $authenticationResult;
+		}
+	}
+	/**
+	 * get the specified resource 
+	 * @param  saleId
+	 * method calls the processer...after processing it calls the service and give the document-path of pdf
+	*/
+	public function getDispatchData(Request $request,$saleId)
+	{
+		//Authentication
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		// get exception message
+		$exception = new ExceptionMessage();
+		$msgArray = $exception->messageArrays();
+			
+		// get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			$quotationService = new QuotationService();
+			$status = $quotationService->getDispatched($saleId);
+			return $status;
+		}
+		else
+		{
+			return $authenticationResult;
+		}
+	}
+	/**
 	 * @param Request Object
 	 * Get Status wise counts
 	 */

@@ -16,6 +16,7 @@ use stdClass;
 use ERP\Core\Accounting\Quotations\Entities\QuotationArray;
 use ERP\Model\Accounting\Bills\BillModel;
 use ERP\Core\Accounting\Bills\Entities\EncodeData;
+use Exception;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -636,7 +637,8 @@ class QuotationModel extends Model
 		$raw = DB::connection($databaseName)->select("select 
 		flow_status_mst.status_id,
 		flow_status_mst.status_name,
-		count(process_status_dtl.process_status_dtl_id) as status_count
+		count(process_status_dtl.process_status_dtl_id) as status_count,
+		flow_status_mst.status_position
 		from flow_status_mst 
 		LEFT JOIN (select process_status_dtl_id,workflow_status_id FROM process_status_dtl where sale_id='0' and $queryParameter company_id = '$companyId') as process_status_dtl on flow_status_mst.status_id = process_status_dtl.workflow_status_id
 		where flow_status_mst.deleted_at='0000-00-00 00:00:00' and status_position='quotation' GROUP BY flow_status_mst.status_id");
@@ -647,6 +649,43 @@ class QuotationModel extends Model
 		}
 		else
 		{
+			$queryParameter = "(date(entry_date) BETWEEN '".$fromDate."' AND '".$toDate."') AND ";
+			$raw2 = DB::connection($databaseName)->select("select 
+			flow_status_mst.status_id,
+			flow_status_mst.status_name,
+			flow_status_mst.status_position,
+			( select 
+			count(sale_id)
+			FROM sales_bill
+			where $queryParameter 
+			company_id = '$companyId' and
+			deleted_at = '0000-00-00 00:00:00' and
+			is_salesorder = 'not' and dispatch_status = 0)
+			 as status_count
+			from flow_status_mst 
+			where deleted_at='0000-00-00 00:00:00' and status_position='sales' GROUP BY status_id");
+			if (count($raw2)!=0) {
+				$raw = array_merge($raw,$raw2);
+			}
+			$queryParameter = "(date(entry_date) BETWEEN '".$fromDate."' AND '".$toDate."') AND ";
+			$raw2 = DB::connection($databaseName)->select("select 
+			flow_status_mst.status_id,
+			flow_status_mst.status_name,
+			flow_status_mst.status_position,
+			count(sales_bill.sale_id) as status_count
+			from flow_status_mst 
+			LEFT JOIN ( select 
+			sale_id,
+			dispatch_status
+			FROM sales_bill
+			where $queryParameter 
+			company_id = '$companyId' and
+			deleted_at = '0000-00-00 00:00:00' and
+			is_salesorder = 'not') as sales_bill on sales_bill.dispatch_status = flow_status_mst.status_id
+			where deleted_at='0000-00-00 00:00:00' and status_position='delivery' GROUP BY status_id");
+			if (count($raw2)!=0) {
+				$raw = array_merge($raw,$raw2);
+			}
 			return json_encode($raw);
 		}
 	}
@@ -1277,6 +1316,84 @@ class QuotationModel extends Model
 		if(count($saleBillData)!=0)
 		{
 			return json_encode($saleBillData);
+		}
+	}
+	/**
+	 * @param dispatch data
+	 * @return status
+	 */
+	public function dispatchInsert($dispatchData)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		$mytime = Carbon\Carbon::now();
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		$statusId = $dispatchData['status_id'];
+		$saleId = $dispatchData['sale_id'];
+		DB::beginTransaction();
+		try {
+			$update = DB::connection($databaseName)->statement("update
+			sales_bill set
+			dispatch_status = '$statusId'
+			where sale_id = '$saleId'
+			");
+			if ($update==1) {
+				unset($dispatchData['status_id']);
+				$keyStr = '';
+				$valueStr = '';
+				$separator = '';
+				foreach ($dispatchData as $key => $value) {
+					$keyStr .= "$separator $key";
+					$valueStr .= "$separator '$value'";
+					$separator = ',';
+				}
+				$raw = DB::connection($databaseName)->statement("insert into dispatch_dtl
+				($keyStr, created_at) values($valueStr, '$mytime')");
+				if ($raw==1) {
+					DB::commit();
+					return $exceptionArray['200'];
+				}else{
+					throw new Exception($exceptionArray['500']);
+				}
+			}else{
+				throw new Exception($exceptionArray['500']);
+			}
+		} catch (Exception $e) {
+			DB::rollback();
+			return $e->getMessage();
+		}
+	}
+	public function getDispatched($saleId)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		$mytime = Carbon\Carbon::now();
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		//delete bill data 
+		DB::beginTransaction();
+		$raw = DB::connection($databaseName)->select("select 
+			dispatch_inv as dispatchInv,
+			remaining_inv as remainingInv
+			from dispatch_dtl
+			where sale_id = '$saleId' and deleted_at = '0000-00-00 00:00:00'
+			order by dispatch_id desc
+			");
+		DB::commit();
+		if(count($raw)==0)
+		{
+			return $exceptionArray['404'];
+		}
+		else
+		{
+			return json_encode($raw[0]);
 		}
 	}
 	public function deleteQuotationData($quoteId)

@@ -26,6 +26,10 @@ class Quotation implements RouteRegistrarInterface
 		Route::post('Accounting/Quotations/Quotation/{quotationBillId}', 'Accounting\Quotations\Controllers\QuotationController@update');
 
 		Route::post('Accounting/Quotations/Quotation/convert/{quotationBillId}', 'Accounting\Quotations\Controllers\QuotationController@convert');
+		Route::post('Accounting/Quotations/Quotation/convert/{quotationBillId}', 'Accounting\Quotations\Controllers\QuotationController@convert');
+		// dispatch of items 
+		Route::get('Accounting/Quotations/Quotation/dispatch/{saleId}', 'Accounting\Quotations\Controllers\QuotationController@getDispatchData');
+		Route::post('Accounting/Quotations/Quotation/dispatch/{saleId}', 'Accounting\Quotations\Controllers\QuotationController@dispatch');
 		//delete data
 		Route::DELETE('Accounting/Quotations/Quotation/{quotationBillId}/{dataType?}', 'Accounting\Quotations\Controllers\QuotationController@destroySalesOrderData');
 	}

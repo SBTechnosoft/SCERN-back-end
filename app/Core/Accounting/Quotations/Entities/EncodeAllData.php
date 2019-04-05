@@ -116,7 +116,7 @@ class EncodeAllData extends ClientService
 				'createdAt'=>'0000-00-00 00:00:00',
 				'updatedAt'=>'0000-00-00 00:00:00'
 			]);
-			$arrayData = $decodedDocumentData ? json_decode($decodedDocumentData,true) : $defaultFileArray;
+			$arrayData = $decodedDocumentData != '' ? json_decode($decodedDocumentData,true) : $defaultFileArray;
 			$arrayData = array_map(function($ar) use ($constantArray){
 				$ar['documentUrl'] = strcmp($ar['documentFormat'],"pdf")==0 ? $constantArray['quotationDocUrl'] : $constantArray['billDocumentUrl'];
 				return $ar;
@@ -193,7 +193,8 @@ class EncodeAllData extends ClientService
 			$encodeAllData[$decodedData] = [
 				'statusId' => $decodedJson[$decodedData]['status_id'],
 				'status' => ucfirst($decodedJson[$decodedData]['status_name']),
-				'statusCount'=>$decodedJson[$decodedData]['status_count']
+				'statusCount'=>$decodedJson[$decodedData]['status_count'],
+				'statusPosition'=>$decodedJson[$decodedData]['status_position']
 			];
 		}
 		return json_encode($encodeAllData);
