@@ -881,6 +881,7 @@ class BillModel extends Model
 				$isSalesOrder = "s.is_salesorder='ok'";
 			}
 			DB::beginTransaction();
+			DB::statement('SET group_concat_max_len = 1000000');
 			$raw = DB::connection($databaseName)->select("select 
 			s.sale_id,
 			s.product_array,
@@ -980,6 +981,7 @@ class BillModel extends Model
 		else if(is_array($data))
 		{
 			DB::beginTransaction();
+			DB::statement('SET group_concat_max_len = 1000000');
 			$raw = DB::connection($databaseName)->select("select 
 			s.sale_id,
 			s.product_array,
@@ -1446,6 +1448,7 @@ class BillModel extends Model
 		}
 		
 		DB::beginTransaction();
+		DB::statement('SET group_concat_max_len = 1000000');
 		$raw = DB::connection($databaseName)->select("select 
 		s.sale_id,
 		s.product_array,
@@ -1609,6 +1612,7 @@ class BillModel extends Model
 		$constantDatabase = new ConstantClass();
 		$databaseName = $constantDatabase->constantDatabase();
 		DB::beginTransaction();
+		DB::statement('SET group_concat_max_len = 1000000');
 		$raw = DB::connection($databaseName)->select("select 
 		s.sale_id,
 		s.product_array,

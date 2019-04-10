@@ -431,7 +431,9 @@ class QuotationModel extends Model
 		
 		DB::beginTransaction();		
 		if (array_key_exists('isquotationprocess', $headerData)) {
-			$raw = DB::connection($databaseName)->select("select 
+			DB::statement('SET group_concat_max_len = 1000000');
+			$raw = DB::connection($databaseName)->select("
+			select 
 			quotation_bill_dtl.quotation_bill_id,
 			quotation_bill_dtl.product_array,
 			quotation_bill_dtl.quotation_number,
@@ -483,7 +485,9 @@ class QuotationModel extends Model
 			) d ON d.quotation_bill_id = quotation_bill_dtl.quotation_bill_id
 			where quotation_bill_dtl.deleted_at='0000-00-00 00:00:00' ".$queryParameter);
 		}else{
-			$raw = DB::connection($databaseName)->select("select 
+			DB::statement('SET group_concat_max_len = 1000000');
+			$raw = DB::connection($databaseName)->select("
+			select 
 			quotation_bill_dtl.quotation_bill_id,
 			quotation_bill_dtl.product_array,
 			quotation_bill_dtl.quotation_number,

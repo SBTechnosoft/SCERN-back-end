@@ -49,7 +49,7 @@ class EncodeAllData extends ClientService
 			$branchId[$decodedData] = $deocodedJsonData[$decodedData]->branch_id;
 			$createdAt[$decodedData] = $deocodedJsonData[$decodedData]->created_at;
 			$updatedAt[$decodedData] = $deocodedJsonData[$decodedData]->updated_at;
-			$decodedDocumentData = $deocodedJsonData[$decodedData]->file;
+			$documentData = $deocodedJsonData[$decodedData]->file;
 			
 
 			//get the client detail from database
@@ -116,7 +116,8 @@ class EncodeAllData extends ClientService
 				'createdAt'=>'0000-00-00 00:00:00',
 				'updatedAt'=>'0000-00-00 00:00:00'
 			]);
-			$arrayData = $decodedDocumentData != '' ? json_decode($decodedDocumentData,true) : $defaultFileArray;
+			$decodedDocumentData = json_decode($documentData,true);
+			$arrayData = is_array($decodedDocumentData) && !empty($decodedDocumentData) ? $decodedDocumentData : $defaultFileArray;
 			$arrayData = array_map(function($ar) use ($constantArray){
 				$ar['documentUrl'] = strcmp($ar['documentFormat'],"pdf")==0 ? $constantArray['quotationDocUrl'] : $constantArray['billDocumentUrl'];
 				return $ar;

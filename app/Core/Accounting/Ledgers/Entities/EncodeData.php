@@ -6,6 +6,7 @@ use ERP\Core\States\Services\StateService;
 use ERP\Core\Entities\LedgerGroupDetail;
 use ERP\Core\Entities\CityDetail;
 use ERP\Core\Entities\CompanyDetail;
+use ERP\Core\Accounting\Ledgers\Entities\LedgerArray;
 use Carbon;
 /**
  *
@@ -15,6 +16,8 @@ class EncodeData extends StateService
 {
 	public function getEncodedData($status)
 	{
+		$ledgerArray = new LedgerArray();
+		$defaultLedgers = $ledgerArray->ledgerArrays();
 		$decodedJson = json_decode($status,true);
 		$createdAt = $decodedJson['created_at'];
 		$updatedAt= $decodedJson['updated_at'];
@@ -164,6 +167,7 @@ class EncodeData extends StateService
 			'stateAbb' => $companyDetails['state']['stateAbb'],	
 			'cityId' => $companyDetails['city']['cityId']
 		);
+		$data['isDefault'] = in_array($ledgerName, $defaultLedgers);
 		$encodeData = json_encode($data);
 		return $encodeData;
 	}

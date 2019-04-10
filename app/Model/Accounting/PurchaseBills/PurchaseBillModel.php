@@ -290,7 +290,9 @@ class PurchaseBillModel extends Model
 		}
 		//get all the purchase-bill data
 		DB::beginTransaction();
-		$purchaseIdDataResult = DB::connection($databaseName)->select("select 
+		DB::statement('SET group_concat_max_len = 1000000');
+		$purchaseIdDataResult = DB::connection($databaseName)->select("
+		select 
 		p.purchase_id,
 		p.vendor_id,
 		p.product_array,
@@ -393,7 +395,9 @@ class PurchaseBillModel extends Model
 		$constantDatabase = new ConstantClass();
 		$databaseName = $constantDatabase->constantDatabase();
 		DB::beginTransaction();
-		$purchaseData = DB::connection($databaseName)->select("select 
+		DB::statement('SET group_concat_max_len = 1000000');
+		$purchaseData = DB::connection($databaseName)->select("
+		select 
 		p.purchase_id,
 		p.vendor_id,
 		p.product_array,
@@ -564,7 +568,9 @@ class PurchaseBillModel extends Model
 			$toDate = $data->getToDate();
 		
 			DB::beginTransaction();
-			$raw = DB::connection($databaseName)->select("select 
+			DB::statement('SET group_concat_max_len = 1000000');
+			$raw = DB::connection($databaseName)->select("
+			select 
 			p.purchase_id,
 			p.vendor_id,
 			p.product_array,
@@ -658,7 +664,9 @@ class PurchaseBillModel extends Model
 		else if(is_array($data))
 		{
 			DB::beginTransaction();
-			$raw = DB::connection($databaseName)->select("select 
+			DB::statement('SET group_concat_max_len = 1000000');
+			$raw = DB::connection($databaseName)->select("
+			select 
 			p.purchase_id,
 			p.vendor_id,
 			p.product_array,
@@ -774,7 +782,7 @@ class PurchaseBillModel extends Model
 		}
 		
 		$purchaseIdData = $this->getPurchaseBillData($purchaseArray);
-		$jsonDecodedPurchaseData = json_decode(json_decode($purchaseIdData)->purchaseBillData);
+		$jsonDecodedPurchaseData = json_decode($purchaseIdData);
 		
 		// $productArray = $jsonDecodedPurchaseData[0]->product_array;
 		// $inventoryCount = count(json_decode($productArray));

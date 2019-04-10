@@ -143,7 +143,6 @@ class DemoProcessor extends BaseProcessor
 		$ledgerValidate = new LedgerValidate();
 		$status;
 		$requestMethod = $_SERVER['REQUEST_METHOD'];
-		
 		//get exception message
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();

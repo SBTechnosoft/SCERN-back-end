@@ -230,7 +230,7 @@ class PurchaseBillProcessor extends BaseProcessor
 			{
 				return $exceptionArray['204'];
 			}
-			$purchaseArrayData = json_decode(json_decode($purchaseArrayData)->purchaseBillData);
+			$purchaseArrayData = json_decode($purchaseArrayData);
 			$trimRequest['companyId'] = $purchaseArrayData[0]->company_id;
 		}
 		if(!array_key_exists('paymentMode',$trimRequest) && $purchaseId!='')
@@ -516,7 +516,7 @@ class PurchaseBillProcessor extends BaseProcessor
 					{
 						return $exceptionArray['204'];
 					}
-					$purchaseArrayData = json_decode(json_decode($purchaseArrayData)->purchaseBillData);
+					$purchaseArrayData = json_decode($purchaseArrayData);
 					$inventoryData['companyId'] = $purchaseArrayData[0]->company_id;
 					$inventoryData['inventory'] = $tRequest['inventory'];
 					$inventoryData['billNumber'] =  array_key_exists('billNumber',$tRequest) 
