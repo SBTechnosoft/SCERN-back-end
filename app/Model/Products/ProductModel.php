@@ -2446,8 +2446,8 @@ class ProductModel extends Model
 		pmst.company_id,
 		ptrm.qty as quantity
 		from product_mst as pmst LEFT JOIN product_trn_summary as ptrm ON ptrm.product_id = pmst.product_id
-		where product_code = '".$productCode['productcode'][0]."' and
-		deleted_at='0000-00-00 00:00:00'");
+		where pmst.product_code = '".$productCode['productcode'][0]."' and
+		pmst.deleted_at='0000-00-00 00:00:00'");
 		DB::commit();
 		
 		// get exception message

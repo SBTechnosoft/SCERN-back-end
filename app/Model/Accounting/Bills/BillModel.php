@@ -2033,16 +2033,15 @@ class BillModel extends Model
 		{
 			$keyValueString = $keyValueString.array_keys($billArray)[$billArrayData]." = '".$billArray[array_keys($billArray)[$billArrayData]]."',";
 		}
-		
 		// update bill-data
 		// try{
 			DB::beginTransaction();
 			$raw = DB::connection($databaseName)->statement("update
 			sales_bill set
 			".$keyValueString."
-			updated_at = '".$mytime."',
-			".$salesOrder."
+			updated_at = '".$mytime."'
 			where sale_id = ".$saleId." and
+			".$salesOrder." and
 			deleted_at='0000-00-00 00:00:00'");
 			DB::commit();
 		// }

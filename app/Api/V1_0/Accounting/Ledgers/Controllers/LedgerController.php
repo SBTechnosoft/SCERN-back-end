@@ -159,6 +159,39 @@ class LedgerController extends BaseController implements ContainerInterface
 	
 	/**
      * get the specified resource.
+     * @param  int  $userId
+     */
+	public function getUserData(Request $request,$userId)
+	{
+		//Authentication
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		
+		//get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			if (array_key_exists('companyid', $request->header())) 
+			{
+				$headerData = $request->header();
+				$ledgerService= new LedgerService();
+				$status = $ledgerService->getUserData($userId,$headerData);
+				return $status;
+			}else{
+				return $exceptionArray['204'];
+			}
+			
+		}
+		else
+		{
+			return $authenticationResult;
+		}
+	}
+	/**
+     * get the specified resource.
      * @param  int  $ledgerGrpId
      */
     public function getAllData(Request $request,$ledgerGrpId)
@@ -373,7 +406,7 @@ class LedgerController extends BaseController implements ContainerInterface
 	
     /**
      * Remove the specified resource from storage.
-     * @param  Request object[Request $request]     
+     * @param  Request object[Request $request]
      * @param  ledger_id     
      */
     public function destroy(Request $request,$ledgerId)
@@ -393,7 +426,7 @@ class LedgerController extends BaseController implements ContainerInterface
 			return $result;
 		}
 		else
-		{		
+		{
 			$ledgerPersistable = $Processor->createPersistableChange($this->request,$ledgerId);
 			$ledgerService->create($ledgerPersistable);
 			$status = $ledgerService->delete($ledgerPersistable);

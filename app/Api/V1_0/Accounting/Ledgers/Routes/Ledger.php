@@ -20,6 +20,7 @@ class Ledger implements RouteRegistrarInterface
 		Route::group(['as' => 'get'], function ()
 		{
 			Route::get('Accounting/Ledgers/Ledger/{ledgerId?}', 'Accounting\Ledgers\Controllers\LedgerController@getData');
+			Route::get('Accounting/Ledgers/Ledger/user/{userId}', 'Accounting\Ledgers\Controllers\LedgerController@getUserData');
 			Route::get('Accounting/Ledgers/Ledger/ledgerGrp/{ledgerGrpId}', 'Accounting\Ledgers\Controllers\LedgerController@getAllData');
 			Route::get('Accounting/Ledgers/Ledger/company/{companyId}', 'Accounting\Ledgers\Controllers\LedgerController@getLedgerData');
 			Route::get('Accounting/Ledgers/Ledger/{ledgerId}/transactions', 'Accounting\Ledgers\Controllers\LedgerController@getLedgerTransactionData');

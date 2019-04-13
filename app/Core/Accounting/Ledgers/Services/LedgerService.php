@@ -250,7 +250,27 @@ class LedgerService extends AbstractService
 			return $encodeAllData;
 		}
 	}
-	
+	/**
+     * get all the data for given company user and call the model for database selection opertation
+     * @return status
+     */
+	public function getUserData()
+	{
+		$userId = func_get_arg(0);
+		$headerData = func_get_arg(1);
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+
+		$companyId = $headerData['companyid'][0];
+		$ledgerModel = new LedgerModel();
+		$status = $ledgerModel->getDataAsPerUserId($companyId,$userId);
+		if (strcmp($status, $exceptionArray['204'])==0) {
+			return $status;
+		}
+		$decodedData = json_decode($status,true);
+		$ledgerId = $decodedData[0]['ledger_id'];
+		return $this->getLedgerTransactionDetail($ledgerId);
+	}
 	/**
      * get current-year data and call the model for database selection opertation
      * @return status
