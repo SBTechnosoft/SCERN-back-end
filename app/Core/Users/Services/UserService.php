@@ -81,6 +81,28 @@ class UserService extends AbstractService
 			return $encodeAllData;
 		}
 	}
+	/**
+     * get all the data and call the model for database selection opertation
+     * @return status
+     */
+	public function getEmailData(Request $request,$emailId)
+	{
+		$userModel = new UserModel();
+		$status = $userModel->getAllData($request,$emailId);
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if(strcmp($status,$exceptionArray['204'])==0)
+		{
+			return $status;
+		}
+		else
+		{
+			$encoded = new EncodeAllData();
+			$encodeAllData = $encoded->getEncodedAllData($status);
+			return $encodeAllData;
+		}
+	}
 	
 	/**
      * get all the dataas per given id and call the model for database selection opertation

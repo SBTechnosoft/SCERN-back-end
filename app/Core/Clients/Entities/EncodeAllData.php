@@ -56,7 +56,7 @@ class EncodeAllData extends StateService
 			$stateAbb[$decodedData] = $decodedJson[$decodedData]['state_abb'];
 			$cityId[$decodedData] = $decodedJson[$decodedData]['city_id'];
 			$professionIdArray[$decodedData] = $decodedJson[$decodedData]['profession_id'];
-			
+			$closingBalance[$decodedData] = array_key_exists('closing_balance', $decodedJson[$decodedData]) ? $decodedJson[$decodedData]['closing_balance'] : [];
 			//get the state detail from database
 			
 			if (!isset($stateArray[$stateAbb[$decodedData]])) {
@@ -222,9 +222,9 @@ class EncodeAllData extends StateService
 				'city' => $getCityDetail[$jsonData]
 			);
 			$data[$jsonData]['file'] = $documentArrayData[$jsonData];
+			$data[$jsonData]['closingBalance'] = $closingBalance[$jsonData];
 		}
 		ini_set('memory_limit', '256M');
-		
 		return json_encode($data);
 	}
 }
