@@ -325,6 +325,25 @@ class BillService
 		return $billResult;
 	}
 	
+	 /**
+     * update bill payment data
+     * @param BillPersistable $persistable
+     * @return status/error message
+     */
+	public function updateStatusData($statusData)
+	{
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		$status = [];
+		foreach ($statusData as $key => $value) {
+			$key = strtolower(preg_replace("([A-Z])", "_$0", $key));
+			$status[$key] = $value;
+		}
+		$billModel = new BillModel();
+		$billResult = $billModel->updateStatusData($status);
+		return $billResult;
+	}
+	
 	/**
      * update bill data
      * @param BillPersistable $persistable

@@ -259,6 +259,62 @@ class BillController extends BaseController implements ContainerInterface
 	}
 	
 	/**
+	 * update the specified resource (bill-status)
+	 * @param  Request object[Request $request]
+	 * method calls the processor for creating persistable object & setting the data
+	*/
+	public function updateBillStatus(Request $request,$saleId)
+	{
+		//Authentication
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		
+		// get exception message
+		$exception = new ExceptionMessage();
+		$msgArray = $exception->messageArrays();
+		// get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			if(count($_POST)!=0)
+			{
+				$billModel = new BillModel();
+				$status = $billModel->getSaleIdData($saleId);
+				if (strcmp($status, $msgArray['404'])==0) 
+				{
+						return $status;
+				}
+				$processor = new BillProcessor();
+				$billPersistable = new BillPersistable();
+				$billData = json_decode($status,true);
+				$billPersistable = $processor->getPersistableStatusData($request,$billData[0]);
+
+				if(is_array($billPersistable))
+				{
+					$billService= new BillService();
+					$status = $billService->updateStatusData($billPersistable);
+					return $status;
+				}
+				else
+				{
+					return $billPersistable;
+				}
+			}
+			else
+			{
+				return $msgArray['204'];
+			}
+			
+
+		}
+		else
+		{
+			return $authenticationResult;
+		}
+	}
+	
+	/**
 	 * update the specified resource 
 	 * @param  Request object[Request $request]
 	 * method calls the processor for creating persistable object & setting the data

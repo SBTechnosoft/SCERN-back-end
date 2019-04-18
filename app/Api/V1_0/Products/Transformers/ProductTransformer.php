@@ -1186,6 +1186,7 @@ class ProductTransformer extends ExceptionMessage
 		$constantArray = $constantClass->constantVariable();
 		$settingService = new SettingService();
 		$settingStatus = $settingService->getData();
+		$ProductService = new ProductService();
 		if (strcmp($exceptionArray['204'], $settingStatus)==0) {
 			return $settingStatus;
 		}

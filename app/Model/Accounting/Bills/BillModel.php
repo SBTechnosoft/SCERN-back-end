@@ -1934,6 +1934,37 @@ class BillModel extends Model
 	}
 	
 	/**
+	 * update bill status data
+	 * @param  sale-id and bill-data array and image Array
+	 * returns the exception-message/status
+	*/
+	public function updateStatusData($statusData)
+	{
+		$mytime = Carbon\Carbon::now();
+		//database selection
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		$statusId = $statusData['dispatch_status'];
+		$saleId = $statusData['sale_id'];
+		DB::beginTransaction();
+		$raw = DB::connection($databaseName)->statement("update
+			sales_bill set
+			dispatch_status = '$statusId'
+			where sale_id = '$saleId'
+			");
+		DB::commit();
+		if ($raw==1) {
+			return $exceptionArray['200'];
+		}
+		else
+		{
+			return $exceptionArray['500'];
+		}
+	}
+	/**
 	 * update bill data
 	 * @param  sale-id and bill-data array and image Array
 	 * returns the exception-message/status

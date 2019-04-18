@@ -1024,7 +1024,28 @@ class BillProcessor extends BaseProcessor
 			return $tRequest;
 		}
 	}
-	
+	/**
+     * get request data and set into the persistable object
+     * $param Request object [Request $request] and sale-id
+     * @return Bill Persistable object
+     */	
+	public function getPersistableStatusData(Request $request,$saleData)
+	{
+		$exception = new ExceptionMessage();
+		$msgArray = $exception->messageArrays();
+		
+		$amountTypeEnum = new AmountTypeEnum();
+		$amountTypeArray = $amountTypeEnum->enumArrays();
+		
+		//get constant variables array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		
+		//trim an input 
+		$billTransformer = new BillTransformer();
+		$tRequest = $billTransformer->trimStatusData($request,$saleData);
+		return $tRequest;
+	}
 	/**
      * get request data & sale-id and set into the persistable object
      * $param Request object [Request $request] and sale-id and billdata

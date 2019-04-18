@@ -662,7 +662,28 @@ class BillTransformer
 		
 		return $tBillArray;
 	}
-	
+	public function trimStatusData(Request $request,$saleData)
+	{
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		$statusData = $request->input();
+		$headerData = $request->header();
+		if (count($statusData)==0) {
+			return $exceptionArray['204'];
+		}
+		$returnArray = array();
+		if ($statusData['statusType'] != 'finalized') {
+			return $exceptionArray['204'];
+		}
+		$returnArray['dispatchStatus'] = trim($statusData['statusId']);
+		$authenticateModel = new AuthenticateModel();
+ 		$userId = $authenticateModel->getActiveUser($headerData);
+ 		$tUpdatedBy = isset($userId[0]->user_id) ? $userId[0]->user_id : 0;
+		$returnArray['updatedBy'] = $tUpdatedBy;
+		$returnArray['saleId'] = $saleData['sale_id'];
+		return $returnArray;
+
+	}
 	/**
 	* check value
 	* @param integer value

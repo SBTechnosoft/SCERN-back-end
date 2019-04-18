@@ -689,7 +689,7 @@ class QuotationModel extends Model
 			company_id = '$companyId' and
 			deleted_at = '0000-00-00 00:00:00' and
 			is_salesorder = 'not') as sales_bill on sales_bill.dispatch_status = flow_status_mst.status_id
-			where deleted_at='0000-00-00 00:00:00' and status_position='delivery' GROUP BY status_id");
+			where deleted_at='0000-00-00 00:00:00' and (status_position='delivery' || status_position='finalized') GROUP BY status_id");
 			if (count($raw2)!=0) {
 				$raw = array_merge($raw,$raw2);
 			}
