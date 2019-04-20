@@ -48,6 +48,7 @@ class EncodeData extends ClientService
 		$branchId= $decodedJson[0]['branch_id'];
 		$salesType= $decodedJson[0]['sales_type'];
 		$expense= $decodedJson[0]['expense'];
+		$printCount= $decodedJson[0]['print_count'];
 		//get the client details from database
 		$encodeStateDataClass = new EncodeData();
 		$clientStatus = $encodeStateDataClass->getClientData($clientId);
@@ -146,6 +147,7 @@ class EncodeData extends ClientService
 		$data['client']= $clientDecodedJson;
 		$data['company']= $companyDetails;
 		$data['branch']= $branchDetails;
+		$data['printCount']= $printCount;
 		$encodeData = json_encode($data);
 		return $encodeData;
 	}

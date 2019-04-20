@@ -484,7 +484,9 @@ class BillService
 								$documentRequest = Request::create($path,$method,$saleIdArray);
 								if(array_key_exists('operation',$headerData))
 								{
-									$documentRequest->headers->set('operation',$headerData['operation'][0]);
+									if ($headerData['operation'][0]!= 'generate') {
+										$documentRequest->headers->set('operation',$headerData['operation'][0]);
+									}
 								}
 								else
 								{

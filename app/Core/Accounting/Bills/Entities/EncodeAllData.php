@@ -70,6 +70,8 @@ class EncodeAllData extends ClientService
 			$branchId = $deocodedJsonData[$decodedData]->branch_id;
 			$createdAt = $deocodedJsonData[$decodedData]->created_at;
 			$updatedAt = $deocodedJsonData[$decodedData]->updated_at;
+			// $printCount = isset($deocodedJsonData[$decodedData]->print_count) ? $deocodedJsonData[$decodedData]->print_count : 0;
+			$printCount = $deocodedJsonData[$decodedData]->print_count;
 			$decodedDocumentData = json_decode($deocodedJsonData[$decodedData]->file,true);
 			//get the client detail from database
 			if (!isset($clientArray[$clientId])) {
@@ -186,6 +188,7 @@ class EncodeAllData extends ClientService
 				'entryDate'=>$getEntryDate,
 				'serviceDate'=>$serviceDate,
 				'expense'=>$expense,
+				'printCount'=>$printCount,
 				'client' => array(
 					'clientId'=>$clientData->clientId,
 					'clientName'=>$clientData->clientName,

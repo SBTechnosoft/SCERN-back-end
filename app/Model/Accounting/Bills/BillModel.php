@@ -389,6 +389,13 @@ class BillModel extends Model
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
 		$requestInput = $requestData->input();
+		$printCount = '0';
+		if(array_key_exists('operation',$requestData->header()))
+		{
+			if ($requestData->header()['operation'][0]== 'generate') {
+				$printCount = '1';
+			}
+		}
 		$salesOrder = array_key_exists("issalesorder",$requestData->header()) ? "is_salesorder='ok'" : "is_salesorder='not'";
 		$salesOrderInsert = array_key_exists("issalesorder",$requestData->header()) ? "ok" : "not";
 		if($jobCardNumber!="")
@@ -438,6 +445,7 @@ class BillModel extends Model
 			sales_type='".$salesType."',
 			client_id='".$ClientId."',
 			jf_id='".$jfId."',
+			print_count='$printCount',
 			created_by='".$createdBy."',
 			updated_by='".$createdBy."',
 			updated_at='".$mytime."',
@@ -489,9 +497,10 @@ class BillModel extends Model
 				client_id,
 				sales_type,
 				jf_id,
+				print_count,
 				created_by,
 				created_at) 
-				values('".$productArray."','".$paymentMode."','".$bankLedgerId."','".$invoiceNumber."','".$jobCardNumber."','".$bankName."','".$checkNumber."','".$total."','".$totalDiscounttype."','".$totalDiscount."','".$totalCgstPercentage."','".$totalSgstPercentage."','".$totalIgstPercentage."','".$extraCharge."','".$tax."','".$grandTotal."','".$advance."','".$balance."','".$poNumber."','".$userId."','".$salesOrderInsert."','".$remark."','".$entryDate."','".$serviceDate."','".$companyId."','".$branchId."','".$ClientId."','".$salesType."','".$jfId."','".$createdBy."','".$mytime."')");
+				values('".$productArray."','".$paymentMode."','".$bankLedgerId."','".$invoiceNumber."','".$jobCardNumber."','".$bankName."','".$checkNumber."','".$total."','".$totalDiscounttype."','".$totalDiscount."','".$totalCgstPercentage."','".$totalSgstPercentage."','".$totalIgstPercentage."','".$extraCharge."','".$tax."','".$grandTotal."','".$advance."','".$balance."','".$poNumber."','".$userId."','".$salesOrderInsert."','".$remark."','".$entryDate."','".$serviceDate."','".$companyId."','".$branchId."','".$ClientId."','".$salesType."','".$jfId."','$printCount','".$createdBy."','".$mytime."')");
 				DB::commit();
 				
 				//update invoice-number				
@@ -535,6 +544,7 @@ class BillModel extends Model
 				sales_type='".$salesType."',
 				".$salesOrder.",
 				jf_id='".$jfId."',
+				print_count='$printCount',
 				created_by='".$createdBy."',
 				updated_by='".$createdBy."',
 				updated_at='".$mytime."' 
@@ -647,6 +657,7 @@ class BillModel extends Model
 			company_id,
 			branch_id,
 			jf_id,
+			print_count,
 			created_at,
 			updated_at 
 			from sales_bill where sale_id=(select MAX(sale_id) as sale_id from sales_bill) and deleted_at='0000-00-00 00:00:00' and is_draft='no' and ".$salesOrder); 
@@ -912,6 +923,7 @@ class BillModel extends Model
 			s.sales_type,
 			s.refund,
 			s.jf_id,
+			s.print_count,
 			s.company_id,
 			s.branch_id,
 			s.created_at,
@@ -1012,6 +1024,7 @@ class BillModel extends Model
 			s.sales_type,
 			s.refund,
 			s.jf_id,
+			s.print_count,
 			s.company_id,
 			s.branch_id,
 			s.created_at,
@@ -1130,6 +1143,7 @@ class BillModel extends Model
 		company_id,
 		branch_id,
 		jf_id,
+		print_count,
 		created_at,
 		updated_at 
 		from sales_bill 
@@ -1213,6 +1227,7 @@ class BillModel extends Model
 		company_id,
 		branch_id,
 		jf_id,
+		print_count,
 		created_at,
 		updated_at 
 		from sales_bill 
@@ -1294,6 +1309,7 @@ class BillModel extends Model
 		company_id,
 		branch_id,
 		jf_id,
+		print_count,
 		created_at,
 		updated_at 
 		from sales_bill 
@@ -1373,6 +1389,7 @@ class BillModel extends Model
 		company_id,
 		branch_id,
 		jf_id,
+		print_count,
 		created_at,
 		updated_at 
 		from sales_bill 
@@ -1478,6 +1495,7 @@ class BillModel extends Model
 		s.sales_type,
 		s.refund,
 		s.jf_id,
+		s.print_count,
 		s.company_id,
 		s.branch_id,
 		s.created_at,
@@ -1590,6 +1608,7 @@ class BillModel extends Model
 		company_id,
 		branch_id,
 		jf_id,
+		print_count,
 		created_at,
 		updated_at 
 		from sales_bill 
@@ -1642,6 +1661,7 @@ class BillModel extends Model
 		s.sales_type,
 		s.refund,
 		s.jf_id,
+		s.print_count,
 		s.company_id,
 		s.branch_id,
 		s.created_at,
@@ -1981,6 +2001,12 @@ class BillModel extends Model
 		//get exception message
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
+		if(array_key_exists('operation',$headerData))
+		{
+			if ($headerData['operation'][0]== 'generate') {
+				$this->updatePrintCount($saleId);
+			}
+		}
 		$salesOrder = array_key_exists("issalesorderupdate",$headerData) ? "is_salesorder='ok'":"is_salesorder='not'";
 		$salesOrderInsert = array_key_exists("issalesorderupdate",$headerData) ? "ok":"not";
 		if(isset($documentArray) && !empty($documentArray))
@@ -2463,6 +2489,7 @@ class BillModel extends Model
 		company_id,
 		branch_id,
 		jf_id,
+		print_count,
 		created_at,
 		updated_at 
 		from sales_bill 
@@ -2528,6 +2555,7 @@ class BillModel extends Model
 		company_id,
 		branch_id,
 		jf_id,
+		print_count,
 		created_at,
 		updated_at 
 		from sales_bill 
@@ -2592,6 +2620,7 @@ class BillModel extends Model
 		company_id,
 		branch_id,
 		jf_id,
+		print_count,
 		created_at,
 		updated_at 
 		from sales_bill 
@@ -2657,6 +2686,7 @@ class BillModel extends Model
 		company_id,
 		branch_id,
 		jf_id,
+		print_count,
 		created_at,
 		updated_at 
 		from sales_bill 
@@ -2879,6 +2909,25 @@ class BillModel extends Model
 		}
 	}
 	
+	/**
+	 * update print_count data
+	 * @param  sale-id
+	 * returns the exception-message/status
+	*/
+	function updatePrintCount($saleId)
+	{
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		//get exception message
+		DB::beginTransaction();
+		$deleteBillData = DB::connection($databaseName)->statement("update
+		sales_bill set
+		print_count = print_count + 1
+		where sale_id = ".$saleId." and
+		deleted_at='0000-00-00 00:00:00'");
+		DB::commit();
+	}
 	/**
 	 * delete bill-draft data
 	 * @param  sale-id

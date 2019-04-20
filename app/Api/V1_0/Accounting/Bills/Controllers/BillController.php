@@ -107,7 +107,9 @@ class BillController extends BaseController implements ContainerInterface
 							$documentRequest = Request::create($path,$method,$saleIdArray);
 							if(array_key_exists('operation',$request->header()))
 							{
-								$documentRequest->headers->set('operation',$request->header()['operation'][0]);
+								if ($request->header()['operation'][0]!= 'generate') {
+									$documentRequest->headers->set('operation',$request->header()['operation'][0]);
+								}
 							}
 							else
 							{
@@ -363,6 +365,13 @@ class BillController extends BaseController implements ContainerInterface
 			}
 			else
 			{
+				if(array_key_exists('operation',$request->header()))
+				{
+					if ($request->header()['operation'][0]== 'generate') {
+						$billModel = new BillModel();
+						$billModel->updatePrintCount($saleId);
+					}
+				}
 				return $msgArray['204'];
 			}
 		}
