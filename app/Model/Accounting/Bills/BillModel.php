@@ -1805,7 +1805,7 @@ class BillModel extends Model
 		
 		if(strcmp($arrayData->payment_mode,"bank")==0)
 		{
-			if(strcmp($paymentTransaction,"payment")==0)
+			if(strcmp($paymentTransaction,"payment")==0 || strcmp($paymentTransaction,"receipt")==0)
 			{
 				DB::beginTransaction();
 				$raw = DB::connection($databaseName)->statement("update
@@ -1844,7 +1844,7 @@ class BillModel extends Model
 		}
 		else
 		{
-			if(strcmp($paymentTransaction,"payment")==0)
+			if(strcmp($paymentTransaction,"payment")==0 || strcmp($paymentTransaction,"receipt")==0)
 			{
 				DB::beginTransaction();
 				$raw = DB::connection($databaseName)->statement("update
@@ -1880,7 +1880,6 @@ class BillModel extends Model
 		}
 		$saleIdData = $this->getSaleIdData($arrayData->sale_id);
 		$jsonDecodedSaleData = json_decode($saleIdData);
-		
 		DB::beginTransaction();
 		$saleTrnInsertionResult = DB::connection($databaseName)->statement("insert
 		into sales_bill_trn(

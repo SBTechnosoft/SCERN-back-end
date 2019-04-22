@@ -766,7 +766,7 @@ class DocumentMpdf extends CurrencyToWordConversion
 		{
 			$amount = $transactionResult[0]->refund-$transactionResult[1]->refund;
 		}	
-		else if(strcmp($transactionResult[0]->payment_trn,"payment")==0)
+		else if(strcmp($transactionResult[0]->payment_trn,"payment")==0 || strcmp($transactionResult[0]->payment_trn,"receipt")==0)
 		{
 			$amount = $transactionResult[0]->advance-$transactionResult[1]->advance;
 		}

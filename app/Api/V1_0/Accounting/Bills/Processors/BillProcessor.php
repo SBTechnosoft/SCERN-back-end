@@ -815,7 +815,7 @@ class BillProcessor extends BaseProcessor
 		
 		//trim an input 
 		$billTransformer = new BillTransformer();
-		$tRequest = $billTransformer->trimPaymentData($request);		
+		$tRequest = $billTransformer->trimPaymentData($request);
 		if(is_array($tRequest))
 		{
 			//validate entry-date
@@ -911,7 +911,7 @@ class BillProcessor extends BaseProcessor
 						$path=$constantArray['journalUrl'];
 						
 						$journalRequest = Request::create($path,$method,$journalArray);
-						$journalRequest->headers->set('type',$constantArray['paymentType']);
+						$journalRequest->headers->set('type',$constantArray['receiptType']);
 						$processedData = $journalController->store($journalRequest);
 						if(strcmp($processedData,$msgArray['200'])!=0)
 						{
@@ -925,7 +925,7 @@ class BillProcessor extends BaseProcessor
 						$billArray['balance'] = $decodedBillData[0]->balance-$tRequest['amount'];
 						$billArray['refund'] = 0;
 						$billArray['entry_date'] = $tRequest['entry_date'];
-						$billArray['payment_transaction'] = $tRequest['payment_transaction'];	
+						$billArray['payment_transaction'] = $constantArray['receiptType'];
 
 						if(strcmp($tRequest['payment_mode'],"cash")!=0)
 						{
