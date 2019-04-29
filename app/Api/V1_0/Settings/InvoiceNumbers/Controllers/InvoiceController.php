@@ -197,7 +197,7 @@ class InvoiceController extends BaseController implements ContainerInterface
 			$this->request = $request;
 			$processor = new InvoiceProcessor();
 			$invoicePersistable = new InvoicePersistable();		
-			$invoiceService= new InvoiceService();		
+			$invoiceService= new InvoiceService();
 			$invoiceModel = new InvoiceModel();
 			$result = $invoiceModel->getData($invoiceId);
 			

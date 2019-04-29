@@ -83,13 +83,10 @@ class DocumentMpdf extends CurrencyToWordConversion
 			}
 		/* End Setting */
 
-		if(array_key_exists("operation",$headerData))
+		if(array_key_exists("operation",$headerData) && strcmp($headerData['operation'][0],'preprint')==0)
 		{
-			if(strcmp($headerData['operation'][0],'preprint')==0)
-			{
-				$printHtmlBody = json_decode($blankTemplateData)[0]->templateBody;
-				$htmlBody = json_decode($templateData)[0]->templateBody;
-			}
+			$printHtmlBody = json_decode($blankTemplateData)[0]->templateBody;
+			$htmlBody = json_decode($templateData)[0]->templateBody;
 		}
 		else
 		{
@@ -225,13 +222,17 @@ class DocumentMpdf extends CurrencyToWordConversion
 		{
 			$totalCm = 12-0.7;
 			$inventoryCount = count($decodedArray->inventory);
+			$measurementService = new MeasurementService();
+			$measurementArray = array();
 			for($productArray=0;$productArray<$inventoryCount;$productArray++)
 			{
 				//get product-data
-				$measurementService = new MeasurementService();
 				$productData[$productArray] = $productService->getProductData($decodedArray->inventory[$productArray]->productId);
 				$decodedData[$productArray] = json_decode($productData[$productArray]);
-				$advanceMeasureData = $measurementService->getMeasurementData($decodedArray->inventory[$productArray]->measurementUnit);
+				if (!isset($measurementArray[$decodedArray->inventory[$productArray]->measurementUnit])) {
+					$measurementArray[$decodedArray->inventory[$productArray]->measurementUnit] = $measurementService->getMeasurementData($decodedArray->inventory[$productArray]->measurementUnit);
+				}
+				$advanceMeasureData = $measurementArray[$decodedArray->inventory[$productArray]->measurementUnit];
 				$advanceMeasureData = json_decode($advanceMeasureData);
 				
 				$marginPrice[$productArray] = ($decodedData[$productArray]->wholesaleMargin/100)*$decodedArray->inventory[$productArray]->price;

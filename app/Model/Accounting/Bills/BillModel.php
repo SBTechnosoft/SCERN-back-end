@@ -7,8 +7,7 @@ use Carbon;
 use ERP\Exceptions\ExceptionMessage;
 use ERP\Entities\Constants\ConstantClass;
 use ERP\Model\Accounting\Journals\JournalModel;
-use ERP\Core\Settings\InvoiceNumbers\Services\InvoiceService;
-use ERP\Api\V1_0\Settings\InvoiceNumbers\Controllers\InvoiceController;
+use ERP\Model\Settings\InvoiceNumbers\InvoiceModel;
 use Illuminate\Container\Container;
 use ERP\Http\Requests;
 use Illuminate\Http\Response;
@@ -788,20 +787,14 @@ class BillModel extends Model
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
 		
-		$invoiceService = new InvoiceService();	
-		$invoiceData = $invoiceService->getLatestInvoiceData($companyId);
+		$invoiceModel = new InvoiceModel();
+		$invoiceData = $invoiceModel->getLatestInvoiceData($companyId);
 		if(strcmp($exceptionArray['204'],$invoiceData)==0)
 		{
 			return $invoiceData;
 		}
-		$endAt = json_decode($invoiceData)->endAt;
-		$invoiceController = new InvoiceController(new Container());
-		$invoiceMethod=$constantArray['postMethod'];
-		$invoicePath=$constantArray['invoiceUrl'];
-		$invoiceDataArray = array();
-		$invoiceDataArray['endAt'] = $endAt+1;
-		$invoiceRequest = Request::create($invoicePath,$invoiceMethod,$invoiceDataArray);
-		$updateResult = $invoiceController->update($invoiceRequest,json_decode($invoiceData)->invoiceId);		
+		$invoiceId = json_decode($invoiceData)[0]->invoice_id;
+		$updateResult = $invoiceModel->incrementInvoiceNumber($invoiceId);
 		return $updateResult;
 	}
 	
@@ -2722,7 +2715,7 @@ class BillModel extends Model
 		$exceptionArray = $exception->messageArrays();
 		//get setting-data and check the settings is enable/disable
 		$settingModel = new SettingModel();
-		$settingData = $settingModel->getAllData();
+		$settingData = $settingModel->getParticularTypeData("chequeno");
 		$decodedSettingData = json_decode($settingData);
 		if(strcmp($settingData,$exceptionArray['204'])==0)
 		{
@@ -2731,7 +2724,7 @@ class BillModel extends Model
 		else
 		{
 			//check cheque-no is enable/disable
-			foreach ($decodedSettingData as $key => $value) 
+			foreach ($decodedSettingData as $key => $value)
 			{
 				if(strcmp($decodedSettingData[$key]->setting_type,"chequeno")==0)
 				{
