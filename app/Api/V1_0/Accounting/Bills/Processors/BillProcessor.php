@@ -102,7 +102,9 @@ class BillProcessor extends BaseProcessor
 							{
 								return $staffLedgerValidationResult;
 							}
-						}else{
+						}
+						else
+						{
 							$staffLedgerInsertionResult = $this->staffLedgerInsertion($staffArrayData[0],$tRequest['user_id'],$tRequest['invoice_number'],$tRequest['company_id']);
 							if(strcmp($msgArray['500'],$staffLedgerInsertionResult)==0 || strcmp($msgArray['content'],$staffLedgerInsertionResult)==0)
 							{
@@ -291,7 +293,8 @@ class BillProcessor extends BaseProcessor
 					$paymentLedgerId = json_decode($ledgerResult)[0]->ledger_id;
 				}
 			}
-			else{
+			else
+			{
 				$paymentLedgerId = $tRequest['bank_ledger_id'];
 			}
 		}
@@ -370,7 +373,9 @@ class BillProcessor extends BaseProcessor
 				"amountType"=>$amountTypeArray['debitType'],
 				"ledgerId"=>$paymentLedgerId
 			];
-		}else{
+		}
+		else
+		{
 			$dataArray[0][0] = [
 				"amount"=>$tRequest['total'],
 				"amountType"=>$amountTypeArray['debitType'],
@@ -409,7 +414,9 @@ class BillProcessor extends BaseProcessor
 				"amountType"=>$amountTypeArray['creditType'],
 				"ledgerId"=>$ledgerTaxAcId
 			];
-		}else{
+		}
+		else
+		{
 			$dataArray[0][] = [
 				"amount"=>$tRequest['total']+$discountTotal,
 				"amountType"=>$amountTypeArray['creditType'],
@@ -425,138 +432,20 @@ class BillProcessor extends BaseProcessor
 		* Get commission data from user id
 		*CommissionService  $msgArray commissionLedgerArray
 		*/
-		if (isset($tRequest['user_id']) && $tRequest['user_id'] && isset($staffLedgerId)) {
-			$commissionService = new CommissionService();
+		if (isset($tRequest['user_id']) && $tRequest['user_id'] && isset($staffLedgerId))
+		{
 			$commissionArrayRank = count($dataArray);
-			$commissionDataJson = $commissionService->getCommissionData($tRequest['user_id']);
-			if (strcmp($commissionDataJson,$msgArray['404'])!=0) {
-				$commissionDataArray = (array)json_decode($commissionDataJson);
-				if ($commissionDataArray['commissionStatus'] != 'off') {
-					if ($commissionDataArray['commissionRate'] != '0' || $commissionDataArray['commissionType'] == 'itemWise') {
-						$productService = new productService();
-						$commissionRateType = $commissionDataArray['commissionRateType'];
-						$commissionCalcOn = $commissionDataArray['commissionCalcOn'];
-						if ($commissionDataArray['commissionType'] == 'general') {
-							$commissionAmount = 0;
-							foreach ($tRequest[0] as $commissionProduct) {
-								if ($commissionRateType == 'flat') {
-									$commissionAmount += (float)$commissionDataArray['commissionRate'] * (float)$commissionProduct['qty'];
-								}else{
-									$productDataJson = $productService->getProductData($commissionProduct['productId']);
-									if (strcmp($productDataJson, $msgArray['404']) != 0) {
-										$productDataArray = json_decode($productDataJson);
-										if ($commissionCalcOn == 'MRP') {
-											$commissionAmount += (float)$productDataArray['mrp'] * (float)$commissionProduct['qty'] * (float)$commissionDataArray['commissionRate'] / 100;
-										}else{
-											$commissionAmount += (float)$commissionProduct['price'] * (float)$commissionProduct['qty'] * (float)$commissionDataArray['commissionRate'] / 100;
-										}
-									}
-								}
-							}
-							// For General commission Ends here
-							$dataArray[$commissionArrayRank][0] = array(
-								'amount' => (string)round($commissionAmount,2),
-								'amountType' => $amountTypeArray['creditType'],
-								'ledgerId' => $staffLedgerId,
-							);
-						}elseif ($commissionDataArray['commissionType'] == 'brandWise') {
-							$commissionAmount = 0;
-							$brandCommissionData = (array)json_decode($commissionDataArray['commissionFor']);
-							foreach ($tRequest[0] as $commissionProduct) {
-								if ($commissionRateType == 'flat') {
-									$commissionAmount += (float)$commissionDataArray['commissionRate'] * (float)$commissionProduct['qty'];
-								}else{
-									$productDataJson = $productService->getProductData($commissionProduct['productId']);
-									if (strcmp($productDataJson, $msgArray['404']) != 0) {
-										$productDataArray = (array)json_decode($productDataJson);
-										if (isset($productDataArray['productGroupId']) 
-										&& isset($brandCommissionData[$productDataArray['productGroupId']])
-										&& $brandCommissionData[$productDataArray['productGroupId']] ) 
-										{
-											if ($commissionCalcOn == 'MRP') {
-												$commissionAmount += (float)$productDataArray['mrp'] * (float)$commissionProduct['qty'] * (float)$commissionDataArray['commissionRate'] / 100;
-											}else{
-												$commissionAmount += (float)$commissionProduct['price'] * (float)$commissionProduct['qty'] * (float)$commissionDataArray['commissionRate'] / 100;
-											}
-										}
-									}
-								}
-							}
-							
-							$dataArray[$commissionArrayRank][0] = array(
-								'amount' => (string)round($commissionAmount,2),
-								'amountType' => $amountTypeArray['creditType'],
-								'ledgerId' => $staffLedgerId,
-							);
-						}elseif ($commissionDataArray['commissionType'] == 'categoryWise') {
-							$commissionAmount = 0;
-							$categoryCommissionData = (array)json_decode($commissionDataArray['commissionFor']);
-							foreach ($tRequest[0] as $commissionProduct) {
-								if ($commissionRateType == 'flat') {
-									$commissionAmount += (float)$commissionDataArray['commissionRate'] * (float)$commissionProduct['qty'];
-								}else{
-									$productDataJson = $productService->getProductData($brandWiseCommission['productId']);
-									if (strcmp($productDataJson, $msgArray['404']) != 0) {
-										$productDataArray = (array)json_decode($productDataJson);
-										if (isset($productDataArray['productCategoryId']) 
-										&& isset($categoryCommissionData[$productDataArray['productCategoryId']])
-										&& $categoryCommissionData[$productDataArray['productCategoryId']] ) 
-										{
-											if ($commissionCalcOn == 'MRP') {
-												$commissionAmount += (float)$productDataArray['mrp'] * (float)$commissionProduct['qty'] * (float)$commissionDataArray['commissionRate'] / 100;
-											}else{
-												$commissionAmount += (float)$commissionProduct['price'] * (float)$commissionProduct['qty'] * (float)$commissionDataArray['commissionRate'] / 100;
-											}
-										}
-									}
-								}
-							}
-							$dataArray[$commissionArrayRank][0] = array(
-								'amount' => (string)round($commissionAmount,2),
-								'amountType' => $amountTypeArray['creditType'],
-								'ledgerId' => $staffLedgerId,
-							);
-						}elseif ($commissionDataArray['commissionType'] == 'itemWise') {
-							// Itemwise Commission calculation
-							$commissionAmount = 0;
-							$commissionAmount = $this->itemWiseCommissionCalc($tRequest[0],$tRequest['company_id']);
-
-							$dataArray[$commissionArrayRank][0] = array(
-								'amount' => (string)round($commissionAmount,2),
-								'amountType' => $amountTypeArray['creditType'],
-								'ledgerId' => $staffLedgerId,
-							);
-							
-						}
-						if (isset($dataArray[$commissionArrayRank])
-						 && isset($dataArray[$commissionArrayRank][0]['amount'])
-						 && $dataArray[$commissionArrayRank][0]['amount'] > 0) {
-							$commissionArrayConstant = new LedgerArray();
-							$commissionLedgerArray = $commissionArrayConstant->commissionLedgerArray();
-							if (is_array($commissionLedgerArray) && count($commissionLedgerArray)) {
-								$ledgerModel = new LedgerModel();
-								$commissionExpenseLedgerJson = $ledgerModel->getLedgerId($tRequest['company_id'], $commissionLedgerArray[0]);
-								if ($commissionExpenseLedgerJson == $msgArray['404']) {
-									$commissionLedgerStatus = $this->insertCommissionLedger($tRequest['company_id'], $commissionLedgerArray[0]);
-									if(strcmp($commissionLedgerStatus,$msgArray['content'])==0 || strcmp($commissionLedgerStatus,$msgArray['404'])==0){
-										return $commissionLedgerStatus;
-									}
-
-									$commissionExpenseLedgerId = json_decode($commissionLedgerStatus)[0]->ledger_id;
-
-								}else{
-									$commissionExpenseLedgerId = json_decode($commissionExpenseLedgerJson)[0]->ledger_id;
-								}
-								$transactionType[$commissionArrayRank] = $constantArray['paymentType'];
-								$dataArray[$commissionArrayRank][1] = array(
-									'amount' => (string)$dataArray[$commissionArrayRank][0]['amount'],
-									'amountType' => $amountTypeArray['debitType'],
-									'ledgerId' => $commissionExpenseLedgerId,
-								);
-							}
-						}
-					}
+			$staffCommissionJournal = $this->StaffCommissionCalc($staffLedgerId,$tRequest['user_id'],$tRequest['company_id'],$tRequest[0]);
+			if (is_array($staffCommissionJournal)) 
+			{
+				if (count($staffCommissionJournal) == 2) {
+					$dataArray[$commissionArrayRank] = $staffCommissionJournal;
+					$transactionType[$commissionArrayRank] = $constantArray['paymentType'];
 				}
+			}
+			else
+			{
+				return $staffCommissionJournal;
 			}
 		}
 		// Staff Commission Calculations Ends
@@ -597,60 +486,20 @@ class BillProcessor extends BaseProcessor
 			$productArray['companyId']=$tRequest['company_id'];
 			$tInventoryArray = array();
 			$itemizeBatch = array();
-			// for($trimData=0;$trimData<count($request->input()['inventory']);$trimData++)
-			// {
-			// 	$tInventoryArray[$trimData] = array();
-
-			// 	$tInventoryArray[$trimData][5] = array_key_exists('color', $request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['color']) : "XX";
-			// 	$tInventoryArray[$trimData][6] = array_key_exists('frameNo', $request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['frameNo']) : "";
-			// 	$tInventoryArray[$trimData][7] = array_key_exists('size', $request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['size']) : "ZZ";
-			// 	$tInventoryArray[$trimData][8] = array_key_exists("cgstPercentage",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['cgstPercentage']):0;
-			// 	$tInventoryArray[$trimData][9] = array_key_exists("cgstAmount",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['cgstAmount']):0;
-			// 	$tInventoryArray[$trimData][10] = array_key_exists("sgstPercentage",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['sgstPercentage']):0;
-			// 	$tInventoryArray[$trimData][11] = array_key_exists("sgstAmount",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['sgstAmount']):0;
-			// 	$tInventoryArray[$trimData][12] = array_key_exists("igstPercentage",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['igstPercentage']):0;
-			// 	$tInventoryArray[$trimData][13] = array_key_exists("igstAmount",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['igstAmount']):0;
-			// 	$tInventoryArray[$trimData][14] = array_key_exists("cessAmount",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['cessAmount']):0;
-			// 	$tInventoryArray[$trimData][15] = array_key_exists("realQtyData",$request->input()['inventory'][$trimData]) ? trim($request->input()['inventory'][$trimData]['realQtyData']):0;
-
-			// 	// insertion for itemize (IMEI/Serial) purchase bill
-			// 	if (isset($request->input()['inventory'][$trimData]['itemizeDetail'])) {
-			// 		$itemizeArray = json_decode($request->input()['inventory'][$trimData]['itemizeDetail']);
-			// 		if (count($itemizeArray) > 0) {
-			// 			$itemizeJsonArray = [];
-			// 			$itemizeProduct =  $request->input()['inventory'][$trimData]['productId'];
-			// 			foreach ($itemizeArray as $serialArray) {
-			// 				$itemizeJsonArray[] = [
-			// 					'imei_no' => trim($serialArray->imei_no),
-			// 					'barcode_no' => trim($serialArray->barcode_no),
-			// 					'qty' => trim($serialArray->qty)
-			// 				];
-			// 				$itemizeBatch[] = [
-			// 					'product_id' => trim($itemizeProduct),
-			// 					'imei_no' => trim($serialArray->imei_no),
-			// 					'barcode_no' => trim($serialArray->barcode_no),
-			// 					'qty' => trim($serialArray->qty)*-1,
-			// 					'jfId' => $jsonDecodedJfId,
-			// 					'purchase_bill_no' => $productArray['invoiceNumber']
-			// 				];
-			// 			}
-			// 			$request->input()['inventory'][$trimData]['itemizeDetail'] = $itemizeJsonArray;
-			// 		}
-			// 	}
-			// 	// end of insertion of itemize (IMEI/Serial)
-
-			// 	array_push($request->input()['inventory'][$trimData],$tInventoryArray[$trimData]);
-			// }
 
 			$tempInvArray = $request->input()['inventory'];
-			foreach ($tempInvArray as $singleInvKey => $singleInvArray) {
+			foreach ($tempInvArray as $singleInvKey => $singleInvArray) 
+			{
 				// insertion for itemize (IMEI/Serial) purchase bill
-				if (isset($singleInvArray['itemizeDetail'])) {
+				if (isset($singleInvArray['itemizeDetail'])) 
+				{
 					$itemizeArray = json_decode($singleInvArray['itemizeDetail']);
-					if (count($itemizeArray) > 0) {
+					if (count($itemizeArray) > 0) 
+					{
 						$itemizeJsonArray = [];
 						$itemizeProduct =  $singleInvArray['productId'];
-						foreach ($itemizeArray as $serialArray) {
+						foreach ($itemizeArray as $serialArray) 
+						{
 							$itemizeJsonArray[] = [
 								'imei_no' => trim($serialArray->imei_no),
 								'barcode_no' => trim($serialArray->barcode_no),
@@ -686,10 +535,12 @@ class BillProcessor extends BaseProcessor
 					return $processedData;
 				}
 			}
-			if (!empty($itemizeBatch) && count($itemizeBatch) > 0) {
+			if (!empty($itemizeBatch) && count($itemizeBatch) > 0) 
+			{
 				$productService = new ProductService();
 				$itemizeBatchInsertion = $productService->insertInOutwardItemizeData($itemizeBatch);
-				if (strcmp($itemizeBatchInsertion, $msgArray['200']) != 0) {
+				if (strcmp($itemizeBatchInsertion, $msgArray['200']) != 0) 
+				{
 					return $itemizeBatchInsertion;
 				}
 			}
@@ -857,7 +708,8 @@ class BillProcessor extends BaseProcessor
 						$decodedLedgerId = json_decode($ledgerResult)[0]->ledger_id;
 					}
 				}
-				else{
+				else
+				{
 					$decodedLedgerId = $tRequest['bank_ledger_id'];
 				}
 
@@ -940,7 +792,7 @@ class BillProcessor extends BaseProcessor
 						$billPersistable->setBillArray(json_encode($billArray));
 						return $billPersistable;
 					}
-					else if(strcmp($tRequest['payment_transaction'],$constantArray['refundType'])==0)
+					elseif(strcmp($tRequest['payment_transaction'],$constantArray['refundType'])==0)
 					{						
 						// type refund
 						//get salesReturn ledgerId
@@ -1100,7 +952,38 @@ class BillProcessor extends BaseProcessor
 		{
 			$ledgerId = json_decode($ledgerData)[0]->ledger_id;
 		}
-
+		$staffUserId = 0;
+		if (array_key_exists($constantArray['userId'], $billTrimData) || $billData[0]->user_id > 0) 
+		{
+			$staffUserId = array_key_exists($constantArray['userId'], $billTrimData) ? $constantArray['userId'] : $billData[0]->user_id;
+			
+			$userModel = new UserModel();
+			$staffJsonData = $userModel->getData($staffUserId);
+			$staffArrayData = json_decode($staffJsonData);
+			if (is_array($staffArrayData) || is_object($staffArrayData)) 
+			{
+				$staffLedgerData = $ledgerModel->getDataAsPerUserId($billData[0]->company_id,$staffUserId);
+				if (is_array(json_decode($staffLedgerData))) 
+				{
+					$decodedStaffData = json_decode($staffLedgerData,true)[0];
+					$staffLedgerId = $decodedStaffData['ledger_id'];
+					$staffLedgerValidationResult = $this->staffLedgerUpdate($staffArrayData[0],$staffLedgerId,$staffUserId,$staffLedgerData);
+					if(strcmp($staffLedgerValidationResult,$msgArray['200'])!=0)
+					{
+						return $staffLedgerValidationResult;
+					}
+				}
+				else
+				{
+					$staffLedgerInsertionResult = $this->staffLedgerInsertion($staffArrayData[0],$staffUserId,$billData[0]->invoice_number,$billData[0]->company_id);
+					if(strcmp($msgArray['500'],$staffLedgerInsertionResult)==0 || strcmp($msgArray['content'],$staffLedgerInsertionResult)==0)
+					{
+						return $staffLedgerInsertionResult;
+					}
+					$staffLedgerId = json_decode($staffLedgerInsertionResult)[0]->ledger_id;
+				}
+			}
+		}
 		if(count($clientData)!=0)
 		{
 			//check contact_no exist or not
@@ -1251,11 +1134,12 @@ class BillProcessor extends BaseProcessor
 					{
 						$paymentLedgerId = json_decode($ledgerResult)[0]->ledger_id;
 					}
-				} else{
+				} 
+				else
+				{
 					$paymentLedgerId =  $billTrimData['bank_ledger_id'];
 				}
 			}
-			
 			//get jf_id
 			$journalMethod=$constantArray['getMethod'];
 			$journalPath=$constantArray['journalUrl'];
@@ -1289,7 +1173,7 @@ class BillProcessor extends BaseProcessor
 			// }
 			$amountTypeEnum = new AmountTypeEnum();
 			$amountTypeArray = $amountTypeEnum->enumArrays();
-			$ledgerAmount = $billTrimData['total']-$billTrimData['advance'];		
+			$ledgerAmount = $billTrimData['total']-$billTrimData['advance'];
 			$discountTotal=0;
 			$inventoryArray = $billTrimData['inventory'];	
 			for($discountArray=0;$discountArray<count($inventoryArray);$discountArray++)
@@ -1304,15 +1188,6 @@ class BillProcessor extends BaseProcessor
 				}	
 				$discountTotal = $discount+$discountTotal;
 			}
-			// if(strcmp($billTrimData['total_discounttype'],'flat')==0)
-			// {
-				// $discountTotal = $billTrimData['total_discount'];
-			// }
-			// else
-			// {
-				// $discountTotal = ($billTrimData['total_discount']/100)*$billTrimData['total'];
-			// }
-			// $discountTotal = $discountTotal+$discountTotal1;
 
 			$totalSaleAmount = $discountTotal+$billTrimData['total'];
 			$totalDebitAmount = $billTrimData['tax']+$billTrimData['total'];
@@ -1324,7 +1199,9 @@ class BillProcessor extends BaseProcessor
 					"amountType"=>$amountTypeArray['debitType'],
 					"ledgerId"=>$paymentLedgerId
 				];
-			}else{
+			}
+			else
+			{
 				$dataArray[0][0] = [
 					"amount"=>$billTrimData['total'],
 					"amountType"=>$amountTypeArray['debitType'],
@@ -1363,12 +1240,30 @@ class BillProcessor extends BaseProcessor
 					"amountType"=>$amountTypeArray['creditType'],
 					"ledgerId"=>$ledgerTaxAcId
 				];
-			}else{
+			}
+			else
+			{
 				$dataArray[0][] = [
 					"amount"=>$billTrimData['total']+$discountTotal,
 					"amountType"=>$amountTypeArray['creditType'],
 					"ledgerId"=>$ledgerSaleAcId
 				];
+			}
+
+			if ($staffUserId > 0) {
+				$commissionArrayRank = count($dataArray);
+				$staffCommissionJournal = $this->StaffCommissionCalc($staffLedgerId,$staffUserId,$billData[0]->company_id,$billTrimData['inventory']);
+				if (is_array($staffCommissionJournal)) 
+				{
+					if (count($staffCommissionJournal) == 2) {
+						$dataArray[$commissionArrayRank] = $staffCommissionJournal;
+						$transactionType[$commissionArrayRank] = $constantArray['paymentType'];
+					}
+				}
+				else
+				{
+					return $staffCommissionJournal;
+				}
 			}
 			//make data array for journal sale entry
 			$dataArrayCount = count($dataArray);
@@ -1385,20 +1280,26 @@ class BillProcessor extends BaseProcessor
 				if(array_key_exists('entry_date',$billTrimData))
 				{
 					$journalArray['entryDate'] = $billTrimData['entry_date'];
-				}else{
+				}
+				else
+				{
 					$journalArray['entryDate'] = Carbon\Carbon::createFromFormat('Y-m-d', $billData[0]->entry_date)->format('d-m-Y');
 				}
 				if(array_key_exists('transaction_date',$billTrimData))
 				{
 					$journalArray['transactionDate'] = $billTrimData['transaction_date'];
-				}else{
+				}
+				else
+				{
 					$journalArray['transactionDate'] = Carbon\Carbon::createFromFormat('Y-m-d', $billData[0]->transaction_date)->format('d-m-Y');
 				}
 				
 				if(array_key_exists('invoiceNumber',$billTrimData))
 				{
 					$journalArray['invoiceNumber'] = $billTrimData['invoice_number'];
-				}else{
+				}
+				else
+				{
 					$journalArray['invoiceNumber'] = $billData[0]->invoice_number;
 				}
 				$journalArray['data']=$dataArray[$multiJournalCreate];
@@ -1431,18 +1332,6 @@ class BillProcessor extends BaseProcessor
 					}
 				}
 			}
-			// $journalArray['data']=$dataArray;
-			// $journalArray['inventory']=$billTrimData['inventory'];
-			// $method=$constantArray['postMethod'];
-			// $path=$constantArray['journalUrl'].'/'.$billData[0]->jf_id;
-			// $journalRequest = Request::create($path,$method,$journalArray);
-			// $journalRequest->headers->set('type',$constantArray['sales']);
-			// $processedData = $journalController->update($journalRequest,$billData[0]->jf_id);
-
-			// if(strcmp($processedData,$msgArray['200'])!=0)
-			// {
-			// 	return $processedData;
-			// }
 		}
 		else if(array_key_exists('payment_mode',$billTrimData))
 		{
@@ -1469,13 +1358,6 @@ class BillProcessor extends BaseProcessor
 					$previousPaymentLedgerId =  $billData[0]->bank_ledger_id;
 				}
 
-				//get payment-id of previous payment-mode
-				// $previousLedgerResult = $ledgerModel->getLedgerId($billData[0]->company_id,$billData[0]->payment_mode);
-				// if(is_array(json_decode($previousLedgerResult)))
-				// {
-				// 	$previousPaymentLedgerId = json_decode($previousLedgerResult)[0]->ledger_id;
-				// }
-
 				if(strcmp($billTrimData['payment_mode'],$constantArray['credit'])==0 || strcmp($billTrimData['payment_mode'],$constantArray['cash'])==0)
 				{
 					//get payment-id
@@ -1490,14 +1372,6 @@ class BillProcessor extends BaseProcessor
 					$paymentLedgerId =  $billTrimData['bank_ledger_id'];
 				}
 
-				//get payment-id
-				// $ledgerResult = $ledgerModel->getLedgerId($billData[0]->company_id,$billTrimData['payment_mode']);
-				// if(is_array(json_decode($ledgerResult)))
-				// {
-				// 	$paymentLedgerId = json_decode($ledgerResult)[0]->ledger_id;
-				// }
-
-				// $journalArrayData = array();
 				for($arrayData=0;$arrayData<count($decodedJournalData);$arrayData++)
 				{
 					if(strcmp($decodedJournalData[$arrayData]->ledger_id,$previousPaymentLedgerId)==0)
@@ -1598,12 +1472,15 @@ class BillProcessor extends BaseProcessor
 					$billTrimData['inventory'][$inventoryData]['cessAmount'] = array_key_exists("cessAmount",$request->input()['inventory'][$inventoryData]) ? trim($request->input()['inventory'][$inventoryData]['cessAmount']):0;
 					$billTrimData['inventory'][$inventoryData]['realQtyData'] = array_key_exists("realQtyData",$request->input()['inventory'][$inventoryData]) ? trim($request->input()['inventory'][$inventoryData]['realQtyData']):0;
 
-					if (array_key_exists('itemizeDetail', $request->input()['inventory'][$inventoryData])) {
+					if (array_key_exists('itemizeDetail', $request->input()['inventory'][$inventoryData])) 
+					{
 						$itemizeDtlJson = trim($request->input()['inventory'][$inventoryData]['itemizeDetail']);
 						$itemizeDtlArray = json_decode($itemizeDtlJson);
-						if (count($itemizeDtlArray) > 0) {
+						if (count($itemizeDtlArray) > 0) 
+						{
 							$returnItemize = [];
-							foreach ($itemizeDtlArray as $itemizeDtl) {
+							foreach ($itemizeDtlArray as $itemizeDtl) 
+							{
 								$returnItemize[] = [
 									'imei_no'=>trim($itemizeDtl->imei_no),
 									'barcode_no'=>trim($itemizeDtl->barcode_no),
@@ -1626,16 +1503,21 @@ class BillProcessor extends BaseProcessor
 				$invFlag=1;
 				$productArray['inventory'] = $billTrimData['inventory'];
 
-				if (!empty($itemizeBatch) && count($itemizeBatch) > 0) {
+				if (!empty($itemizeBatch) && count($itemizeBatch) > 0) 
+				{
 					$productService = new ProductService();
 					$itemizeBatchInsertion = $productService->updateInOutwardItemizeData($itemizeBatch,$billData[0]->jf_id,$billData[0]->created_at);
-					if (strcmp($itemizeBatchInsertion, $msgArray['200']) != 0) {
+					if (strcmp($itemizeBatchInsertion, $msgArray['200']) != 0) 
+					{
 						return $itemizeBatchInsertion;
 					}
-				}else{
+				}
+				else
+				{
 					$productService = new ProductService();
 					$itemizeDelete = $productService->deleteInOutwardItemizeData($jfId,$constantArray['sales']);
-					if (strcmp($itemizeDelete, $msgArray['200']) != 0) {
+					if (strcmp($itemizeDelete, $msgArray['200']) != 0) 
+					{
 						return $itemizeDelete;
 					}
 				}
@@ -1679,7 +1561,8 @@ class BillProcessor extends BaseProcessor
 				if (count($billPersistable) == 0){
 					$billPersistable = new BillPersistable();
 					$billPersistable->setClientId($clientId);
-				} else {
+				} 
+				else {
 					$lastCount = count($billPersistable);
 					$billPersistable[$lastCount] = new BillPersistable();
 					$billPersistable[$lastCount]->setClientId($clientId);
@@ -2000,7 +1883,9 @@ class BillProcessor extends BaseProcessor
 			$clientRequest = Request::create($path,$method,$clientArray);
 			$processedData = $clientController->updateData($clientRequest,$clientId);
 			return $processedData;
-		}else{
+		}
+		else
+		{
 			return $msgArray['200'];
 		}
 		
@@ -2098,7 +1983,9 @@ class BillProcessor extends BaseProcessor
 			$ledgerRequest = Request::create($path,$method,$ledgerArray);
 			$processedData = $ledgerController->update($ledgerRequest,$ledgerId);
 			return $processedData;
-		}else{
+		}
+		else
+		{
 			return $msgArray['200'];
 		}
 	}
@@ -2160,7 +2047,9 @@ class BillProcessor extends BaseProcessor
 			$ledgerRequest = Request::create($path,$method,$ledgerArray);
 			$processedData = $ledgerController->update($ledgerRequest,$ledgerId);
 			return $processedData;
-		}else{
+		}
+		else
+		{
 			return $msgArray['200'];
 		}
 		
@@ -2228,48 +2117,249 @@ class BillProcessor extends BaseProcessor
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
 
-		foreach ($invArray as $product) {
+		foreach ($invArray as $product) 
+		{
 			$productId = $product['productId'];
 			$qty = $product['qty'];
 			$rate = $product['price'];
 			$itemWise = $commissionService->getItemwiseByProduct($productId,$companyId);
-			if (strcmp($exceptionArray['404'],$itemWise)==0) {
+			// If itemwise commission is assigned on product or not
+			if (strcmp($exceptionArray['404'],$itemWise)==0) 
+			{
 				continue;
-			}else{
+			}
+			else
+			{
 				$itemWiseArray = json_decode($itemWise,true);
 				$itemWiseCount = count($itemWiseArray);
 				$cAmtArray = [];
-				while ($itemWiseCount--) {
-					if ($itemWiseArray[$itemWiseCount]['commissionFromQty']<= $qty) {
-					 	if ($itemWiseArray[$itemWiseCount]['commissionToQty']>= $qty) {
+				// Get best suitable qty range
+				while ($itemWiseCount--) 
+				{
+					if ($itemWiseArray[$itemWiseCount]['commissionFromQty']<= $qty) 
+					{
+					 	if ($itemWiseArray[$itemWiseCount]['commissionToQty']>= $qty) 
+					 	{
 					 		$cAmtArray = $itemWiseArray[$itemWiseCount];
 					 		break;
-					 	}else{
-					 		if (!count($cAmtArray)) {
+					 	}
+					 	else
+					 	{
+					 		if (!count($cAmtArray)) 
+					 		{
 					 			$cAmtArray = $itemWiseArray[$itemWiseCount];
-					 		}elseif ($itemWiseArray[$itemWiseCount]['commissionToQty']<= $qty) {
-						 		if ($itemWiseArray[$itemWiseCount]['commissionToQty'] >= $cAmtArray['commissionToQty']) {
+					 		}
+					 		elseif ($itemWiseArray[$itemWiseCount]['commissionToQty']<= $qty) 
+					 		{
+						 		if ($itemWiseArray[$itemWiseCount]['commissionToQty'] >= $cAmtArray['commissionToQty']) 
+						 		{
 						 			$cAmtArray = $itemWiseArray[$itemWiseCount];
 						 		}
 						 	}
 					 	}
 					}
 				}
-				if (count($cAmtArray)) {
-					if ($cAmtArray['commissionRateType'] == 'Flat') {
+				if (count($cAmtArray)) 
+				{
+					if ($cAmtArray['commissionRateType'] == 'Flat') 
+					{
 						$commissionAmount += (float)$qty * (float)$cAmtArray['commissionRate'];
-					}else{
-						if (strtolower($cAmtArray['commissionCalcOn']) == 'mrp') {
+					}
+					else
+					{
+						if (strtolower($cAmtArray['commissionCalcOn']) == 'mrp') 
+						{
 							$commissionAmount += (float)$qty * (float)$cAmtArray['mrp'] * (float)$cAmtArray['commissionRate'] / 100;
-						}else{
+						}
+						else
+						{
 							$commissionAmount += (float)$qty * (float)$rate * (float)$cAmtArray['commissionRate'] / 100;
 						}
 					}
-				}else{
+				}
+				else
+				{
 					continue;
 				}
 			}
 		}
 		return $commissionAmount;
+	}
+	public function StaffCommissionCalc($staffLedgerId,$staffUserId,$companyId,$invArray)
+	{
+		$exception = new ExceptionMessage();
+		$msgArray = $exception->messageArrays();
+		//get constant variables array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+
+		$amountTypeEnum = new AmountTypeEnum();
+		$amountTypeArray = $amountTypeEnum->enumArrays();
+		// get commission data of salesman
+		$commissionService = new CommissionService();
+		$commissionDataJson = $commissionService->getCommissionData($staffUserId);
+
+		$returnCommissionArray = array();
+		// check if commission data exists
+		if (strcmp($commissionDataJson,$msgArray['404'])!=0) 
+		{
+			$commissionDataArray = json_decode($commissionDataJson,true);
+			// check if commission is enabled
+			if ($commissionDataArray['commissionStatus'] != 'off') 
+			{
+				// check if commission could be calculated
+				if ($commissionDataArray['commissionRate'] != '0' || $commissionDataArray['commissionType'] == 'itemWise') 
+				{
+					$commissionAmount = 0;
+					$productService = new productService();
+					$commissionRateType = $commissionDataArray['commissionRateType'];
+					$commissionCalcOn = $commissionDataArray['commissionCalcOn'];
+					// check if commission type is general
+					if ($commissionDataArray['commissionType'] == 'general')
+					{
+						foreach ($invArray as $commissionProduct)
+						{
+							// check if commission type is flat calculate amount with qty
+							if ($commissionRateType == 'flat') 
+							{
+								$commissionAmount += (float)$commissionDataArray['commissionRate'] * (float)$commissionProduct['qty'];
+							}
+							else
+							{
+								//  check if product is not deleted
+								$productDataJson = $productService->getProductData($commissionProduct['productId']);
+								if (strcmp($productDataJson, $msgArray['404']) != 0)
+								{
+									$productDataArray = json_decode($productDataJson,true);
+									// if not flat than calculate on MRP or sales price
+									if ($commissionCalcOn == 'MRP') 
+									{
+										$commissionAmount += (float)$productDataArray['mrp'] * (float)$commissionProduct['qty'] * (float)$commissionDataArray['commissionRate'] / 100;
+									}
+									else
+									{
+										$commissionAmount += (float)$commissionProduct['price'] * (float)$commissionProduct['qty'] * (float)$commissionDataArray['commissionRate'] / 100;
+									}
+								}
+							}
+						}
+					}
+					// If commission is given on brand than
+					elseif ($commissionDataArray['commissionType'] == 'brandWise') 
+					{
+						$brandCommissionData = json_decode($commissionDataArray['commissionFor'],true);
+						foreach ($invArray as $commissionProduct) 
+						{
+							// If commission is flat
+							if ($commissionRateType == 'flat') 
+							{
+								$commissionAmount += (float)$commissionDataArray['commissionRate'] * (float)$commissionProduct['qty'];
+							}
+							else
+							{
+								// if product is available and not deleted
+								$productDataJson = $productService->getProductData($commissionProduct['productId']);
+								if (strcmp($productDataJson, $msgArray['404']) != 0) 
+								{
+									// If commission isn't flat and it's on MRP or sales price
+									$productDataArray = json_decode($productDataJson,true);
+									if (isset($productDataArray['productGroupId']) 
+										&& isset($brandCommissionData[$productDataArray['productGroupId']])
+										&& $brandCommissionData[$productDataArray['productGroupId']] ) 
+									{
+										if ($commissionCalcOn == 'MRP') 
+										{
+											$commissionAmount += (float)$productDataArray['mrp'] * (float)$commissionProduct['qty'] * (float)$commissionDataArray['commissionRate'] / 100;
+										}
+										else
+										{
+											$commissionAmount += (float)$commissionProduct['price'] * (float)$commissionProduct['qty'] * (float)$commissionDataArray['commissionRate'] / 100;
+										}
+									}
+								}
+							}
+						}
+					}
+					// If commission is given on category than
+					elseif ($commissionDataArray['commissionType'] == 'categoryWise') 
+					{
+						$commissionAmount = 0;
+						$categoryCommissionData = json_decode($commissionDataArray['commissionFor'],true);
+						foreach ($invArray as $commissionProduct) 
+						{
+							// If commission is flat
+							if ($commissionRateType == 'flat') 
+							{
+								$commissionAmount += (float)$commissionDataArray['commissionRate'] * (float)$commissionProduct['qty'];
+							}
+							else
+							{
+								// If product exists
+								$productDataJson = $productService->getProductData($commissionProduct['productId']);
+								if (strcmp($productDataJson, $msgArray['404']) != 0) 
+								{
+									$productDataArray = json_decode($productDataJson,true);
+									if (isset($productDataArray['productCategoryId']) 
+										&& isset($categoryCommissionData[$productDataArray['productCategoryId']])
+										&& $categoryCommissionData[$productDataArray['productCategoryId']] ) 
+									{
+										// If commission isn't flat and on MRP or salesPrice
+										if ($commissionCalcOn == 'MRP') 
+										{
+											$commissionAmount += (float)$productDataArray['mrp'] * (float)$commissionProduct['qty'] * (float)$commissionDataArray['commissionRate'] / 100;
+										}
+										else
+										{
+											$commissionAmount += (float)$commissionProduct['price'] * (float)$commissionProduct['qty'] * (float)$commissionDataArray['commissionRate'] / 100;
+										}
+									}
+								}
+							}
+						}
+					}
+					// if Commission is applied on items
+					elseif ($commissionDataArray['commissionType'] == 'itemWise') 
+					{
+						// Itemwise Commission calculation
+						$commissionAmount = $this->itemWiseCommissionCalc($invArray,$companyId);
+					}
+					if (isset($commissionAmount) && $commissionAmount > 0) 
+					{
+						$commissionArrayConstant = new LedgerArray();
+						$commissionLedgerArray = $commissionArrayConstant->commissionLedgerArray();
+						if (is_array($commissionLedgerArray) && count($commissionLedgerArray)) 
+						{
+							$ledgerModel = new LedgerModel();
+							$commissionExpenseLedgerJson = $ledgerModel->getLedgerId($companyId, $commissionLedgerArray[0]);
+							if ($commissionExpenseLedgerJson == $msgArray['404']) 
+							{
+								$commissionLedgerStatus = $this->insertCommissionLedger($companyId, $commissionLedgerArray[0]);
+								if(strcmp($commissionLedgerStatus,$msgArray['content'])==0 || strcmp($commissionLedgerStatus,$msgArray['404'])==0)
+								{
+									return $commissionLedgerStatus;
+								}
+								$commissionExpenseLedgerId = json_decode($commissionLedgerStatus)[0]->ledger_id;
+							}
+							else
+							{
+								$commissionExpenseLedgerId = json_decode($commissionExpenseLedgerJson)[0]->ledger_id;
+							}
+							$returnCommissionArray[0] = array(
+								'amount' => (string)round($commissionAmount,2),
+								'amountType' => $amountTypeArray['creditType'],
+								'ledgerId' => $staffLedgerId,
+							);
+
+							$returnCommissionArray[1] = array(
+								'amount' => (string)round($commissionAmount,2),
+								'amountType' => $amountTypeArray['debitType'],
+								'ledgerId' => $commissionExpenseLedgerId,
+							);
+						}
+					}
+				}
+			}
+		}
+		return $returnCommissionArray;
 	}
 }
