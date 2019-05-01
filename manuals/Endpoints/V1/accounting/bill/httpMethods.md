@@ -69,7 +69,7 @@
 	- "previousSaleId":"int",
 	- "nextSaleId":"int",
 	- "companyId":"int",
-	- "operation":"first/last"
+	- "operation":"first/last",
 	- "isSalesOrder":"ok"
 + Error Message
 
@@ -96,6 +96,21 @@
                 ... Standard Bill Object
             }
 			
+		
+##### `GET /accounting/bills/{jfId}`
++ Header
+	- Authentication Token
++ Error Message
+
+			{
+				... Error Message
+			}            
++ Response
+
+            {
+                ... Standard Bill Object
+            }
+
 ##### `POST /accounting/bills/{saleId}/payment`
 + Header
 	- Authentication Token
@@ -119,7 +134,7 @@
 ##### `POST /accounting/bills/{saleId}`
 + Header
 	- Authentication Token
-	- "isSalesOrderUpdate":"ok"
+	- isSalesOrderUpdate:"ok"
 + Body
 
             {
@@ -136,6 +151,16 @@
             {
                 "documentPath":''
             }
+
+##### `POST /accounting/bills/{saleId}/status`
++ Header
+	- Authentication Token
++ Body
+
+		{
+			statusType:string,
+			dispatchStatus: int
+		}
 			
 ##### `DELETE /accounting/bills/{saleId}`
 + Header

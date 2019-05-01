@@ -3,6 +3,24 @@
             	"jfId":int,
             }
 			
+##### Standard PaymentReceipt Object
+			{
+				"journalId":int,
+            	"jfId":int,
+				"creditAmount":decimal,
+				"creditArray": ... Standard Journal Object,
+				"debitAmount":decimal,
+				"debitArray": ... Standard Journal Object,
+				"amountType":Enum,
+				"entryDate":DateTime,
+				"createdAt":TimeStamp,
+				"updatedAt":DateTime,
+				"ledger":{
+					... Standard Ledger Object
+				}
+            }
+			
+
 ##### Standard Journal Object
 			{
 				"journalId":int,
@@ -19,7 +37,6 @@
 					... Standard Company Object
 				}
             }
-			
 ##### Standard Journals Persistable Object
 			{
             	"data":

@@ -14,6 +14,10 @@
 				"otherDate":date,
 				"createdAt": timestamp,
 				"updatedAt": datetime,
+				"closingBalance:
+				[
+					... Standard Closing Balance Object
+				]
 				"profession":
 				{
 					... Standard Profession Object
@@ -54,4 +58,15 @@
 #####  Is Display Enum
 			{
 				... Is Display Enum
+			}
+##### Standard Closing Balance Object
+			{
+				clientId: int,
+				closingBalance: decimal,
+				closingBalanceType: 'debit',
+				companyId: int,
+				ledgerId: int,
+				ledgerName: string,
+				outstandingLimit: decimal,
+				outstandingLimitType: string
 			}

@@ -9,11 +9,13 @@
 			{
 				... Error Message
 			}
-+ Response
++ Response `Array`
 
-			{
-				... Standard Balance-Sheet Object
-			}
+			[
+				{
+					... Standard Balance-Sheet Object
+				}
+			]
 
 **NOTES:** Provide details of the Balance-Sheet based on the companyId
 
@@ -37,4 +39,4 @@
 				"documentPath":''
 			}
 
-**NOTES:** get pdf path 
+**NOTES:** get exported file path 

@@ -74,3 +74,25 @@
 				...
 			}
 		}
+
+		
+##### Standard Status Object
+		{
+			"statusId":int,
+			"status":string,
+			"statusType": ... statusType Enum
+		}
+
+##### Standard Dispatch Object
+		{
+			"dispatchInv":json_string,
+			"remainingInv": json_string
+		}
+##### statusType Enum
+		[
+			'quotation',
+			'salesorder',
+			'sales',
+			'delivery',
+			'finalized'
+		]

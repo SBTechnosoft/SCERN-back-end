@@ -156,10 +156,11 @@
 			}
 **NOTES:** Provide details of the journal and product_trn based on the jornal_folio id
 
-##### `GET /accounting/journals/{journalId}/`
+##### `GET /accounting/journals/{journalId}`
 + Header
 	- Authentication Token
-	- 
+
+
 + Error Message
 
 			{
@@ -171,6 +172,31 @@
 				[
 					{
 						... Standard Journal Object
+					}
+					...
+				]
+				
+            } 
+##### `GET /accounting/journals/transaction/{journalId}`
++ Header
+	- Authentication Token
+	- "fromDate":"date"
+	- "toDate":"date"
+	- "journalType":'special_journal',
+	- "journalType":'payment',
+	- "journalType":'receipt'
+
++ Error Message
+
+			{
+				... Error Message
+			}            
++ Response
+
+            {
+				[
+					{
+						... Standard PaymentReceipt Object
 					}
 					...
 				]

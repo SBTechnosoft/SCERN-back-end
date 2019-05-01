@@ -3,9 +3,10 @@
         {
             "productId": int,
             "productName": string,
+			"altProductName": string,
+			"itemCode": string,
             "productType": Enum,
             "productMenu": Enum,
-            "measurementUnit": Enum,
 			"color":string,
 			"size":string,
 			"purchasePrice": decimal,
@@ -27,6 +28,19 @@
 			"bestBeforeType":Enum,
 			"cessFlat":decimal,
 			"cessPercentage":decimal,
+            "primaryMeasureUnit": Enum,
+			"measurementUnitId": Int,
+			"lowerMeasurementUnitId": Int,
+			"mediumLowerMeasurementUnitId": Int,
+			"mediumMeasurementUnitId": Int,
+			"higherMeasurementUnitId": Int,
+			"highestMeasurementUnitId": Int,
+			"lowestMouConv": decimal,
+			"lowerMouConv": decimal,
+			"mediumLowerMouConv": decimal,
+			"mediumMouConv": decimal,
+			"higherMouConv": decimal,
+			"highestMouConv": decimal,
 			"coverImage":{
 				... Standard Document Object
 			},
@@ -255,11 +269,15 @@
 			{
 				... Is Display Enum
 			}
-#####  Measurement Unit Enum
-			{
-				"type1":"piece",
-				"type2":"pair"
-			}
+#####  Primary Measurement Unit Enum
+			[
+				"highest",
+				"higher",
+				"medium",
+				"mediumLower",
+				"lower",
+				"lowest"
+			]
 ##### Transaction Type Enum
 			{
 				"purchaseTaxType":"'purchase_tax",

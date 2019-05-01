@@ -21,10 +21,13 @@
 				"orderConfirmationDate":datetime,
 				"createdAt":timestamp,
 				"updatedAt":datetime,
-				"jf_id":int,
+				"jfId":int,
+				"printCount":int,
+				"dispatchStatus":int,
 				"client":{
 					... standard client object
-				}
+				},
+				"productArray":string,
 				"expense":{
 					{
 						"expenseName":string,
