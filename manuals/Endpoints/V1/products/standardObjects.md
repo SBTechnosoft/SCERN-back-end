@@ -41,6 +41,18 @@
 			"mediumMouConv": decimal,
 			"higherMouConv": decimal,
 			"highestMouConv": decimal,
+			"lowestUnitQty": decimal,
+			"lowerUnitQty": decimal,
+			"mediumLowerUnitQty": decimal,
+			"mediumUnitQty": decimal,
+			"higherUnitQty": decimal,
+			"highestUnitQty": decimal,
+			"purchasePrice": decimal,
+			"lowerPurchasePrice": decimal,
+			"mediumLowerPurchasePrice": decimal,
+			"mediumPurchasePrice": decimal,
+			"higherPurchasePrice": decimal,
+			"highestPurchasePrice": decimal,
 			"coverImage":{
 				... Standard Document Object
 			},
