@@ -45,6 +45,3 @@ Start :
 
 NOTE : For Ex. your php version is 7.1 in your live server and your laravel project host in this directory /var/www/html. then you should be set like that valye in open cron file.
 * * * * * /usr/bin/php7.1 /var/www/html/artisan schedule:run 1>> /dev/null 2>&1
-	
-	
-	
