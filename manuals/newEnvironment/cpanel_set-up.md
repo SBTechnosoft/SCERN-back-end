@@ -18,6 +18,7 @@
 ##### Applying constants
 	
 	- change $rootScope.erpPath in front-end/app/app.js for Ex. hostUrl.localhost
+	- change $rootScope.templateCompanyLogo in front-end/app/app.js too replace hostUrl.localhost with your given constants key
 
 **NOTES:**
  
