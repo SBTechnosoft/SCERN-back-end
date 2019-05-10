@@ -29,6 +29,7 @@ use ERP\Core\Entities\CompanyDetail;
 use ERP\Model\Users\UserModel;
 use ERP\Core\Users\Commissions\Services\CommissionService;
 use ERP\Core\Products\Services\ProductService;
+use ERP\Model\Products\ProductModel;
 use ERP\Core\Companies\Services\CompanyService;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
@@ -2211,7 +2212,8 @@ class BillProcessor extends BaseProcessor
 				if ($commissionDataArray['commissionRate'] != '0' || $commissionDataArray['commissionType'] == 'itemWise') 
 				{
 					$commissionAmount = 0;
-					$productService = new productService();
+					// $productService = new productService();
+					$productModel = new ProductModel();
 					$commissionRateType = $commissionDataArray['commissionRateType'];
 					$commissionCalcOn = $commissionDataArray['commissionCalcOn'];
 					// check if commission type is general
@@ -2227,10 +2229,10 @@ class BillProcessor extends BaseProcessor
 							else
 							{
 								//  check if product is not deleted
-								$productDataJson = $productService->getProductData($commissionProduct['productId']);
+								$productDataJson = $productModel->getData($commissionProduct['productId']);
 								if (strcmp($productDataJson, $msgArray['404']) != 0)
 								{
-									$productDataArray = json_decode($productDataJson,true);
+									$productDataArray = json_decode($productDataJson,true)[0];
 									// if not flat than calculate on MRP or sales price
 									if ($commissionCalcOn == 'MRP') 
 									{
@@ -2258,14 +2260,14 @@ class BillProcessor extends BaseProcessor
 							else
 							{
 								// if product is available and not deleted
-								$productDataJson = $productService->getProductData($commissionProduct['productId']);
+								$productDataJson = $productModel->getData($commissionProduct['productId']);
 								if (strcmp($productDataJson, $msgArray['404']) != 0) 
 								{
 									// If commission isn't flat and it's on MRP or sales price
-									$productDataArray = json_decode($productDataJson,true);
-									if (isset($productDataArray['productGroupId']) 
-										&& isset($brandCommissionData[$productDataArray['productGroupId']])
-										&& $brandCommissionData[$productDataArray['productGroupId']] ) 
+									$productDataArray = json_decode($productDataJson,true)[0];
+									if (isset($productDataArray['product_group_id']) 
+										&& isset($brandCommissionData[$productDataArray['product_group_id']])
+										&& $brandCommissionData[$productDataArray['product_group_id']] ) 
 									{
 										if ($commissionCalcOn == 'MRP') 
 										{
@@ -2295,13 +2297,13 @@ class BillProcessor extends BaseProcessor
 							else
 							{
 								// If product exists
-								$productDataJson = $productService->getProductData($commissionProduct['productId']);
+								$productDataJson = $productModel->getData($commissionProduct['productId']);
 								if (strcmp($productDataJson, $msgArray['404']) != 0) 
 								{
-									$productDataArray = json_decode($productDataJson,true);
-									if (isset($productDataArray['productCategoryId']) 
-										&& isset($categoryCommissionData[$productDataArray['productCategoryId']])
-										&& $categoryCommissionData[$productDataArray['productCategoryId']] ) 
+									$productDataArray = json_decode($productDataJson,true)[0];
+									if (isset($productDataArray['product_category_id']) 
+										&& isset($categoryCommissionData[$productDataArray['product_category_id']])
+										&& $categoryCommissionData[$productDataArray['product_category_id']] ) 
 									{
 										// If commission isn't flat and on MRP or salesPrice
 										if ($commissionCalcOn == 'MRP') 
@@ -2323,6 +2325,7 @@ class BillProcessor extends BaseProcessor
 						// Itemwise Commission calculation
 						$commissionAmount = $this->itemWiseCommissionCalc($invArray,$companyId);
 					}
+					
 					if (isset($commissionAmount) && $commissionAmount > 0) 
 					{
 						$commissionArrayConstant = new LedgerArray();
