@@ -766,9 +766,9 @@ class SettingModel extends Model
             }
         }
         $decodedLedgerData = array();
+        $ledgerDecodedData = array();
         if(count($decodedJsonData)!=0)
         {
-        	$ledgerDecodedData = array();
         	$ledgerModel = new LedgerModel();
             $ledgerCountData = count($decodedJsonData);
             for($ledgerArrayData=0;$ledgerArrayData<$ledgerCountData;$ledgerArrayData++)

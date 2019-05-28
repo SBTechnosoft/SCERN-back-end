@@ -82,6 +82,74 @@ class TaxationModel extends Model
 	 * get data
 	 * returns the array-data/exception message
 	*/
+	public function getOutwardSupplies($companyId,$headerData)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		
+		$dateString = '';
+		$mytime = Carbon\Carbon::now();
+		if(array_key_exists('fromdate',$headerData) && array_key_exists('todate',$headerData))
+		{
+			//date conversion
+			//from-date conversion
+			$splitedFromDate = explode("-",$headerData['fromdate'][0]);
+			$transformFromDate = $splitedFromDate[2]."-".$splitedFromDate[1]."-".$splitedFromDate[0];
+			//to-date conversion
+			$splitedToDate = explode("-",$headerData['todate'][0]);
+			$transformToDate = $splitedToDate[2]."-".$splitedToDate[1]."-".$splitedToDate[0];
+			$dateString = "(sales_bill.entry_date BETWEEN '".$transformFromDate."' AND '".$transformToDate."') and";
+		}
+		//get saleTax from sales bill 
+		DB::beginTransaction();	
+		$saleTaxResult = DB::connection($databaseName)->select("select
+		sales_bill.sale_id,
+		sales_bill.product_array,
+		sales_bill.invoice_number,
+		sales_bill.total,
+		sales_bill.total_discounttype,
+		sales_bill.total_discount,
+		sales_bill.extra_charge,
+		sales_bill.tax,
+		sales_bill.grand_total,
+		sales_bill.advance,
+		sales_bill.balance,
+		sales_bill.sales_type,
+		sales_bill.refund,
+		sales_bill.entry_date,
+		sales_bill.client_id,
+		sales_bill.company_id,
+		sales_bill.jf_id,
+		client_mst.client_name,
+		client_mst.company_name,
+		client_mst.gst as gstin,
+		client_mst.state_abb as place_of_supply
+		FROM sales_bill
+		LEFT JOIN client_mst ON client_mst.client_id = sales_bill.client_id
+		where sales_bill.deleted_at='0000-00-00 00:00:00' and 
+		sales_bill.sales_type='whole_sales' and ".$dateString."
+		sales_bill.company_id='".$companyId."' and sales_bill.is_draft='no' and sales_bill.is_salesorder='not'"); 
+		DB::commit();
+
+		if(count($saleTaxResult)!=0)
+		{
+			return json_encode($saleTaxResult);
+		}
+		else
+		{
+			return $exceptionArray['204'];
+		}
+	}
+	
+	/**
+	 * get data
+	 * returns the array-data/exception message
+	*/
 	public function getPurchaseTaxData($companyId,$headerData)
 	{
 		//database selection
@@ -131,6 +199,74 @@ class TaxationModel extends Model
 		where bill_type='purchase_bill' and ".$dateString."
 		company_id='".$companyId."' and
 		deleted_at='0000-00-00 00:00:00'"); 
+		DB::commit();
+		if(count($purchaseTaxResult)!=0)
+		{
+			return json_encode($purchaseTaxResult);
+		}
+		else
+		{
+			return $exceptionArray['204'];
+		}
+	}
+	
+	/**
+	 * get data
+	 * returns the array-data/exception message
+	*/
+	public function getInwardSupplies($companyId,$headerData)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		
+		$mytime = Carbon\Carbon::now();
+		$dateString='';
+		if(array_key_exists('fromdate',$headerData) && array_key_exists('todate',$headerData))
+		{
+			//date conversion
+			//from-date conversion
+			$splitedFromDate = explode("-",$headerData['fromdate'][0]);
+			$transformFromDate = $splitedFromDate[2]."-".$splitedFromDate[1]."-".$splitedFromDate[0];
+			//to-date conversion
+			$splitedToDate = explode("-",$headerData['todate'][0]);
+			$transformToDate = $splitedToDate[2]."-".$splitedToDate[1]."-".$splitedToDate[0];
+			$dateString = "(purchase_bill.entry_date BETWEEN '".$transformFromDate."' AND '".$transformToDate."') and";
+		}
+		//get purchaseTax from purchase bill 
+		DB::beginTransaction();	
+		$purchaseTaxResult = DB::connection($databaseName)->select("select
+		purchase_bill.purchase_id,
+		purchase_bill.vendor_id,
+		purchase_bill.product_array,
+		purchase_bill.bill_number,
+		purchase_bill.total,
+		purchase_bill.tax,
+		purchase_bill.grand_total,
+		purchase_bill.total_discounttype,
+		purchase_bill.total_discount,
+		purchase_bill.advance,
+		purchase_bill.bill_type,
+		purchase_bill.extra_charge,
+		purchase_bill.balance,
+		purchase_bill.transaction_type,
+		purchase_bill.transaction_date,
+		purchase_bill.entry_date,
+		purchase_bill.company_id,
+		purchase_bill.jf_id,
+		ledger_mst.ledger_name,
+		ledger_mst.cgst as gstin,
+		ledger_mst.state_abb as supplier_state
+		from purchase_bill
+		LEFT JOIN ledger_mst ON ledger_mst.ledger_id = purchase_bill.vendor_id
+		where purchase_bill.bill_type='purchase_bill' and ".$dateString."
+		purchase_bill.company_id='".$companyId."' and
+		purchase_bill.deleted_at='0000-00-00 00:00:00'"); 
 		DB::commit();
 		if(count($purchaseTaxResult)!=0)
 		{
