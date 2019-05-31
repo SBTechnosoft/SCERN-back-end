@@ -881,13 +881,45 @@ class TaxationModel extends Model
 			$transformToDate = $splitedToDate[2]."-".$splitedToDate[1]."-".$splitedToDate[0];
 			$dateString = "(entry_date BETWEEN '".$transformFromDate."' AND '".$transformToDate."') and";
 		}
-		$billModel = new BillModel();
-		$billData = $billModel->getFromToDateCompanyData($transformFromDate,$transformToDate,$companyId);
-		$billImpsData = $billModel->getImpsData($transformFromDate,$transformToDate,$companyId);
-		$gstr2Array = array();
-		$gstr2Array['b2b'] = json_decode($billData);
-		$gstr2Array['imps'] = json_decode($billImpsData);
-		return json_encode($gstr2Array);
+		
+		DB::beginTransaction();
+		$Gstr2Result = DB::connection($databaseName)->select("select
+		purchase_bill.purchase_id,
+		purchase_bill.vendor_id,
+		purchase_bill.product_array,
+		purchase_bill.bill_number,
+		purchase_bill.total,
+		purchase_bill.tax,
+		purchase_bill.grand_total,
+		purchase_bill.total_discounttype,
+		purchase_bill.total_discount,
+		purchase_bill.advance,
+		purchase_bill.bill_type,
+		purchase_bill.extra_charge,
+		purchase_bill.balance,
+		purchase_bill.transaction_type,
+		purchase_bill.transaction_date,
+		purchase_bill.entry_date,
+		purchase_bill.company_id,
+		purchase_bill.jf_id,
+		ledger_mst.ledger_name,
+		ledger_mst.cgst as gstin,
+		ledger_mst.state_abb as supplier_state
+		from purchase_bill
+		LEFT JOIN ledger_mst ON ledger_mst.ledger_id = purchase_bill.vendor_id
+		where purchase_bill.bill_type='purchase_bill' and ".$dateString."
+		purchase_bill.company_id='".$companyId."' and
+		purchase_bill.deleted_at='0000-00-00 00:00:00'");
+		DB::commit();
+
+		if(count($Gstr2Result)!=0)
+		{
+			return json_encode($Gstr2Result);
+		}
+		else
+		{
+			return $exceptionArray['204'];
+		}
 	}
 
 	/**
@@ -925,5 +957,38 @@ class TaxationModel extends Model
 		$gstr3Array['gstr1Invoice'] = json_decode($billData);
 		// $gstr2Array['imps'] = json_decode($billImpsData);
 		return json_encode($gstr3Array);
+	}
+
+	/**
+	 * Get Product type for defining between service and goods
+	 */
+	public function productType($productId)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		
+		DB::beginTransaction();
+		$product = DB::connection($databaseName)->select("select
+		product_id,
+		product_name,
+		product_type
+		from product_mst
+		where product_id='$productId'");
+		DB::commit();
+
+		if(count($product)!=0)
+		{
+			return json_encode($product[0]);
+		}
+		else
+		{
+			return $exceptionArray['204'];
+		}
 	}
 }

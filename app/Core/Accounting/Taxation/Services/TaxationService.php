@@ -178,7 +178,7 @@ class TaxationService extends AbstractService
 		else
 		{
 			$encoded = new EncodeTaxationData();
-			$encodeAllData = $encoded->getGstr2Data($taxationData);
+			$encodeAllData = $encoded->getGstr2Data($taxationData, $companyId);
 			return $encodeAllData;
 			
 		}
