@@ -439,7 +439,8 @@ class BillProcessor extends BaseProcessor
 			$staffCommissionJournal = $this->StaffCommissionCalc($staffLedgerId,$tRequest['user_id'],$tRequest['company_id'],$tRequest[0]);
 			if (is_array($staffCommissionJournal)) 
 			{
-				if (count($staffCommissionJournal) == 2) {
+				if (count($staffCommissionJournal) == 2) 
+				{
 					$dataArray[$commissionArrayRank] = $staffCommissionJournal;
 					$transactionType[$commissionArrayRank] = $constantArray['paymentType'];
 				}

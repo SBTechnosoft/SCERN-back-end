@@ -89,6 +89,7 @@ class PurchaseBillModel extends Model
 				expense_name,
 				expense_type,
 				expense_value,
+				expense_tax,
 				expense_operation,
 				purchase_id,
 				expense_id,
@@ -97,6 +98,7 @@ class PurchaseBillModel extends Model
 				'".$decodedJsonExpense[$expenseData]->expenseName."',
 				'".$decodedJsonExpense[$expenseData]->expenseType."',
 				'".$decodedJsonExpense[$expenseData]->expenseValue."',
+				'".$decodedJsonExpense[$expenseData]->expenseTax."',
 				'".$decodedJsonExpense[$expenseData]->expenseOperation."',
 				'".$purchaseIdResult[0]->purchase_id."',
 				'".$decodedJsonExpense[$expenseData]->expenseId."',
@@ -190,6 +192,7 @@ class PurchaseBillModel extends Model
 				expense_type,
 				expense_name,
 				expense_value,
+				expense_tax,
 				expense_operation,
 				purchase_id,
 				expense_id,
@@ -197,6 +200,7 @@ class PurchaseBillModel extends Model
 				values('".$decodedExpenseData[$expenseData]->expenseType."',
 				'".$decodedExpenseData[$expenseData]->expenseName."',
 				'".$decodedExpenseData[$expenseData]->expenseValue."',
+				'".$decodedExpenseData[$expenseData]->expenseTax."',
 				'".$decodedExpenseData[$expenseData]->expenseOperation."',
 				'".$purchaseId."',
 				'".$decodedExpenseData[$expenseData]->expenseId."',
@@ -336,6 +340,7 @@ class PurchaseBillModel extends Model
 							 	'\", \"expenseId\":', IFNULL(expense_id,0),
 							 	', \"expenseName\":\"', IFNULL(expense_name,''),
 							 	'\", \"expenseValue\":\"', IFNULL(expense_value,''),
+							 	'\", \"expenseTax\":\"', IFNULL(expense_tax,''),
 							 	'\", \"expenseOperation\":\"', IFNULL(expense_operation,''),
 							 	'\", \"purchaseId\":', IFNULL(purchase_id,0),
 						 	' }'
@@ -441,6 +446,7 @@ class PurchaseBillModel extends Model
 							 	'\", \"expenseId\":', IFNULL(expense_id,0),
 							 	', \"expenseName\":\"', IFNULL(expense_name,''),
 							 	'\", \"expenseValue\":\"', IFNULL(expense_value,''),
+							 	'\", \"expenseTax\":\"', IFNULL(expense_tax,''),
 							 	'\", \"expenseOperation\":\"', IFNULL(expense_operation,''),
 							 	'\", \"purchaseId\":', IFNULL(purchase_id,0),
 						 	' }'
@@ -502,6 +508,7 @@ class PurchaseBillModel extends Model
 			expense_name as expenseName,
 			expense_type as expenseType,
 			expense_value as expenseValue,
+			expense_tax as expenseTax,
 			expense_operation as expenseOperation,
 			purchase_id as purchaseId
 			from purchase_expense_dtl 
@@ -614,6 +621,7 @@ class PurchaseBillModel extends Model
 								 	'\", \"expenseId\":', IFNULL(expense_id,0),
 								 	', \"expenseName\":\"', IFNULL(expense_name,''),
 								 	'\", \"expenseValue\":\"', IFNULL(expense_value,''),
+								 	'\", \"expenseTax\":\"', IFNULL(expense_tax,''),
 								 	'\", \"expenseOperation\":\"', IFNULL(expense_operation,''),
 								 	'\", \"purchaseId\":', IFNULL(purchase_id,0),
 							 	' }'
@@ -710,6 +718,7 @@ class PurchaseBillModel extends Model
 								 	'\", \"expenseId\":', IFNULL(expense_id,0),
 								 	', \"expenseName\":\"', IFNULL(expense_name,''),
 								 	'\", \"expenseValue\":\"', IFNULL(expense_value,''),
+								 	'\", \"expenseTax\":\"', IFNULL(expense_tax,''),
 								 	'\", \"expenseOperation\":\"', IFNULL(expense_operation,''),
 								 	'\", \"purchaseId\":', IFNULL(purchase_id,0),
 							 	' }'

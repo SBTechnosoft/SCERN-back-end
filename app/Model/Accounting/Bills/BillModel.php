@@ -216,6 +216,7 @@ class BillModel extends Model
 						expense_name,
 						expense_type,
 						expense_value,
+						expense_tax,
 						expense_operation,
 						sale_id,
 						expense_id,
@@ -224,6 +225,7 @@ class BillModel extends Model
 						'".$decodedJsonExpense[$expenseArray]->expenseName."',
 						'".$decodedJsonExpense[$expenseArray]->expenseType."',
 						'".$decodedJsonExpense[$expenseArray]->expenseValue."',
+						'".$decodedJsonExpense[$expenseArray]->expenseTax."',
 						'".$decodedJsonExpense[$expenseArray]->expense_operation."',
 						'".$saleId[0]->sale_id."',
 						'".$decodedJsonExpense[$expenseArray]->expenseId."',
@@ -344,6 +346,7 @@ class BillModel extends Model
 					expense_id as expenseId,
 					expense_name as expenseName,
 					expense_value as expenseValue,
+					expense_tax as expenseTax,
 					expense_operation as expenseOperation,
 					sale_id as saleId
 					from sale_expense_dtl
@@ -572,6 +575,7 @@ class BillModel extends Model
 						expense_name,
 						expense_type,
 						expense_value,
+						expense_tax,
 						expense_operation,
 						sale_id,
 						expense_id,
@@ -580,6 +584,7 @@ class BillModel extends Model
 						'".$decodedJsonExpense[$expenseArray]->expenseName."',
 						'".$decodedJsonExpense[$expenseArray]->expenseType."',
 						'".$decodedJsonExpense[$expenseArray]->expenseValue."',
+						'".$decodedJsonExpense[$expenseArray]->expenseTax."',
 						'".$decodedJsonExpense[$expenseArray]->expenseOperation."',
 						'".$saleId[0]->sale_id."',
 						'".$decodedJsonExpense[$expenseArray]->expenseId."',
@@ -669,6 +674,7 @@ class BillModel extends Model
 			expense_id as expenseId,
 			expense_name as expenseName,
 			expense_value as expenseValue,
+			expense_tax as expenseTax,
 			expense_operation as expenseOperation,
 			sale_id as saleId
 			from sale_expense_dtl
@@ -935,6 +941,7 @@ class BillModel extends Model
 								 	'\", \"expenseId\":', IFNULL(expense_id,0),
 								 	', \"expenseName\":\"', IFNULL(expense_name,''),
 								 	'\", \"expenseValue\":\"', IFNULL(expense_value,''),
+								 	'\", \"expenseTax\":\"', IFNULL(expense_tax,''),
 								 	'\", \"expenseOperation\":\"', IFNULL(expense_operation,''),
 								 	'\", \"saleId\":', IFNULL(sale_id,0),
 							 	' }'
@@ -1036,6 +1043,7 @@ class BillModel extends Model
 								 	'\", \"expenseId\":', IFNULL(expense_id,0),
 								 	', \"expenseName\":\"', IFNULL(expense_name,''),
 								 	'\", \"expenseValue\":\"', IFNULL(expense_value,''),
+								 	'\", \"expenseTax\":\"', IFNULL(expense_tax,''),
 								 	'\", \"expenseOperation\":\"', IFNULL(expense_operation,''),
 								 	'\", \"saleId\":', IFNULL(sale_id,0),
 							 	' }'
@@ -1160,6 +1168,7 @@ class BillModel extends Model
 				expense_id as expenseId,
 				expense_name as expenseName,
 				expense_value as expenseValue,
+				expense_tax as expenseTax,
 				expense_operation as expenseOperation,
 				sale_id as saleId
 				from sale_expense_dtl
@@ -1242,6 +1251,7 @@ class BillModel extends Model
 			expense_id as expenseId,
 			expense_name as expenseName,
 			expense_value as expenseValue,
+			expense_tax as expenseTax,
 			expense_operation as expenseOperation,
 			sale_id as saleId
 			from sale_expense_dtl
@@ -1323,6 +1333,7 @@ class BillModel extends Model
 			expense_id as expenseId,
 			expense_name as expenseName,
 			expense_value as expenseValue,
+			expense_tax as expenseTax,
 			expense_operation as expenseOperation,
 			sale_id as saleId
 			from sale_expense_dtl
@@ -1398,6 +1409,7 @@ class BillModel extends Model
 		expense_id as expenseId,
 		expense_name as expenseName,
 		expense_value as expenseValue,
+		expense_tax as expenseTax,
 		expense_operation as expenseOperation,
 		sale_id as saleId
 		from sale_expense_dtl
@@ -1507,6 +1519,7 @@ class BillModel extends Model
 							 	'\", \"expenseId\":', IFNULL(expense_id,0),
 							 	', \"expenseName\":\"', IFNULL(expense_name,''),
 							 	'\", \"expenseValue\":\"', IFNULL(expense_value,''),
+							 	'\", \"expenseTax\":\"', IFNULL(expense_tax,''),
 							 	'\", \"expenseOperation\":\"', IFNULL(expense_operation,''),
 							 	'\", \"saleId\":', IFNULL(sale_id,0),
 						 	' }'
@@ -1673,6 +1686,7 @@ class BillModel extends Model
 							 	'\", \"expenseId\":', IFNULL(expense_id,0),
 							 	', \"expenseName\":\"', IFNULL(expense_name,''),
 							 	'\", \"expenseValue\":\"', IFNULL(expense_value,''),
+							 	'\", \"expenseTax\":\"', IFNULL(expense_tax,''),
 							 	'\", \"expenseOperation\":\"', IFNULL(expense_operation,''),
 							 	'\", \"saleId\":', IFNULL(sale_id,0),
 						 	' }'
@@ -1736,6 +1750,7 @@ class BillModel extends Model
 			expense_id as expenseId,
 			expense_name as expenseName,
 			expense_value as expenseValue,
+			expense_tax as expenseTax,
 			expense_operation as expenseOperation,
 			sale_id as saleId
 			from sale_expense_dtl
@@ -2062,6 +2077,7 @@ class BillModel extends Model
 				expense_type,
 				expense_name,
 				expense_value,
+				expense_tax,
 				expense_operation,
 				sale_id,
 				expense_id,
@@ -2069,6 +2085,7 @@ class BillModel extends Model
 				values('".$decodedExpenseData[$expenseArray]->expenseType."',
 				'".$decodedExpenseData[$expenseArray]->expenseName."',
 				'".$decodedExpenseData[$expenseArray]->expenseValue."',
+				'".$decodedExpenseData[$expenseArray]->expenseTax."',
 				'".$decodedExpenseData[$expenseArray]->expenseOperation."',
 				'".$saleId."',
 				'".$decodedExpenseData[$expenseArray]->expenseId."',

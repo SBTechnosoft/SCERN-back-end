@@ -852,7 +852,6 @@ class ProductTransformer extends ExceptionMessage
 				//get exception message
 		$exception = new ProductTransformer();
 		$exceptionArray = $exception->messageArrays();
-
 		$settingService = new SettingService();
 		$settingStatus = $settingService->getData();
 		if (strcmp($exceptionArray['204'], $settingStatus)==0) {
@@ -901,7 +900,7 @@ class ProductTransformer extends ExceptionMessage
 		$enumDiscountTypeArray = array();
 		$discountTypeEnum = new DiscountTypeEnum();
 		$enumDiscountTypeArray = $discountTypeEnum->enumArrays();
-		
+		$ProductService = new ProductService();
 		for($arrayData=0;$arrayData<$numberOfArray;$arrayData++)
 		{
 			$tempArray[$arrayData] = array();
