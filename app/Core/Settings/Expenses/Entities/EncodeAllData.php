@@ -49,6 +49,8 @@ class EncodeAllData extends CompanyService
 				'expenseName' => $decodedJson[$decodedData]['expense_name'],
 				'expenseType' => $decodedJson[$decodedData]['expense_type'],
 				'expenseValue' => $decodedJson[$decodedData]['expense_value'],
+				'expenseGroupType' => $decodedJson[$decodedData]['expense_group_type'],
+				'ledgerId' => $decodedJson[$decodedData]['ledger_id'],
 				'company' => $companyDecodedJson[$decodedData],
 				'createdAt' => $getCreatedDate[$decodedData],
 				'updatedAt' => $getUpdatedDate[$decodedData]

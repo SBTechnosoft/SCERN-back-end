@@ -31,7 +31,7 @@ class LedgerTransformer
 		$emailId = $request->input('emailId'); 
 		$pan = $request->input('pan'); 
 		$tin = $request->input('tin'); 
-		$gstNo = $request->input('gst');
+		$gstNo = $request->input('cgst');
 		$balanceFlag = $request->input('balanceFlag'); 		
 		$amount = $request->input('amount'); 		
 		$amountType = $request->input('amountType');
@@ -134,7 +134,7 @@ class LedgerTransformer
 			$data['email_id'] = $tEmailId;
 			$data['pan'] = $tPan;
 			$data['tin'] = $tTin;
-			$data['gst'] = $tGstNo;
+			$data['cgst'] = $tGstNo;
 			$data['balance_flag'] = $tBalanceFlag;
 			$data['amount'] = $tAmount;
 			$data['amount_type'] = $tAmountType;

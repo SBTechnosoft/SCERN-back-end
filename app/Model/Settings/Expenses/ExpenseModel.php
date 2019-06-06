@@ -119,9 +119,11 @@ class ExpenseModel extends Model
 		expense_name,
 		expense_type,
 		expense_value,
+		expense_group_type,
 		updated_at,
 		created_at,
-		company_id
+		company_id,
+		ledger_id
 		from expense_type_mst 
 		where deleted_at='0000-00-00 00:00:00'");
 		DB::commit();
@@ -156,10 +158,12 @@ class ExpenseModel extends Model
 		expense_id,
 		expense_name,
 		expense_type,
+		expense_group_type,
 		expense_value,
 		updated_at,
 		created_at,
-		company_id
+		company_id,
+		ledger_id
 		from expense_type_mst 
 		where expense_id ='".$expenseId."' and 
 		deleted_at='0000-00-00 00:00:00'");

@@ -40,6 +40,7 @@ class ExpenseTransformer
 			$data['expense_name'] = trim($request->input('expenseName'));
 			$data['expense_type'] = $expenseType;
 			$data['expense_value'] = trim($request->input('expenseValue'));
+			$data['expense_group_type'] = trim($request->input('expenseGroupType'));
 			$data['company_id'] = trim($request->input('companyId'));
 			return $data;
 		}

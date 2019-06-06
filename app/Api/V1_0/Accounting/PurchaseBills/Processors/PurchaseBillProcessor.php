@@ -26,6 +26,7 @@ use ERP\Core\Accounting\Ledgers\Entities\LedgerArray;
 // use ERP\Model\Accounting\Journals\JournalModel;
 use ERP\Core\Products\Services\ProductService;
 use ERP\Core\Companies\Services\CompanyService;
+use ERP\Model\Settings\Expenses\ExpenseModel;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -43,14 +44,14 @@ class PurchaseBillProcessor extends BaseProcessor
      * @return PurchaseBill Persistable object
      */	
     public function createPersistable(Request $request)
-	{	
+	{
 		$this->request = $request;
 		//get exception message
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
 		//get constant variables array
 		$constantClass = new ConstantClass();
-		$constantArray = $constantClass->constantVariable();	
+		$constantArray = $constantClass->constantVariable();
 		$file = $request->file();
 		$docFlag=0;
 		if(in_array(true,$file)  || array_key_exists('scanFile',$request->input()))
@@ -267,29 +268,54 @@ class PurchaseBillProcessor extends BaseProcessor
 		$purchaseLedgerId = '';
 		$totalExpense = 0;
 		$totalExpenseTax = 0;
-		$ledgerArrayClass = new LedgerArray();
-		$expenseLedgerArray = $ledgerArrayClass->expenseLedgerArray();
+		$expenseJournalArray = array();
 
-		$purchaseExpenseLedger = $expenseLedgerArray[0];
 		$purchaseExpenseLedgerId = '';
-
+		$amountTypeEnum = new AmountTypeEnum();
+		$amountTypeArray = $amountTypeEnum->enumArrays();
 		if (array_key_exists('expense', $trimRequest)) 
 		{
 			$expenseArray = json_decode($trimRequest['expense'],true);
 			$expenseCount = count($expenseArray);
+			$expenseModel = new ExpenseModel();
 			for ($expenseIter=0; $expenseIter < $expenseCount; $expenseIter++) 
 			{ 
-				$expenseValue = $expenseArray[$expenseIter]['expenseAmt'] / ( 1 + ( $expenseArray[$expenseIter]['expenseTax'] / 100 ));
-				// $expenseArray[$expenseIter]['expenseOperation'];
-				if ($expenseArray[$expenseIter]['expenseOperation'] == 'plus') 
+				$expenseId = $expenseArray[$expenseIter]['expenseId'];
+				$expenseStatus = $expenseModel->getData($expenseId);
+				if (strcmp($expenseStatus, $exceptionArray['404'])!= 0) 
 				{
-					$totalExpense += $expenseValue;
-					$totalExpenseTax += ($expenseValue * $expenseArray[$expenseIter]['expenseTax'] / 100);
-				}
-				else
-				{
-					$totalExpense -= $expenseValue;
-					$totalExpenseTax += ($expenseValue * $expenseArray[$expenseIter]['expenseTax'] / 100);
+					$expenseDataArray = json_decode($expenseStatus,true)[0];
+					$expenseLedgerId = $expenseDataArray['ledger_id'];
+					if ($expenseLedgerId) 
+					{
+						$expenseValue = $expenseArray[$expenseIter]['expenseAmt'] / ( 1 + ( $expenseArray[$expenseIter]['expenseTax'] / 100 ));
+						// $expenseArray[$expenseIter]['expenseOperation'];
+						if ($expenseArray[$expenseIter]['expenseOperation'] == 'plus') 
+						{
+							$totalExpense += $expenseValue;
+							$totalExpenseTax += ($expenseValue * $expenseArray[$expenseIter]['expenseTax'] / 100);
+
+							$expenseSingleArray = array(
+								"amount"=> $expenseValue,
+								"amountType"=>$amountTypeArray['debitType'],
+								"ledgerId"=>$expenseLedgerId
+							);
+						}
+						else
+						{
+							$totalExpense -= $expenseValue;
+							$totalExpenseTax += ($expenseValue * $expenseArray[$expenseIter]['expenseTax'] / 100);
+							$expenseSingleArray = array(
+								"amount"=> $expenseValue,
+								"amountType"=>$amountTypeArray['creditType'],
+								"ledgerId"=>$expenseLedgerId
+							);
+						}
+						if ($expenseSingleArray['amount'] != 0) 
+						{
+							$expenseJournalArray[] = $expenseSingleArray;
+						}
+					}
 				}
 			}
 		}
@@ -313,19 +339,7 @@ class PurchaseBillProcessor extends BaseProcessor
 			if(strcmp($generalLedgerArray[$ledgerArray]->ledger_name,'discount(income)')==0)
 			{$discountLedgerId = $generalLedgerArray[$ledgerArray]->ledger_id;}
 			if(strcmp($generalLedgerArray[$ledgerArray]->ledger_name,'purchase_tax')==0)
-			{$purchaseLedgerId = $generalLedgerArray[$ledgerArray]->ledger_id;}	
-			if(strcmp($generalLedgerArray[$ledgerArray]->ledger_name, $purchaseExpenseLedger)==0)
-			{$purchaseExpenseLedgerId = $generalLedgerArray[$ledgerArray]->ledger_id;}	
-		}
-		if ($purchaseExpenseLedgerId == '') 
-		{
-			$expenseLedgerStatus = $this->insertDefaultLedger($trimRequest['companyId'], $purchaseExpenseLedger);
-
-			if(strcmp($expenseLedgerStatus, $exceptionArray['content'])==0 || strcmp($expenseLedgerStatus, $exceptionArray['404'])==0)
-			{
-				return $expenseLedgerStatus;
-			}
-			$purchaseExpenseLedgerId = json_decode($expenseLedgerStatus)[0]->ledger_id;
+			{$purchaseLedgerId = $generalLedgerArray[$ledgerArray]->ledger_id;}
 		}
 
 		// total discount calculation
@@ -360,8 +374,7 @@ class PurchaseBillProcessor extends BaseProcessor
 		$total = $totalWithTaxAmount+$trimRequest['extraCharge']-$finalTotalDiscount;
 		$mAmount = $actualTotal+$trimRequest['extraCharge'];
 		// calling function for display debit-credit
-		$amountTypeEnum = new AmountTypeEnum();
-		$amountTypeArray = $amountTypeEnum->enumArrays();
+		
 		$dataArray = [];
 		$transactionType = [];
 		// New Journal Logic Fixing Starts 25-1-19
@@ -412,17 +425,12 @@ class PurchaseBillProcessor extends BaseProcessor
 			$purchaseLedgerTax = $trimRequest['tax'];
 		}
 
-		if ($totalExpense != 0) 
+		if (count($expenseJournalArray)) 
 		{
 			$purchaseLedgerAmount -= $totalExpense;
 			$purchaseLedgerAmount -= $totalExpenseTax;
 			$purchaseLedgerTax += $totalExpenseTax;
-			$expenseAmtType = $totalExpense > 0 ? $amountTypeArray['debitType'] : $amountTypeArray['creditType'];
-			$dataArray[0][] = [
-				"amount"=> $purchaseLedgerAmount,
-				"amountType"=> $expenseAmtType,
-				"ledgerId"=> $purchaseExpenseLedgerId
-			];
+			$dataArray[0] = array_merge($dataArray[0], $expenseJournalArray);
 		}
 		if ($purchaseLedgerTax != 0) 
 		{
@@ -469,7 +477,7 @@ class PurchaseBillProcessor extends BaseProcessor
 			$journalInventory[$inventoryArray]['qty']=$trimRequest['inventory'][$inventoryArray]['qty'];
 			$journalInventory[$inventoryArray]['measurementUnit']=$trimRequest['inventory'][$inventoryArray]['measurementUnit'];
 
-			if (@$trimRequest['inventory'][$discountArray]['discountType'])
+			if (array_key_exists('discountType', $trimRequest['inventory'][$inventoryArray]))
 			{
 				$journalInventory[$inventoryArray]['discountType']= $trimRequest['inventory'][$inventoryArray]['discountType'];
 			}
@@ -746,7 +754,7 @@ class PurchaseBillProcessor extends BaseProcessor
 	}
 
 	/** 
-	* @param company id, ledger_type
+	* @param Request Object [Request $request]
 	* @return result ledger_id/ error-message
 	*/
 	public function insertDefaultLedger($companyId,$ledgerName)

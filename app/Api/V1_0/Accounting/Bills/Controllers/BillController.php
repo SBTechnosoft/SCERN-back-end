@@ -107,7 +107,8 @@ class BillController extends BaseController implements ContainerInterface
 							$documentRequest = Request::create($path,$method,$saleIdArray);
 							if(array_key_exists('operation',$request->header()))
 							{
-								if ($request->header()['operation'][0]!= 'generate') {
+								if ($request->header()['operation'][0]!= 'generate') 
+								{
 									$documentRequest->headers->set('operation',$request->header()['operation'][0]);
 								}
 							}
@@ -120,7 +121,8 @@ class BillController extends BaseController implements ContainerInterface
 								$documentRequest->headers->set('issalesorder',$request->header()['issalesorder'][0]);
 							}
 							$processedData = $documentController->getData($documentRequest);
-							if (array_key_exists('isquotationprocess', $request->header())) {
+							if (array_key_exists('isquotationprocess', $request->header())) 
+							{
 								return [
 									'saleId' => $saleId,
 									'response' => $processedData
@@ -367,7 +369,8 @@ class BillController extends BaseController implements ContainerInterface
 			{
 				if(array_key_exists('operation',$request->header()))
 				{
-					if ($request->header()['operation'][0]== 'generate') {
+					if ($request->header()['operation'][0]== 'generate') 
+					{
 						$billModel = new BillModel();
 						$billModel->updatePrintCount($saleId);
 					}

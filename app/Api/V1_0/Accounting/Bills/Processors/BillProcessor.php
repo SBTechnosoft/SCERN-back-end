@@ -89,11 +89,13 @@ class BillProcessor extends BaseProcessor
 					$contactNo = $tRequest['contact_no'];
 				}
 				// Get Staff ID to set Commission
-				if (array_key_exists($constantArray['userId'], $tRequest)) {
+				if (array_key_exists($constantArray['userId'], $tRequest)) 
+				{
 					$userModel = new UserModel();
 					$staffJsonData = $userModel->getData($tRequest['user_id']);
 					$staffArrayData = json_decode($staffJsonData);
-					if (is_array($staffArrayData) || is_object($staffArrayData)) {
+					if (is_array($staffArrayData) || is_object($staffArrayData)) 
+					{
 						$staffLedgerData = $ledgerModel->getDataAsPerUserId($tRequest['company_id'],$tRequest['user_id']);
 						if (is_array(json_decode($staffLedgerData))) {
 							$decodedStaffData = json_decode($staffLedgerData,true)[0];
@@ -1978,7 +1980,8 @@ class BillProcessor extends BaseProcessor
 			}
 		}
 		$ledgerArray['clientId']=$clientId;
-		if ($updateFlag==1) {
+		if ($updateFlag==1) 
+		{
 			$ledgerController = new LedgerController(new Container());
 			$method=$constantArray['postMethod'];
 			$path=$constantArray['ledgerUrl'].'/'.$ledgerId;
@@ -2009,40 +2012,47 @@ class BillProcessor extends BaseProcessor
 		$ledgerArray=array();
 		$ledgerArray['ledgerName']=$staffArray->user_name;
 
-		if (isset($ledgerData['ledger_name']) && $ledgerData['ledger_name'] != $ledgerArray['ledgerName']) {
+		if (isset($ledgerData['ledger_name']) && $ledgerData['ledger_name'] != $ledgerArray['ledgerName']) 
+		{
 			$updateFlag = 1;
 		}
 		$ledgerArray['address1']=$staffArray->address;
 
-		if (isset($ledgerData['address1']) && $ledgerData['address1'] != $ledgerArray['address1']) {
+		if (isset($ledgerData['address1']) && $ledgerData['address1'] != $ledgerArray['address1']) 
+		{
 			$updateFlag = 1;
 		}
 		$ledgerArray['address2']='';
 		$ledgerArray['contactNo']=$staffArray->contact_no;
 
-		if (isset($ledgerData['contact_no']) && $ledgerData['contact_no'] != $ledgerArray['contactNo']) {
+		if (isset($ledgerData['contact_no']) && $ledgerData['contact_no'] != $ledgerArray['contactNo']) 
+		{
 			$updateFlag = 1;
 		}
 		$ledgerArray['emailId']=$staffArray->email_id;
 
-		if (isset($ledgerData['email_id']) && $ledgerData['email_id'] != $ledgerArray['emailId']) {
+		if (isset($ledgerData['email_id']) && $ledgerData['email_id'] != $ledgerArray['emailId']) 
+		{
 			$updateFlag = 1;
 		}
 		$ledgerArray['stateAbb']=$staffArray->state_abb;
 
-		if (isset($ledgerData['state_abb']) && $ledgerData['state_abb'] != $ledgerArray['stateAbb']) {
+		if (isset($ledgerData['state_abb']) && $ledgerData['state_abb'] != $ledgerArray['stateAbb']) 
+		{
 			$updateFlag = 1;
 		}
 		$ledgerArray['cityId']=$staffArray->city_id;
 
-		if (isset($ledgerData['city_id']) && $ledgerData['city_id'] != $ledgerArray['cityId']) {
+		if (isset($ledgerData['city_id']) && $ledgerData['city_id'] != $ledgerArray['cityId']) 
+		{
 			$updateFlag = 1;
 		}
 		$ledgerArray['balanceFlag']=$constantArray['openingBalance'];
 		$ledgerArray['amount']=0;
 		$ledgerArray['outstandingLimit']='0.0000';
 		$ledgerArray['userId']=$userId;
-		if ($updateFlag==1) {
+		if ($updateFlag==1) 
+		{
 			$ledgerController = new LedgerController(new Container());
 			$method=$constantArray['postMethod'];
 			$path=$constantArray['ledgerUrl'].'/'.$ledgerId;
@@ -2073,7 +2083,8 @@ class BillProcessor extends BaseProcessor
 		$exceptionMessage = new ExceptionMessage();
 		$exceptionArray = $exceptionMessage->messageArrays();
 		$companyJson = $companyService->getCompanyData($companyId);
-		if (strcmp($companyJson,$exceptionArray['404'])==0) {
+		if (strcmp($companyJson,$exceptionArray['404'])==0) 
+		{
 			return $companyJson;
 		}
 		$companyDataArray = json_decode($companyJson);
@@ -2081,7 +2092,8 @@ class BillProcessor extends BaseProcessor
 		$ledgerTypeDataArray = $ledgerTypeArray->ledgerArrays();
 		$ledgerGrpArray = $ledgerTypeArray->ledgerGrpArray();
 		$ledgerIndex = array_search($ledgerName, $ledgerTypeDataArray);
-		if ($ledgerIndex < 0) {
+		if ($ledgerIndex < 0) 
+		{
 			return $exceptionArray['content'];
 		}
 		$ledgerArray['ledgerName']=$ledgerName;

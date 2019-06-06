@@ -713,7 +713,6 @@ class ProductTransformer extends ExceptionMessage
 
 				if(strcmp($groupResult,$exceptionArray['204'])==0)
 				{
-					Log::info("GroupName: ".$convertedGrpString." and  Result: ".$groupResult);
 					$groupFlag=1;
 				}
 				else
@@ -1279,7 +1278,7 @@ class ProductTransformer extends ExceptionMessage
 					{
 						if(strcmp($tempArray[$arrayElement]['discount_type'],$constantArray['percentage'])==0)
 						{
-							$tempArray[$arrayElement]['discount_value']=($tempArray[$arrayElement]['discount']/100)* $tempArray[$arrayElement]['price'];
+							$tempArray[$arrayElement]['discount_value']=($tempArray[$arrayElement]['discount']/100)* $tempArray[$arrayElement]['price'] * $tempArray[$arrayElement]['qty'];
 						}
 						else
 						{

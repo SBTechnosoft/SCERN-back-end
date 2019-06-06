@@ -30,8 +30,8 @@ class LedgerArray
 		$ledgerGeneralArray[15] = "purchase_tax";
 		$ledgerGeneralArray[16] = "commission(income)";
 		$ledgerGeneralArray[17] = "commission(expense)";
-		$ledgerGeneralArray[18] = "purchase_expense";
-		$ledgerGeneralArray[19] = "sales_expense";
+		#$ledgerGeneralArray[18] = "purchase_expense";
+		#$ledgerGeneralArray[19] = "sales_expense";
 		// $ledgerGeneralArray[17] = "neft";
 		// $ledgerGeneralArray[18] = "rtgs";
 		// $ledgerGeneralArray[19] = "imps";
@@ -58,9 +58,8 @@ class LedgerArray
 	public function expenseLedgerArray()
 	{
 		$ledgerGeneralArray = array();
-		// $ledgerGeneralArray[16] = "commission(income)";
-		$ledgerGeneralArray[0] = "purchase_expense";
-		$ledgerGeneralArray[1] = "sales_expense";
+		$ledgerGeneralArray['direct'] = 16;
+		$ledgerGeneralArray['indirect'] = 19;
 		return $ledgerGeneralArray;
 	}
 	public function ledgerGrpArray()
@@ -86,8 +85,8 @@ class LedgerArray
 		$ledgerGeneralArray[16] = 17;
 		$ledgerGeneralArray[17] = 16;
 
-		$ledgerGeneralArray[18] = 19;
-		$ledgerGeneralArray[19] = 20;
+		#$ledgerGeneralArray[18] = 19;
+		#$ledgerGeneralArray[19] = 20;
 		// $ledgerGeneralArray[15] = 9;
 		// $ledgerGeneralArray[16] = 26;
 		// $ledgerGeneralArray[17] = 9;
