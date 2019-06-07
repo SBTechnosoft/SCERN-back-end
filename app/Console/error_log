@@ -1,9 +1,0 @@
-[23-Mar-2018 03:29:02 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Console\Kernel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/Kernel.php on line 11
-[23-Mar-2018 20:47:42 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Console\Kernel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/DoctrineKernel.php on line 22
-[23-Mar-2018 21:25:30 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Console\Kernel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/DoctrineKernel.php on line 22
-[24-Mar-2018 09:10:56 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Console\Kernel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/Kernel.php on line 11
-[24-Mar-2018 09:31:06 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Console\Kernel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/DoctrineKernel.php on line 22
-[25-Mar-2018 20:38:27 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Console\Kernel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/DoctrineKernel.php on line 22
-[25-Mar-2018 20:38:28 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Console\Kernel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/Kernel.php on line 11
-[03-Apr-2018 14:11:27 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Console\Kernel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/Kernel.php on line 11
-[03-Apr-2018 14:29:47 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Console\Kernel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/DoctrineKernel.php on line 22

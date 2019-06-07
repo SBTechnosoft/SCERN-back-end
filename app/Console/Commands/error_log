@@ -1,8 +1,0 @@
-[23-Mar-2018 06:09:34 America/Chicago] PHP Fatal error:  Class 'Illuminate\Console\Command' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/Commands/Reminder.php on line 22
-[23-Mar-2018 06:13:21 America/Chicago] PHP Fatal error:  Class 'Illuminate\Console\Command' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/Commands/Inspire.php on line 11
-[24-Mar-2018 09:41:56 America/Chicago] PHP Fatal error:  Class 'Illuminate\Console\Command' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/Commands/Inspire.php on line 11
-[24-Mar-2018 09:43:31 America/Chicago] PHP Fatal error:  Class 'Illuminate\Console\Command' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/Commands/Reminder.php on line 22
-[25-Mar-2018 20:46:01 America/Chicago] PHP Fatal error:  Class 'Illuminate\Console\Command' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/Commands/Inspire.php on line 11
-[25-Mar-2018 20:46:03 America/Chicago] PHP Fatal error:  Class 'Illuminate\Console\Command' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/Commands/Reminder.php on line 22
-[03-Apr-2018 14:40:47 America/Chicago] PHP Fatal error:  Class 'Illuminate\Console\Command' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/Commands/Inspire.php on line 11
-[03-Apr-2018 14:45:17 America/Chicago] PHP Fatal error:  Class 'Illuminate\Console\Command' not found in /home/prabandhakur/public_html/ERP/back-end/app/Console/Commands/Reminder.php on line 22

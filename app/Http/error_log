@@ -1,8 +1,0 @@
-[23-Mar-2018 21:21:41 America/Chicago] PHP Fatal error:  Class 'Route' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/routes.php on line 14
-[23-Mar-2018 21:24:44 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Http\Kernel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Kernel.php on line 10
-[24-Mar-2018 09:06:26 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Http\Kernel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Kernel.php on line 10
-[24-Mar-2018 09:07:01 America/Chicago] PHP Fatal error:  Class 'Route' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/routes.php on line 14
-[25-Mar-2018 20:39:37 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Http\Kernel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Kernel.php on line 10
-[25-Mar-2018 20:39:42 America/Chicago] PHP Fatal error:  Class 'Route' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/routes.php on line 14
-[03-Apr-2018 14:06:37 America/Chicago] PHP Fatal error:  Class 'Route' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/routes.php on line 14
-[03-Apr-2018 14:06:42 America/Chicago] PHP Fatal error:  Class 'Illuminate\Foundation\Http\Kernel' not found in /home/prabandhakur/public_html/ERP/back-end/app/Http/Kernel.php on line 10

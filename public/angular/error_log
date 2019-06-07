@@ -1,4 +1,0 @@
-[20-Mar-2017 23:59:04 America/Chicago] PHP Warning:  mysql_connect(): Access denied for user 'root'@'localhost' (using password: NO) in /home/swamicycles/public_html/ERP/back-end/public/angular/connection.php on line 3
-[20-Mar-2017 23:59:36 America/Chicago] PHP Warning:  mysql_connect(): Access denied for user 'root'@'localhost' (using password: NO) in /home/swamicycles/public_html/ERP/back-end/public/angular/connection.php on line 3
-[21-Mar-2017 00:02:05 America/Chicago] PHP Warning:  mysql_connect(): Access denied for user 'root'@'localhost' (using password: NO) in /home/swamicycles/public_html/ERP/back-end/public/angular/connection.php on line 3
-[21-Mar-2017 00:02:45 America/Chicago] PHP Warning:  mysql_connect(): Access denied for user 'root'@'localhost' (using password: NO) in /home/swamicycles/public_html/ERP/back-end/public/angular/connection.php on line 3
