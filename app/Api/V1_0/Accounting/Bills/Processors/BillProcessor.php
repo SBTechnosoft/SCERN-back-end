@@ -31,6 +31,7 @@ use ERP\Core\Users\Commissions\Services\CommissionService;
 use ERP\Core\Products\Services\ProductService;
 use ERP\Model\Products\ProductModel;
 use ERP\Core\Companies\Services\CompanyService;
+use ERP\Model\Settings\Expenses\ExpenseModel;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -366,11 +367,66 @@ class BillProcessor extends BaseProcessor
 		// $discountTotal = $discountTotal+$totalDiscount;
 		$totalSaleAmount = $discountTotal+$tRequest['total'];
 		$totalDebitAmount = $tRequest['tax']+$tRequest['total'];
+		/**
+		 * @param expense input JSON
+		 * @return ledger array for expenses
+		 */
+		$totalExpense = 0;
+		$totalExpenseTax = 0;
+		$expenseJournalArray = array();
+
+		if (array_key_exists('expense', $tRequest)) 
+		{
+			$expenseArray = json_decode($tRequest['expense'],true);
+			$expenseCount = count($expenseArray);
+			$expenseModel = new ExpenseModel();
+			for ($expenseIter=0; $expenseIter < $expenseCount; $expenseIter++) 
+			{
+				$expenseId = $expenseArray[$expenseIter]['expenseId'];
+				$expenseStatus = $expenseModel->getData($expenseId);
+				if (strcmp($expenseStatus, $msgArray['404'])!= 0) 
+				{
+					$expenseDataArray = json_decode($expenseStatus,true)[0];
+					$expenseLedgerId = $expenseDataArray['ledger_id'];
+					if ($expenseLedgerId) 
+					{
+						$expenseValue = round($expenseArray[$expenseIter]['expenseAmt'] / ( 1 + ( $expenseArray[$expenseIter]['expenseTax'] / 100 )),2);
+						// $expenseArray[$expenseIter]['expenseOperation'];
+						if ($expenseArray[$expenseIter]['expenseOperation'] == 'plus') 
+						{
+							$totalExpense += $expenseValue;
+							$totalExpenseTax += round($expenseValue * $expenseArray[$expenseIter]['expenseTax'] / 100, 2);
+
+							$expenseSingleArray = array(
+								"amount"=> $expenseValue,
+								"amountType"=>$amountTypeArray['creditType'],
+								"ledgerId"=>$expenseLedgerId
+							);
+						}
+						else
+						{
+							$totalExpense -= $expenseValue;
+							$totalExpenseTax += round($expenseValue * $expenseArray[$expenseIter]['expenseTax'] / 100, 2);
+							$expenseSingleArray = array(
+								"amount"=> $expenseValue,
+								"amountType"=>$amountTypeArray['debitType'],
+								"ledgerId"=>$expenseLedgerId
+							);
+						}
+						if ($expenseSingleArray['amount'] != 0) 
+						{
+							$expenseJournalArray[] = $expenseSingleArray;
+						}
+					}
+				}
+			}
+		}
 		// New Ledger / Journal Calculation
 		$dataArray = [];
 		$transactionType = [];
 		$transactionType[0] = $constantArray['sales'];
-		if ($tRequest['total'] == $tRequest['advance']) {
+		if ($tRequest['total'] == $tRequest['advance'])
+		{
 			$dataArray[0][0] = [
 				"amount"=>$tRequest['advance'],
 				"amountType"=>$amountTypeArray['debitType'],
@@ -385,7 +441,8 @@ class BillProcessor extends BaseProcessor
 				"ledgerId"=>$ledgerId
 			];
 			//  Oth Array is for Sales Txn 1st Array is for Cash or Advance Payment done by Client on Bill Generation
-			if ($request->input()['advance']!="" && $tRequest['advance']!=0) {
+			if ($request->input()['advance']!="" && $tRequest['advance']!=0)
+			{
 				$transactionType[1] = $constantArray['receiptType'];
 				$dataArray[1][0] = [
 				"amount"=>$tRequest['advance'],
@@ -406,27 +463,33 @@ class BillProcessor extends BaseProcessor
 				"ledgerId"=>$ledgerDiscountAcId
 			];
 		}
-		if ($tRequest['tax'] != 0) {
-			$dataArray[0][] = [
-				"amount"=>$tRequest['total']+$discountTotal-$tRequest['tax'],
-				"amountType"=>$amountTypeArray['creditType'],
-				"ledgerId"=>$ledgerSaleAcId
-			];
-			$dataArray[0][] = [
-				"amount"=>$tRequest['tax'],
-				"amountType"=>$amountTypeArray['creditType'],
-				"ledgerId"=>$ledgerTaxAcId
-			];
+		$salesLedgerAmount = $tRequest['total']+$discountTotal;
+		$salesLedgerTax = 0;
+		if ($tRequest['tax'] != 0) 
+		{
+			$salesLedgerAmount -= $tRequest['tax'];
+			$salesLedgerTax += $tRequest['tax'];
 		}
-		else
+		if (count($expenseJournalArray)) 
+		{
+			$salesLedgerAmount -= $totalExpense;
+			$salesLedgerAmount -= $totalExpenseTax;
+			$salesLedgerTax += $totalExpenseTax;
+			$dataArray[0] = array_merge($dataArray[0], $expenseJournalArray);
+		}
+		if ($salesLedgerTax != 0) 
 		{
 			$dataArray[0][] = [
-				"amount"=>$tRequest['total']+$discountTotal,
+				"amount"=>$salesLedgerTax,
 				"amountType"=>$amountTypeArray['creditType'],
-				"ledgerId"=>$ledgerSaleAcId
+				"ledgerId"=>$ledgerTaxAcId,
 			];
 		}
-
+		$dataArray[0][] = [
+			"amount"=> $salesLedgerAmount,
+			"amountType"=> $amountTypeArray['creditType'],
+			"ledgerId"=> $ledgerSaleAcId
+		];
 		// Staff Commission Calculations
 		/* 
 		* $tRequest[0] Array of inventory data
@@ -466,7 +529,7 @@ class BillProcessor extends BaseProcessor
 				'inventory' => array(
 				),
 				'transactionDate'=> $tRequest['entry_date'],
-				'tax'=> $tRequest['tax'],
+				'tax'=> $salesLedgerTax,
 				'invoiceNumber'=>$tRequest['invoice_number']
 			);
 			$journalArray['inventory']=$tRequest[0];
@@ -480,8 +543,6 @@ class BillProcessor extends BaseProcessor
 				return $processedData;
 			}
 		}
-		
-
 		if(strcmp($processedData,$msgArray['200'])==0)
 		{
 			$productArray = array();
@@ -1196,6 +1257,63 @@ class BillProcessor extends BaseProcessor
 			$totalSaleAmount = $discountTotal+$billTrimData['total'];
 			$totalDebitAmount = $billTrimData['tax']+$billTrimData['total'];
 
+			/**
+			 * @param Expense Array with Total and Tax Amounts
+			 * @return Journal with Expense entries
+			 */
+			$totalExpense = 0;
+			$totalExpenseTax = 0;
+			$expenseJournalArray = array();
+
+			if (array_key_exists('expense', $billTrimData)) 
+			{
+				$expenseArray = json_decode($billTrimData['expense'],true);
+				$expenseCount = count($expenseArray);
+				$expenseModel = new ExpenseModel();
+				for ($expenseIter=0; $expenseIter < $expenseCount; $expenseIter++) 
+				{ 
+					$expenseId = $expenseArray[$expenseIter]['expenseId'];
+					$expenseStatus = $expenseModel->getData($expenseId);
+					if (strcmp($expenseStatus, $msgArray['404']) != 0) 
+					{
+						$expenseDataArray = json_decode($expenseStatus,true)[0];
+						$expenseLedgerId = $expenseDataArray['ledger_id'];
+						if ($expenseLedgerId) 
+						{
+							$expenseValue = round($expenseArray[$expenseIter]['expenseAmt'] / ( 1 + ( $expenseArray[$expenseIter]['expenseTax'] / 100 )), 2);
+							if ($expenseArray[$expenseIter]['expenseOperation'] == 'plus') 
+							{
+								$totalExpense += $expenseValue;
+								$totalExpenseTax += round($expenseValue * $expenseArray[$expenseIter]['expenseTax'] / 100, 2);
+								$expenseSingleArray = array(
+									'amount' => $expenseValue,
+									'amountType' => $amountTypeArray['creditType'],
+									'ledgerId' => $expenseLedgerId
+								);
+
+							}
+							else
+							{
+								$totalExpense -= $expenseValue;
+								$totalExpenseTax -= round($expenseValue * $expenseArray[$expenseIter]['expenseTax'] / 100, 2);
+
+								$expenseSingleArray = array(
+									'amount' => $expenseValue,
+									'amountType' => $amountTypeArray['debitType'],
+									'ledgerId' => $expenseLedgerId
+								);
+							}
+							if ($expenseSingleArray['amount'] != 0) 
+							{
+								$expenseJournalArray[] = $expenseSingleArray;
+							}
+						}
+					}
+				}
+			}
+			$totalExpense = round($totalExpense, 2);
+			$totalExpenseTax = round($totalExpenseTax, 2);
+			// Journal Creation Starts here
 			$transactionType[0] = $constantArray['sales'];
 			if ($billTrimData['total'] == $billTrimData['advance']) {
 				$dataArray[0][0] = [
@@ -1212,7 +1330,8 @@ class BillProcessor extends BaseProcessor
 					"ledgerId"=>$ledgerId
 				];
 						//  Oth Array is for Sales Txn 1st Array is for Cash or Advance Payment done by Client on Bill Generation
-				if ($request->input()['advance']!="" && $billTrimData['advance']!=0) {
+				if ($request->input()['advance']!="" && $billTrimData['advance']!=0) 
+				{
 					$transactionType[1] = $constantArray['receiptType'];
 					$dataArray[1][0] = [
 						"amount"=>$billTrimData['advance'],
@@ -1226,35 +1345,39 @@ class BillProcessor extends BaseProcessor
 					];
 				}
 			}
-			if ($discountTotal != 0) {
+			if ($discountTotal != 0) 
+			{
 				$dataArray[0][] = [
 					"amount"=>$discountTotal,
 					"amountType"=>$amountTypeArray['debitType'],
 					"ledgerId"=>$ledgerDiscountAcId
 				];
 			}
-			if ($billTrimData['tax'] != 0) {
-				$dataArray[0][] = [
-					"amount"=>$billTrimData['total']+$discountTotal-$billTrimData['tax'],
-					"amountType"=>$amountTypeArray['creditType'],
-					"ledgerId"=>$ledgerSaleAcId
-				];
-				$dataArray[0][] = [
-					"amount"=>$billTrimData['tax'],
-					"amountType"=>$amountTypeArray['creditType'],
-					"ledgerId"=>$ledgerTaxAcId
-				];
-			}
-			else
+			$salesLedgerAmount = $billTrimData['total']+$discountTotal;
+			$salesLedgerTax = 0;
+			if ($billTrimData['tax'] != 0) 
 			{
-				$dataArray[0][] = [
-					"amount"=>$billTrimData['total']+$discountTotal,
-					"amountType"=>$amountTypeArray['creditType'],
-					"ledgerId"=>$ledgerSaleAcId
-				];
+				$salesLedgerAmount -= $billTrimData['tax'];
+				$salesLedgerTax = $billTrimData['tax'];
 			}
 
-			if ($staffUserId > 0) {
+			if (count($expenseJournalArray)) 
+			{
+				$salesLedgerAmount -= $totalExpense;
+				$salesLedgerAmount -= $totalExpenseTax;
+				$salesLedgerTax += $totalExpenseTax;
+				$dataArray[0] = array_merge($dataArray[0], $expenseJournalArray);
+			}
+			if ($salesLedgerTax != 0) 
+			{
+				$dataArray[0][] = [
+					'amount'=> $salesLedgerTax,
+					'amountType' => $amountTypeArray['creditType'],
+					'ledgerId' => $ledgerTaxAcId
+				];
+			}
+			if ($staffUserId > 0) 
+			{
 				$commissionArrayRank = count($dataArray);
 				$staffCommissionJournal = $this->StaffCommissionCalc($staffLedgerId,$staffUserId,$billData[0]->company_id,$billTrimData['inventory']);
 				if (is_array($staffCommissionJournal)) 
@@ -1279,7 +1402,7 @@ class BillProcessor extends BaseProcessor
 					),
 					'inventory' => array(
 					),
-					'tax'=> $billTrimData['tax']
+					'tax'=> $salesLedgerTax
 				);
 				if(array_key_exists('entry_date',$billTrimData))
 				{

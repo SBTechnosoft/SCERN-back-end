@@ -270,7 +270,6 @@ class PurchaseBillProcessor extends BaseProcessor
 		$totalExpenseTax = 0;
 		$expenseJournalArray = array();
 
-		$purchaseExpenseLedgerId = '';
 		$amountTypeEnum = new AmountTypeEnum();
 		$amountTypeArray = $amountTypeEnum->enumArrays();
 		if (array_key_exists('expense', $trimRequest)) 
@@ -288,12 +287,12 @@ class PurchaseBillProcessor extends BaseProcessor
 					$expenseLedgerId = $expenseDataArray['ledger_id'];
 					if ($expenseLedgerId) 
 					{
-						$expenseValue = $expenseArray[$expenseIter]['expenseAmt'] / ( 1 + ( $expenseArray[$expenseIter]['expenseTax'] / 100 ));
+						$expenseValue = round($expenseArray[$expenseIter]['expenseAmt'] / ( 1 + ( $expenseArray[$expenseIter]['expenseTax'] / 100 )),2);
 						// $expenseArray[$expenseIter]['expenseOperation'];
 						if ($expenseArray[$expenseIter]['expenseOperation'] == 'plus') 
 						{
 							$totalExpense += $expenseValue;
-							$totalExpenseTax += ($expenseValue * $expenseArray[$expenseIter]['expenseTax'] / 100);
+							$totalExpenseTax += round($expenseValue * $expenseArray[$expenseIter]['expenseTax'] / 100, 2);
 
 							$expenseSingleArray = array(
 								"amount"=> $expenseValue,

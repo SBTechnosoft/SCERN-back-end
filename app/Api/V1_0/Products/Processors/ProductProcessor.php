@@ -523,7 +523,6 @@ class ProductProcessor extends BaseProcessor
 		// get exception message
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
-		
 		if($tRequest==1)
 		{
 			return $exceptionArray['content'];
