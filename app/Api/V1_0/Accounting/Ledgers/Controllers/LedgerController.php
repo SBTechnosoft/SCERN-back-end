@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use ERP\Core\Accounting\Ledgers\Services\LedgerService;
 use ERP\Http\Requests;
 use ERP\Api\V1_0\Support\BaseController;
-// use ERP\Api\V1_0\Accounting\Ledgers\Processors\LedgerProcessor;
 use ERP\Api\V1_0\Accounting\Ledgers\Processors\DemoProcessor as LedgerProcessor;
 use ERP\Core\Accounting\Ledgers\Persistables\LedgerPersistable;
 use ERP\Core\Support\Service\ContainerInterface;

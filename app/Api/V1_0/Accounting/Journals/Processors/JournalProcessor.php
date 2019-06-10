@@ -46,7 +46,6 @@ class JournalProcessor extends BaseProcessor
 		}
 		else
 		{
-
 			//trim an input 
 			$journalTransformer = new JournalTransformer();
 			$tRequest = $journalTransformer->trimInsertData($this->request);
@@ -56,7 +55,6 @@ class JournalProcessor extends BaseProcessor
 			}
 			else
 			{
-
 				//simple validation
 				$journalValidate = new JournalValidate();
 				$status = $journalValidate->validate($tRequest);
