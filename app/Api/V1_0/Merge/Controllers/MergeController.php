@@ -127,4 +127,23 @@ class MergeController extends BaseController implements ContainerInterface
 			}
 		}
 	}
+
+	/**
+	 * @param companyId
+	 * @return status about DB seeder
+	 */
+	public function mergeLedgers($companyId)
+	{
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+
+
+		// Step 1 Create Ledgers for expenses
+		$mergeService = new MergeService();
+		$status = $mergeService->mergeLedgers($companyId);
+		return $status;
+	}
 }
