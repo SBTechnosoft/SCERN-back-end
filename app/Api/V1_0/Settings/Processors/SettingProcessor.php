@@ -209,5 +209,5 @@ class SettingProcessor extends BaseProcessor
 				}
 			}
 		}
-	}	
+	}
 }
