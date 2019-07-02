@@ -10,7 +10,9 @@ use ERP\Core\User\Entities\User;
 use ERP\Core\Settings\Templates\Entities\EncodeData;
 use ERP\Core\Settings\Templates\Entities\EncodeAllData;
 use ERP\Exceptions\ExceptionMessage;
-/**
+use ERP\Core\Settings\Templates\Entities\TemplateDesign;
+
+/** 
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
 class TemplateService extends AbstractService
@@ -135,6 +137,27 @@ class TemplateService extends AbstractService
 			return $encodeAllData;
 		}
 	}
+	/*
+	*
+	*/
+	public function joinProductHeadWithTemplate ($templateData) 
+	{
+		if ($templateData != '') 
+		{
+			$decodedData = json_decode($templateData);
+			if (count($decodedData)) {
+				$htmlBody = $decodedData[0]->templateBody;
+				$templateDesign = new TemplateDesign();
+				$productHead = $templateDesign->getInvoiceHeading();
+				$htmlBody = str_replace('[productInfo]', $productHead, $htmlBody);
+				$decodedData[0]->templateBody = $htmlBody;
+				return json_encode($decodedData);
+			}
+		}
+		
+		return $templateData;
+	}
+
     /**
      * get the data from persistable object and call the model for database update opertation
      * @param SettingPersistable $persistable

@@ -20,226 +20,175 @@ class EncodeAllData extends ClientService
 		$constantArray = $constantClass->constantVariable();
 		$convertedCreatedDate =  array();
 		$convertedUpdatedDate =  array();
-		$decodedJson = json_decode($status,true);
-		$deocodedJsonData = json_decode($decodedJson['salesData']);
-		$decodedDocumentData = json_decode($decodedJson['documentData']);
+		$deocodedJsonData = json_decode($status);
+		// $deocodedJsonData = json_decode($decodedJson);
 		$bill = new Bill();
-		
-		for($decodedData=0;$decodedData<count($deocodedJsonData);$decodedData++)
-		{
-			$saleId[$decodedData] = $deocodedJsonData[$decodedData]->sale_id;
-			$productArray[$decodedData] = $deocodedJsonData[$decodedData]->product_array;
-			$paymentMode[$decodedData] = $deocodedJsonData[$decodedData]->payment_mode;
-			$bankLedgerId[$decodedData] = $deocodedJsonData[$decodedData]->bank_ledger_id;
-			$bankName[$decodedData] = $deocodedJsonData[$decodedData]->bank_name;
-			$invoiceNumber[$decodedData] = $deocodedJsonData[$decodedData]->invoice_number;
-			$jobCardNumber[$decodedData] = $deocodedJsonData[$decodedData]->job_card_number;
-			$checkNumber[$decodedData] = $deocodedJsonData[$decodedData]->check_number;
-			$total[$decodedData] = $deocodedJsonData[$decodedData]->total;
-			$totalDiscounttype[$decodedData] = $deocodedJsonData[$decodedData]->total_discounttype;
-			$totalDiscount[$decodedData] = $deocodedJsonData[$decodedData]->total_discount;
-			$totalCgstPercentage[$decodedData] = isset($deocodedJsonData[$decodedData]->total_cgst_percentage) ? $deocodedJsonData[$decodedData]->total_cgst_percentage : 0;
-			$totalSgstPercentage[$decodedData] = isset($deocodedJsonData[$decodedData]->total_sgst_percentage) ? $deocodedJsonData[$decodedData]->total_sgst_percentage : 0;
-			$totalIgstPercentage[$decodedData] = isset($deocodedJsonData[$decodedData]->total_igst_percentage) ? $deocodedJsonData[$decodedData]->total_igst_percentage : 0;
-			$extraCharge[$decodedData] = $deocodedJsonData[$decodedData]->extra_charge;
-			$tax[$decodedData] = $deocodedJsonData[$decodedData]->tax;
-			$grandTotal[$decodedData] = $deocodedJsonData[$decodedData]->grand_total;
-			$advance[$decodedData] = $deocodedJsonData[$decodedData]->advance;
-			$balance[$decodedData] = $deocodedJsonData[$decodedData]->balance;
-			$poNumber[$decodedData] = $deocodedJsonData[$decodedData]->po_number;
-			$userId[$decodedData] = $deocodedJsonData[$decodedData]->user_id;
-			$remark[$decodedData] = $deocodedJsonData[$decodedData]->remark;
-			$refund[$decodedData] = $deocodedJsonData[$decodedData]->refund;
-			$entryDate[$decodedData] = $deocodedJsonData[$decodedData]->entry_date;
-			$serviceDate[$decodedData] = $deocodedJsonData[$decodedData]->service_date;
-			$clientId[$decodedData] = $deocodedJsonData[$decodedData]->client_id;
-			$jfId[$decodedData] = $deocodedJsonData[$decodedData]->jf_id;
-			$expense[$decodedData] = $deocodedJsonData[$decodedData]->expense;
-			$salesType[$decodedData] = $deocodedJsonData[$decodedData]->sales_type;
-			$companyId[$decodedData] = $deocodedJsonData[$decodedData]->company_id;
-			$branchId[$decodedData] = $deocodedJsonData[$decodedData]->branch_id;
-			$createdAt[$decodedData] = $deocodedJsonData[$decodedData]->created_at;
-			$updatedAt[$decodedData] = $deocodedJsonData[$decodedData]->updated_at;
+		$encodeAllData = new EncodeAllData();
+		$companyDetail  = new CompanyDetail();
+		$branchDetail  = new BranchDetail();
+		$userService = new UserService();
 
-			//get the client detail from database
-			$encodeAllData = new EncodeAllData();
-			$getClientDetails[$decodedData] = $encodeAllData->getClientData($clientId[$decodedData]);
-
-			//get the company detail from database
-			$companyDetail  = new CompanyDetail();
-			$getCompanyDetails[$decodedData] = $companyDetail->getCompanyDetails($companyId[$decodedData]);
-
-			//get the Branch detail from database
-			$branchDetail  = new BranchDetail();
-			$getBranchDetails[$decodedData] = $branchDetail->getBranchDetails($branchId[$decodedData]);
-			
-			//get the user detail from database
-			$userService = new UserService();
-			$userData = $userService->getUserData($userId[$decodedData]);
-			$decodedUserData[$decodedData] = json_decode($userData);
-
-			//convert amount(round) into their company's selected decimal points
-			$total[$decodedData] = number_format($total[$decodedData],$getCompanyDetails[$decodedData]['noOfDecimalPoints'],'.','');
-			$totalDiscount[$decodedData] = number_format($totalDiscount[$decodedData],$getCompanyDetails[$decodedData]['noOfDecimalPoints'],'.','');
-
-			$totalCgstPercentage[$decodedData] = number_format($totalCgstPercentage[$decodedData],$getCompanyDetails[$decodedData]['noOfDecimalPoints'],'.','');
-			$totalSgstPercentage[$decodedData] = number_format($totalSgstPercentage[$decodedData],$getCompanyDetails[$decodedData]['noOfDecimalPoints'],'.','');
-			$totalIgstPercentage[$decodedData] = number_format($totalIgstPercentage[$decodedData],$getCompanyDetails[$decodedData]['noOfDecimalPoints'],'.','');
-
-			$tax[$decodedData] = number_format($tax[$decodedData],$getCompanyDetails[$decodedData]['noOfDecimalPoints'],'.','');
-			$grandTotal[$decodedData] = number_format($grandTotal[$decodedData],$getCompanyDetails[$decodedData]['noOfDecimalPoints'],'.','');
-			$advance[$decodedData] = number_format($advance[$decodedData],$getCompanyDetails[$decodedData]['noOfDecimalPoints'],'.','');
-			$balance[$decodedData] = number_format($balance[$decodedData],$getCompanyDetails[$decodedData]['noOfDecimalPoints'],'.','');
-			$refund[$decodedData] = number_format($refund[$decodedData],$getCompanyDetails[$decodedData]['noOfDecimalPoints'],'.','');
-			
-			//date format conversion
-			$convertedCreatedDate = Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $createdAt[$decodedData])->format('d-m-Y');
-			$bill->setCreated_at($convertedCreatedDate);
-			$getCreatedDate[$decodedData] = $bill->getCreated_at();
-			if(strcmp($updatedAt[$decodedData],'0000-00-00 00:00:00')==0)
-			{
-				$getUpdatedDate[$decodedData] = "00-00-0000";
-			}
-			else
-			{
-				$convertedUpdatedDate = Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $updatedAt[$decodedData])->format('d-m-Y');
-				$bill->setUpdated_at($convertedUpdatedDate);
-				$getUpdatedDate[$decodedData] = $bill->getUpdated_at();
-			}
-			if(strcmp($entryDate[$decodedData],'0000-00-00')==0)
-			{
-				$getEntryDate[$decodedData] = "00-00-0000";
-			}
-			else
-			{
-				$convertedEntryDate = Carbon\Carbon::createFromFormat('Y-m-d', $entryDate[$decodedData])->format('d-m-Y');
-				$bill->setEntryDate($convertedEntryDate);
-				$getEntryDate[$decodedData] = $bill->getEntryDate();
-			}
-			if(strcmp($serviceDate[$decodedData],'0000-00-00')==0)
-			{
-				$serviceDate[$decodedData] = "00-00-0000";
-			}
-			else
-			{
-				$serviceDate[$decodedData] = Carbon\Carbon::createFromFormat('Y-m-d', $serviceDate[$decodedData])->format('d-m-Y');
-			}
-			$documentId[$decodedData] = array();
-			$documentSaleId[$decodedData] = array();
-			$documentName[$decodedData] = array();
-			$documentSize[$decodedData] = array();
-			$documentFormat[$decodedData] = array();
-			$documentType[$decodedData] = array();
-			$documentCreatedAt[$decodedData] = array();
-			$documentUpdatedAt[$decodedData] = array();
-			$getDocumentCreatedDate[$decodedData] = array();
-			$getDocumentUpdatedDate[$decodedData] = array();
-			
-			//get document data
-			for($documentArray=0;$documentArray<count($decodedDocumentData[$decodedData]);$documentArray++)
-			{
-				$documentId[$decodedData][$documentArray] = $decodedDocumentData[$decodedData][$documentArray]->document_id;
-				$documentSaleId[$decodedData][$documentArray] = $decodedDocumentData[$decodedData][$documentArray]->sale_id;
-				$documentName[$decodedData][$documentArray] = $decodedDocumentData[$decodedData][$documentArray]->document_name;
-				$documentSize[$decodedData][$documentArray] = $decodedDocumentData[$decodedData][$documentArray]->document_size;
-				$documentFormat[$decodedData][$documentArray] = $decodedDocumentData[$decodedData][$documentArray]->document_format;
-				$documentType[$decodedData][$documentArray] = $decodedDocumentData[$decodedData][$documentArray]->document_type;
-				$documentCreatedAt[$decodedData][$documentArray] = $decodedDocumentData[$decodedData][$documentArray]->created_at;
-				$documentUpdatedAt[$decodedData][$documentArray] = $decodedDocumentData[$decodedData][$documentArray]->updated_at;
-			
-				//date format conversion
-				if(strcmp($documentCreatedAt[$decodedData][$documentArray],'0000-00-00 00:00:00')==0)
-				{
-					$getDocumentCreatedDate[$decodedData][$documentArray] = "00-00-0000";
-				}
-				else
-				{
-					$documentCreatedDate = Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $documentCreatedAt[$decodedData][$documentArray])->format('d-m-Y');
-					$bill->setCreated_at($documentCreatedDate);
-					$getDocumentCreatedDate[$decodedData][$documentArray] = $bill->getCreated_at();
-				}
-				if(strcmp($documentUpdatedAt[$decodedData][$documentArray],'0000-00-00 00:00:00')==0)
-				{
-					$getDocumentUpdatedDate[$decodedData][$documentArray] = "00-00-0000";
-				}
-				else
-				{
-					$documentUpdatedDate = Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $documentUpdatedAt[$decodedData][$documentArray])->format('d-m-Y');
-					$bill->setUpdated_at($documentUpdatedDate);
-					$getDocumentUpdatedDate[$decodedData][$documentArray] = $bill->getUpdated_at();
-				}
-			}
-		}
-		$documentData = array();
-		$innerArrayData = array();
+		$clientArray = array();
+		$companyArray = array();
+		$branchArray = array();
+		$userArray = array();
 		$arrayData = array();
 		$data = array();
-		for($jsonData=0;$jsonData<count($deocodedJsonData);$jsonData++)
+
+		for($decodedData=0;$decodedData<count($deocodedJsonData);$decodedData++)
 		{
-			$arrayData[$jsonData] = array();
-			for($innerArrayData=0;$innerArrayData<count($decodedDocumentData[$jsonData]);$innerArrayData++)
-			{
-				if(strcmp($documentFormat[$jsonData][$innerArrayData],"pdf")==0)
-				{
-					$arrayData[$jsonData][$innerArrayData] = array(
-						'documentId'=>$documentId[$jsonData][$innerArrayData],
-						'saleId'=>$documentSaleId[$jsonData][$innerArrayData],
-						'documentName'=>$documentName[$jsonData][$innerArrayData],
-						'documentSize'=>$documentSize[$jsonData][$innerArrayData],
-						'documentFormat'=>$documentFormat[$jsonData][$innerArrayData],
-						'documentType'=>$documentType[$jsonData][$innerArrayData],
-						'documentUrl'=>$constantArray['billUrl'],
-						'createdAt'=>$getDocumentCreatedDate[$jsonData][$innerArrayData],
-						'updatedAt'=>$getDocumentUpdatedDate[$jsonData][$innerArrayData]
-					);
-				}	
-				else
-				{
-					$arrayData[$jsonData][$innerArrayData] = array(
-						'documentId'=>$documentId[$jsonData][$innerArrayData],
-						'saleId'=>$documentSaleId[$jsonData][$innerArrayData],
-						'documentName'=>$documentName[$jsonData][$innerArrayData],
-						'documentSize'=>$documentSize[$jsonData][$innerArrayData],
-						'documentFormat'=>$documentFormat[$jsonData][$innerArrayData],
-						'documentType'=>$documentType[$jsonData][$innerArrayData],
-						'documentUrl'=>$constantArray['billDocumentUrl'],
-						'createdAt'=>$getDocumentCreatedDate[$jsonData][$innerArrayData],
-						'updatedAt'=>$getDocumentUpdatedDate[$jsonData][$innerArrayData]
-					);
-				}
+			$saleId = $deocodedJsonData[$decodedData]->sale_id;
+			$productArray = $deocodedJsonData[$decodedData]->product_array;
+			$paymentMode = $deocodedJsonData[$decodedData]->payment_mode;
+			$bankLedgerId = $deocodedJsonData[$decodedData]->bank_ledger_id;
+			$bankName = $deocodedJsonData[$decodedData]->bank_name;
+			$invoiceNumber = $deocodedJsonData[$decodedData]->invoice_number;
+			$jobCardNumber = $deocodedJsonData[$decodedData]->job_card_number;
+			$checkNumber = $deocodedJsonData[$decodedData]->check_number;
+			$total = $deocodedJsonData[$decodedData]->total;
+			$totalDiscounttype = $deocodedJsonData[$decodedData]->total_discounttype;
+			$totalDiscount = $deocodedJsonData[$decodedData]->total_discount;
+			$totalCgstPercentage = isset($deocodedJsonData[$decodedData]->total_cgst_percentage) ? $deocodedJsonData[$decodedData]->total_cgst_percentage : 0;
+			$totalSgstPercentage = isset($deocodedJsonData[$decodedData]->total_sgst_percentage) ? $deocodedJsonData[$decodedData]->total_sgst_percentage : 0;
+			$totalIgstPercentage = isset($deocodedJsonData[$decodedData]->total_igst_percentage) ? $deocodedJsonData[$decodedData]->total_igst_percentage : 0;
+			$extraCharge = $deocodedJsonData[$decodedData]->extra_charge;
+			$tax = $deocodedJsonData[$decodedData]->tax;
+			$grandTotal = $deocodedJsonData[$decodedData]->grand_total;
+			$advance = $deocodedJsonData[$decodedData]->advance;
+			$balance = $deocodedJsonData[$decodedData]->balance;
+			$poNumber = $deocodedJsonData[$decodedData]->po_number;
+			$userId = $deocodedJsonData[$decodedData]->user_id;
+			$remark = $deocodedJsonData[$decodedData]->remark;
+			$refund = $deocodedJsonData[$decodedData]->refund;
+			$entryDate = $deocodedJsonData[$decodedData]->entry_date;
+			$serviceDate = $deocodedJsonData[$decodedData]->service_date;
+			$clientId = $deocodedJsonData[$decodedData]->client_id;
+			$jfId = $deocodedJsonData[$decodedData]->jf_id;
+			$expense = json_decode($deocodedJsonData[$decodedData]->expense);
+			$salesType = $deocodedJsonData[$decodedData]->sales_type;
+			$companyId = $deocodedJsonData[$decodedData]->company_id;
+			$branchId = $deocodedJsonData[$decodedData]->branch_id;
+			$createdAt = $deocodedJsonData[$decodedData]->created_at;
+			$updatedAt = $deocodedJsonData[$decodedData]->updated_at;
+			// $printCount = isset($deocodedJsonData[$decodedData]->print_count) ? $deocodedJsonData[$decodedData]->print_count : 0;
+			$printCount = $deocodedJsonData[$decodedData]->print_count;
+			$decodedDocumentData = json_decode($deocodedJsonData[$decodedData]->file,true);
+			//get the client detail from database
+			if (!isset($clientArray[$clientId])) {
+				$clientArray[$clientId] =  $encodeAllData->getClientData($clientId);
 			}
-			$clientData = json_decode($getClientDetails[$jsonData]);
-			$data[$jsonData]= array(
-				'saleId'=>$saleId[$jsonData],
-				'productArray'=>$productArray[$jsonData],
-				'paymentMode'=>$paymentMode[$jsonData],
-				'bankLedgerId'=>$bankLedgerId[$jsonData],
-				'bankName'=>$bankName[$jsonData],
-				'invoiceNumber'=>$invoiceNumber[$jsonData],
-				'jobCardNumber'=>$jobCardNumber[$jsonData],
-				'checkNumber'=>$checkNumber[$jsonData],
-				'total'=>$total[$jsonData],
-				'totalDiscounttype'=>$totalDiscounttype[$jsonData],
-				'totalDiscount'=>$totalDiscount[$jsonData],
-				'totalCgstPercentage'=>$totalCgstPercentage[$jsonData],
-				'totalSgstPercentage'=>$totalSgstPercentage[$jsonData],
-				'totalIgstPercentage'=>$totalIgstPercentage[$jsonData],
-				'extraCharge'=>$extraCharge[$jsonData],
-				'tax'=>$tax[$jsonData],
-				'grandTotal'=>$grandTotal[$jsonData],
-				'advance'=>$advance[$jsonData],
-				'balance'=>$balance[$jsonData],
-				'poNumber'=>$poNumber[$jsonData],
-				'user'=>$decodedUserData[$jsonData],
-				'remark'=>$remark[$jsonData],
-				'salesType'=>$salesType[$jsonData],
-				'refund'=>$refund[$jsonData],
-				'jfId'=>$jfId[$jsonData],
-				'createdAt'=>$getCreatedDate[$jsonData],
-				'updatedAt'=>$getUpdatedDate[$jsonData],
-				'entryDate'=>$getEntryDate[$jsonData],
-				'serviceDate'=>$serviceDate[$jsonData],
-				'expense'=>$expense[$jsonData],
+			$getClientDetails = $clientArray[$clientId];
+
+			//get the company detail from database
+			if (!isset($companyArray[$companyId])) {
+				$companyArray[$companyId] = $companyDetail->getCompanyDetails($companyId);
+			}
+			$getCompanyDetails = $companyArray[$companyId];
+
+			//get the Branch detail from database
+			if (!isset($branchArray[$branchId])) {
+				$branchArray[$branchId] = $branchDetail->getBranchDetails($branchId);
+			}
+			$getBranchDetails = $branchArray[$branchId];
+			
+			//get the user detail from database
+			if (!isset($userArray[$userId])) {
+				$userArray[$userId] = $userService->getUserData($userId);
+			}
+			$userData = $userArray[$userId];
+
+			$decodedUserData = json_decode($userData);
+
+			//convert amount(round) into their company's selected decimal points
+			$total = number_format($total,$getCompanyDetails['noOfDecimalPoints'],'.','');
+			$totalDiscount = number_format($totalDiscount,$getCompanyDetails['noOfDecimalPoints'],'.','');
+
+			$totalCgstPercentage = number_format($totalCgstPercentage,$getCompanyDetails['noOfDecimalPoints'],'.','');
+			$totalSgstPercentage = number_format($totalSgstPercentage,$getCompanyDetails['noOfDecimalPoints'],'.','');
+			$totalIgstPercentage = number_format($totalIgstPercentage,$getCompanyDetails['noOfDecimalPoints'],'.','');
+
+			$tax = number_format($tax,$getCompanyDetails['noOfDecimalPoints'],'.','');
+			$grandTotal = number_format($grandTotal,$getCompanyDetails['noOfDecimalPoints'],'.','');
+			$advance = number_format($advance,$getCompanyDetails['noOfDecimalPoints'],'.','');
+			$balance = number_format($balance,$getCompanyDetails['noOfDecimalPoints'],'.','');
+			$refund = number_format($refund,$getCompanyDetails['noOfDecimalPoints'],'.','');
+			
+			//date format conversion
+			$convertedCreatedDate = Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $createdAt)->format('d-m-Y');
+			$bill->setCreated_at($convertedCreatedDate);
+			$getCreatedDate = $bill->getCreated_at();
+			if(strcmp($updatedAt,'0000-00-00 00:00:00')==0)
+			{
+				$getUpdatedDate = "00-00-0000";
+			}
+			else
+			{
+				$convertedUpdatedDate = Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $updatedAt)->format('d-m-Y');
+				$bill->setUpdated_at($convertedUpdatedDate);
+				$getUpdatedDate = $bill->getUpdated_at();
+			}
+			if(strcmp($entryDate,'0000-00-00')==0)
+			{
+				$getEntryDate = "00-00-0000";
+			}
+			else
+			{
+				$convertedEntryDate = Carbon\Carbon::createFromFormat('Y-m-d', $entryDate)->format('d-m-Y');
+				$bill->setEntryDate($convertedEntryDate);
+				$getEntryDate = $bill->getEntryDate();
+			}
+			if(strcmp($serviceDate,'0000-00-00')==0)
+			{
+				$serviceDate = "00-00-0000";
+			}
+			else
+			{
+				$serviceDate = Carbon\Carbon::createFromFormat('Y-m-d', $serviceDate)->format('d-m-Y');
+			}
+			// print_r($decodedDocumentData);exit();
+			$arrayData = $decodedDocumentData;
+			if ($arrayData != '') {
+				$arrayData = array_map(function($ar) use ($constantArray){
+								$ar['documentUrl'] = strcmp($ar['documentFormat'], 'pdf')==0 ? $constantArray['billUrl'] : $constantArray['billDocumentUrl'];
+								return $ar;
+						}, $decodedDocumentData);
+			}
+			
+			//get document data
+			
+			$clientData = json_decode($getClientDetails);
+			$data[$decodedData]= array(
+				'saleId'=>$saleId,
+				'productArray'=>$productArray,
+				'paymentMode'=>$paymentMode,
+				'bankLedgerId'=>$bankLedgerId,
+				'bankName'=>$bankName,
+				'invoiceNumber'=>$invoiceNumber,
+				'jobCardNumber'=>$jobCardNumber,
+				'checkNumber'=>$checkNumber,
+				'total'=>$total,
+				'totalDiscounttype'=>$totalDiscounttype,
+				'totalDiscount'=>$totalDiscount,
+				'totalCgstPercentage'=>$totalCgstPercentage,
+				'totalSgstPercentage'=>$totalSgstPercentage,
+				'totalIgstPercentage'=>$totalIgstPercentage,
+				'extraCharge'=>$extraCharge,
+				'tax'=>$tax,
+				'grandTotal'=>$grandTotal,
+				'advance'=>$advance,
+				'balance'=>$balance,
+				'poNumber'=>$poNumber,
+				'user'=>$decodedUserData,
+				'remark'=>$remark,
+				'salesType'=>$salesType,
+				'refund'=>$refund,
+				'jfId'=>$jfId,
+				'createdAt'=>$getCreatedDate,
+				'updatedAt'=>$getUpdatedDate,
+				'entryDate'=>$getEntryDate,
+				'serviceDate'=>$serviceDate,
+				'expense'=>$expense,
+				'printCount'=>$printCount,
 				'client' => array(
 					'clientId'=>$clientData->clientId,
 					'clientName'=>$clientData->clientName,
@@ -256,11 +205,16 @@ class EncodeAllData extends ClientService
 					'stateAbb'=>$clientData->state->stateAbb,
 					'cityId'=>$clientData->city->cityId
 				),
-				'company' => $getCompanyDetails[$jsonData],	
-				'branch' => $getBranchDetails[$jsonData]	
+				'company' => $getCompanyDetails,	
+				'branch' => $getBranchDetails	
 			);
-			$data[$jsonData]['file'] = $arrayData[$jsonData];
+			$data[$decodedData]['file'] = $arrayData;
+			if (isset($deocodedJsonData[$decodedData]->dispatch_status)) {
+				$data[$decodedData]['dispatchStatus'] = $deocodedJsonData[$decodedData]->dispatch_status;
+			}
+			$data[$decodedData]['file'] = $arrayData;
 		}
+		
 		$jsonEncodedData = json_encode($data);
 		return $jsonEncodedData;
 	}

@@ -1980,7 +1980,7 @@ class LedgerModel extends Model
 		DB::commit();
 		if(count($raw)==0)
 		{
-			return $exceptionArray['500'];
+			return $exceptionArray['204'];
 		}
 		else
 		{

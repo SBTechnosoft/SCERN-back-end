@@ -9,6 +9,12 @@ use Illuminate\Http\Response;
 use ERP\Core\Settings\Expenses\Validations\ExpenseValidate;
 use ERP\Api\V1_0\Settings\Expenses\Transformers\ExpenseTransformer;
 use ERP\Exceptions\ExceptionMessage;
+use ERP\Core\Accounting\Ledgers\Entities\LedgerArray;
+use ERP\Core\Accounting\Journals\Entities\AmountTypeEnum;
+use ERP\Entities\Constants\ConstantClass;
+use ERP\Core\Companies\Services\CompanyService;
+use ERP\Api\V1_0\Accounting\Ledgers\Controllers\LedgerController;
+use Illuminate\Container\Container;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -59,6 +65,20 @@ class ExpenseProcessor extends BaseProcessor
 				$status = $expenseValidate->validate($tRequest);
 				if($status=="Success")
 				{
+					$ledgerGroupId ='';
+					$ledgerArray = new LedgerArray();
+					$expenseGroupArray = $ledgerArray->expenseLedgerArray();
+					$ledgerGroupId = isset($expenseGroupArray[$tRequest['expense_group_type']]) ? $expenseGroupArray[$tRequest['expense_group_type']] : 0;
+
+					$ledgerStatus = $this->insertDefaultLedger($tRequest['company_id'], $tRequest['expense_name'] ,$ledgerGroupId, $request->header());
+
+					if(strcmp($msgArray['500'],$ledgerStatus)==0 || strcmp($msgArray['content'],$ledgerStatus)==0)
+					{
+						return $ledgerStatus;
+					}
+
+					$tRequest['ledger_id'] = json_decode($ledgerStatus)[0]->ledger_id;
+
 					foreach ($tRequest as $key => $value)
 					{
 						if(!is_numeric($value))
@@ -81,6 +101,7 @@ class ExpenseProcessor extends BaseProcessor
 						}
 						$data++;
 					}
+
 					// set data to the persistable object
 					for($data=0;$data<count($expenseValue);$data++)
 					{
@@ -110,7 +131,7 @@ class ExpenseProcessor extends BaseProcessor
      * $param Request object [Request $request] and Expense Id
      * @return Expense Array / Error Message Array / Exception Message
      */
-	public function createPersistableChange(Request $request,$expenseId)
+	public function createPersistableChange(Request $request,$expenseId, $expenseData)
 	{
 		$expenseValue = array();
 		$errorCount=0;
@@ -121,10 +142,12 @@ class ExpenseProcessor extends BaseProcessor
 		$expenseValidate = new ExpenseValidate();
 		$status;
 		$requestMethod = $_SERVER['REQUEST_METHOD'];
-		
+		$expenseDataArray = json_decode($expenseData,true)[0];
 		//get exception message
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
+		$expenseName = '';
+		$expenseGroupType = '';
 		// update
 		if($requestMethod == 'POST')
 		{
@@ -162,6 +185,14 @@ class ExpenseProcessor extends BaseProcessor
 						//enter data is valid(one data validate status return)
 						if($status=="Success")
 						{
+							if ($key[$data]=='expenseName') 
+							{
+								$expenseName = $tValue[$data];
+							}
+							if ($key[$data]=='expenseGroupType') 
+							{
+								$expenseGroupType = $tValue[$data];
+							}
 							// check data is string or not
 							if(!is_numeric($tValue[$data]))
 							{
@@ -211,6 +242,43 @@ class ExpenseProcessor extends BaseProcessor
 							}
 							else
 							{
+
+								// update ledger
+								// $expenseGroupType
+								$ledgerArray = new LedgerArray();
+								$expenseGroupArray = $ledgerArray->expenseLedgerArray();
+								$ledgerGroupId = isset($expenseGroupArray[$expenseGroupType]) 
+													? $expenseGroupArray[$expenseGroupType] : 0;
+
+								if (isset($expenseDataArray['ledger_id']) && $expenseDataArray['ledger_id']) 
+								{
+									$ledgerId = $expenseDataArray['ledger_id'];
+									$ledgerStatus = $this->updateDefaultLedger($expenseDataArray['ledger_id'], $expenseName, $ledgerGroupId, $expenseDataArray, $request->header());
+									if (strcmp($ledgerStatus, $exceptionArray['200'])!=0) 
+									{
+										return $ledgerStatus;
+									}
+								}
+								else
+								{
+									$ledgerStatus = $this->insertDefaultLedger($expenseDataArray['company_id'], $expenseName, $ledgerGroupId, $request->header());
+
+									if(strcmp($exceptionArray['500'],$ledgerStatus)==0 || strcmp($exceptionArray['content'],$ledgerStatus)==0)
+									{
+										return $ledgerStatus;
+									}
+
+									$ledgerId = json_decode($ledgerStatus)[0]->ledger_id;
+								}
+								$expenseArrayCount = count($expenseArray);
+								$expensePersistable = new ExpensePersistable();
+
+								$expensePersistable->setLedgerId($ledgerId);
+								$expensePersistable->setName('getLedgerId');
+								$expensePersistable->setKey('ledger_id');
+								$expensePersistable->setExpenseId($expenseId);
+
+								$expenseArray[$expenseArrayCount] = array($expensePersistable);
 								return $expenseArray;
 							}
 						}
@@ -218,5 +286,87 @@ class ExpenseProcessor extends BaseProcessor
 				}
 			}
 		}
-	}	
+	}
+
+	/**
+     * insert expense ledger
+     * $param Request object [Request $request]
+     * @return LedgerId / Exception Message
+     */
+	public function insertDefaultLedger($companyId,$ledgerName,$ledgerGroupId, $headers)
+	{
+		$amountTypeEnum = new AmountTypeEnum();
+		$enumAmountTypeArray = $amountTypeEnum->enumArrays();
+		//get constant variables array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		$ledgerArray=array();
+		$companyService = new CompanyService();
+		$exceptionMessage = new ExceptionMessage();
+		$exceptionArray = $exceptionMessage->messageArrays();
+		$companyJson = $companyService->getCompanyData($companyId);
+		if (strcmp($companyJson,$exceptionArray['404'])==0) 
+		{
+			return $companyJson;
+		}
+		$companyDataArray = json_decode($companyJson);
+		$ledgerArray['ledgerName']=$ledgerName;
+		$ledgerArray['address1']='';
+		$ledgerArray['address2']='';
+		$ledgerArray['contactNo']='';
+		$ledgerArray['emailId']='';
+		$ledgerArray['invoiceNumber']='';
+		$ledgerArray['stateAbb']= $companyDataArray->city->stateAbb;
+		$ledgerArray['cityId']=$companyDataArray->city->cityId;
+		$ledgerArray['companyId']=$companyId;
+		$ledgerArray['balanceFlag']=$constantArray['openingBalance'];
+		$ledgerArray['amount']=0;
+		$ledgerArray['amountType']=$constantArray['credit'];
+		$ledgerArray['ledgerGroupId']=$ledgerGroupId;
+		$ledgerArray['clientName']='';
+		$ledgerArray['outstandingLimit']='0.0000';
+		$ledgerArray['outstandingLimit']=$enumAmountTypeArray['creditType'];
+		$ledgerController = new LedgerController(new Container());
+		$method=$constantArray['postMethod'];
+		$path=$constantArray['ledgerUrl'];
+
+		$ledgerRequest = Request::create($path,$method,$ledgerArray);
+		$ledgerRequest->headers->set('authenticationtoken',$headers['authenticationtoken'][0]);
+		$processedData = $ledgerController->store($ledgerRequest);
+		return $processedData;
+	}
+	/**
+     * update expense ledger
+     * $param Request object [Request $request]
+     * @return LedgerId / Exception Message
+     */
+	public function updateDefaultLedger($ledgerId,$ledgerName,$ledgerGroupId, $ledgerDecoded, $headers)
+	{
+		//get constant variables array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		$exception = new ExceptionMessage();
+		$msgArray = $exception->messageArrays();
+		$updateFlag = 1;
+		//update ledger data
+		$ledgerArray=array();
+		// $ledgerArray['ledgerName']=$tRequest['client_name'];
+		
+		$ledgerArray['ledgerName']=$ledgerName;
+		$ledgerArray['ledgerGroupId']=$ledgerGroupId;
+		if ($updateFlag==1) 
+		{
+			$ledgerController = new LedgerController(new Container());
+			$method=$constantArray['postMethod'];
+			$path=$constantArray['ledgerUrl'].'/'.$ledgerId;
+			$ledgerRequest = Request::create($path,$method,$ledgerArray);
+			$ledgerRequest->headers->set('authenticationtoken',$headers['authenticationtoken'][0]);
+			$processedData = $ledgerController->update($ledgerRequest,$ledgerId);
+			return $processedData;
+		}
+		else
+		{
+			return $msgArray['200'];
+		}
+	}
 }

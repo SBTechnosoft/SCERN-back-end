@@ -16,6 +16,7 @@ use stdClass;
 use ERP\Core\Accounting\Quotations\Entities\QuotationArray;
 use ERP\Model\Accounting\Bills\BillModel;
 use ERP\Core\Accounting\Bills\Entities\EncodeData;
+use Exception;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -324,7 +325,63 @@ class QuotationModel extends Model
 			return $exceptionArray['500'];
 		}
 	}
-	
+	/**
+	 * insert status data
+	 * @param  quotation-id,sale-id,status-id,assign-detail
+	 * returns the exception-message
+	*/
+	public function logWorkflowStatus($statusLogData,$headerData,$checkArray)
+	{
+		$mytime = Carbon\Carbon::now();
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		$checkCond = '';
+		$conditionSeparator = '';
+		foreach ($checkArray as $key => $value) {
+			$checkCond .= $conditionSeparator."$key = '$value'";
+			$conditionSeparator = ' and ';
+		}
+		$raw1 = DB::connection($databaseName)->select("select
+		process_status_dtl_id
+		FROM process_status_dtl
+		WHERE $checkCond ");
+		DB::commit();
+		if (count($raw1)==0) {
+			$insertKeyStr = '';
+			$insertValStr = '';
+			$separator = '';
+			foreach ($statusLogData as $key => $value) {
+				$insertKeyStr .= $separator."$key";
+				$insertValStr .= $separator."'$value'";
+				$separator = ',';
+			}
+			$raw = DB::connection($databaseName)->statement("insert into process_status_dtl($insertKeyStr)
+			values($insertValStr)");
+			DB::commit();
+		}else{
+			$updateStr = '';
+			$separator = '';
+			foreach ($statusLogData as $key => $value) {
+				$updateStr .= $separator."$key = '$value'";
+				$separator = ', ';
+			}
+			$raw = DB::connection($databaseName)->statement("update process_status_dtl set $updateStr WHERE $checkCond");
+		}
+		
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if($raw==1)
+		{
+			return $exceptionArray['200'];
+		}
+		else
+		{
+			return $exceptionArray['500'];
+		}
+	}
 	/**
 	 * get specific data
 	 * @param  headerdata
@@ -332,105 +389,313 @@ class QuotationModel extends Model
 	*/
 	public function getSpecifiedData($headerData)
 	{
-		if(array_key_exists('previousquotationid',$headerData) || array_key_exists('nextquotationid',$headerData)
-			|| array_key_exists('operation',$headerData))
+		$quotationArray = new QuotationArray();
+		$quotationArrayData = $quotationArray->searchQuotationData();
+		$queryParameter="";
+		foreach ($quotationArrayData as $key => $value) {
+			if(array_key_exists($value,$headerData))
+			{
+				$queryParameter = $queryParameter." and quotation_bill_dtl.".$key."='".$headerData[$value][0]."'";
+			}
+		}
+		if (array_key_exists('companyid', $headerData)) {
+			$queryParameter .= " and quotation_bill_dtl.company_id = '".$headerData['companyid'][0]."'";
+		}
+		if (array_key_exists('fromdate', $headerData)) {
+			$toDate = Carbon\Carbon::now();
+			if (array_key_exists('todate', $headerData)) {
+				$toDate = Carbon\Carbon::createFromFormat('d-m-Y', $headerData['todate'][0])->format('Y-m-d');
+			}
+			$fromDate = Carbon\Carbon::createFromFormat('d-m-Y', $headerData['fromdate'][0])->format('Y-m-d');;
+			$queryParameter .= " AND (quotation_bill_dtl.entry_date BETWEEN '".$fromDate."' AND '".$toDate."')";
+		}
+		if (array_key_exists('previousquotationid',$headerData)) {
+			$queryParameter .= $headerData['previousquotationid'][0]==0 ? '' : ' and quotation_bill_dtl.quotation_bill_id < '.$headerData['previousquotationid'][0];
+			$queryParameter .= ' order by quotation_bill_dtl.quotation_bill_id desc';
+		}elseif (array_key_exists('nextquotationid',$headerData)) {
+			$queryParameter .= $headerData['nextquotationid'][0]==0 ? '' : ' and quotation_bill_dtl.quotation_bill_id > '.$headerData['nextquotationid'][0];
+			$queryParameter .= ' order by quotation_bill_dtl.quotation_bill_id asc';
+		}elseif(array_key_exists('operation',$headerData)) {
+			if (strcmp($headerData['operation'][0],'first')==0) {
+				$queryParameter .= ' order by quotation_bill_dtl.quotation_bill_id asc';
+			}elseif (strcmp($headerData['operation'][0],'last')==0) {
+				$queryParameter .= ' order by quotation_bill_dtl.quotation_bill_id desc';
+			}else{
+				return $exceptionArray['204'];
+			}
+		}
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		
+		DB::beginTransaction();		
+		if (array_key_exists('isquotationprocess', $headerData)) {
+			DB::statement('SET group_concat_max_len = 1000000');
+			$raw = DB::connection($databaseName)->select("
+			select 
+			quotation_bill_dtl.quotation_bill_id,
+			quotation_bill_dtl.product_array,
+			quotation_bill_dtl.quotation_number,
+			quotation_bill_dtl.total,
+			quotation_bill_dtl.total_discounttype,
+			quotation_bill_dtl.total_discount,
+			quotation_bill_dtl.total_cgst_percentage,
+			quotation_bill_dtl.total_sgst_percentage,
+			quotation_bill_dtl.total_igst_percentage,
+			quotation_bill_dtl.extra_charge,
+			quotation_bill_dtl.tax,
+			quotation_bill_dtl.grand_total,
+			quotation_bill_dtl.remark,
+			quotation_bill_dtl.entry_date,
+			quotation_bill_dtl.client_id,
+			quotation_bill_dtl.company_id,
+			quotation_bill_dtl.branch_id,
+			quotation_bill_dtl.jf_id,
+			quotation_bill_dtl.created_at,
+			quotation_bill_dtl.updated_at,
+			process_status_dtl.workflow_status_id,
+			process_status_dtl.process_status_dtl_id,
+			process_status_dtl.assigned_to,
+			process_status_dtl.assigned_by,
+			d.file
+			from quotation_bill_dtl 
+			LEFT JOIN process_status_dtl on process_status_dtl.quotation_id = quotation_bill_dtl.quotation_bill_id
+			LEFT JOIN (
+				SELECT 
+					quotation_bill_id, 
+					CONCAT( 
+						'[', 
+							GROUP_CONCAT( CONCAT( 
+								'{\"documentId\":', document_id,
+								 	', \"quotationBillId\":', IFNULL(quotation_bill_id,0),
+								 	', \"documentName\":\"', IFNULL(document_name,''),
+								 	'\", \"documentSize\":\"', IFNULL(document_size,''),
+								 	'\", \"documentFormat\":\"', IFNULL(document_format,''),
+								 	'\", \"documentType\":\"', IFNULL(document_type,''),
+								 	'\", \"createdAt\":\"', DATE_FORMAT(created_at, '%d-%m-%Y'),
+								 	'\", \"updatedAt\":\"', DATE_FORMAT(updated_at, '%d-%m-%Y'),
+							 	'\" }'
+							 ) SEPARATOR ', '),
+						']'
+					) file
+				FROM quotation_bill_doc_dtl
+				WHERE deleted_at='0000-00-00 00:00:00'
+				GROUP BY quotation_bill_id 
+			) d ON d.quotation_bill_id = quotation_bill_dtl.quotation_bill_id
+			where quotation_bill_dtl.deleted_at='0000-00-00 00:00:00' ".$queryParameter);
+		}else{
+			DB::statement('SET group_concat_max_len = 1000000');
+			$raw = DB::connection($databaseName)->select("
+			select 
+			quotation_bill_dtl.quotation_bill_id,
+			quotation_bill_dtl.product_array,
+			quotation_bill_dtl.quotation_number,
+			quotation_bill_dtl.total,
+			quotation_bill_dtl.total_discounttype,
+			quotation_bill_dtl.total_discount,
+			quotation_bill_dtl.total_cgst_percentage,
+			quotation_bill_dtl.total_sgst_percentage,
+			quotation_bill_dtl.total_igst_percentage,
+			quotation_bill_dtl.extra_charge,
+			quotation_bill_dtl.tax,
+			quotation_bill_dtl.grand_total,
+			quotation_bill_dtl.remark,
+			quotation_bill_dtl.entry_date,
+			quotation_bill_dtl.client_id,
+			quotation_bill_dtl.company_id,
+			quotation_bill_dtl.branch_id,
+			quotation_bill_dtl.jf_id,
+			quotation_bill_dtl.created_at,
+			quotation_bill_dtl.updated_at,
+			d.file
+			from quotation_bill_dtl 
+			LEFT JOIN (
+				SELECT 
+					quotation_bill_id, 
+					CONCAT( 
+						'[', 
+							GROUP_CONCAT( CONCAT( 
+								'{\"documentId\":', document_id,
+								 	', \"quotationBillId\":', IFNULL(quotation_bill_id,0),
+								 	', \"documentName\":\"', IFNULL(document_name,''),
+								 	'\", \"documentSize\":\"', IFNULL(document_size,''),
+								 	'\", \"documentFormat\":\"', IFNULL(document_format,''),
+								 	'\", \"documentType\":\"', IFNULL(document_type,''),
+								 	'\", \"createdAt\":\"', DATE_FORMAT(created_at, '%d-%m-%Y'),
+								 	'\", \"updatedAt\":\"', DATE_FORMAT(updated_at, '%d-%m-%Y'),
+							 	'\" }'
+							 ) SEPARATOR ', '),
+						']'
+					) file
+				FROM quotation_bill_doc_dtl
+				WHERE deleted_at='0000-00-00 00:00:00'
+				GROUP BY quotation_bill_id 
+			) d ON d.quotation_bill_id = quotation_bill_dtl.quotation_bill_id
+			 where quotation_bill_dtl.deleted_at='0000-00-00 00:00:00' ".$queryParameter);
+		}
+		DB::commit();
+		
+		// get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if(count($raw)==0)
 		{
-			$resultData = $this->getPreviousNextData($headerData);
-			return $resultData;
+			return $exceptionArray['204'];
 		}
 		else
 		{
-			$quotationArray = new QuotationArray();
-			$quotationArrayData = $quotationArray->searchQuotationData();
-			$queryParameter="";
-			for($dataArray=0;$dataArray<count($quotationArrayData);$dataArray++)
-			{
-				$key = $quotationArrayData[array_keys($quotationArrayData)[$dataArray]];
-				$queryKey = array_keys($quotationArrayData)[$dataArray];
-				
-				if(array_key_exists($quotationArrayData[array_keys($quotationArrayData)[$dataArray]],$headerData))
-				{
-					$queryParameter = $queryParameter."".$queryKey."='".$headerData[$key][0]."' and ";
-				}
-			}
-			//database selection
-			$database = "";
-			$constantDatabase = new ConstantClass();
-			$databaseName = $constantDatabase->constantDatabase();
-			
-			DB::beginTransaction();		
-			$raw = DB::connection($databaseName)->select("select 
-			quotation_bill_id,
-			product_array,
-			quotation_number,
-			total,
-			total_discounttype,
-			total_discount,
-			total_cgst_percentage,
-			total_sgst_percentage,
-			total_igst_percentage,
-			extra_charge,
-			tax,
-			grand_total,
-			remark,
-			entry_date,
-			client_id,
-			company_id,
-			branch_id,
-			jf_id,
-			created_at,
-			updated_at	
-			from quotation_bill_dtl where ".$queryParameter." deleted_at='0000-00-00 00:00:00'");
-			DB::commit();
-			
-			// get exception message
-			$exception = new ExceptionMessage();
-			$exceptionArray = $exception->messageArrays();
-			if(count($raw)==0)
-			{
-				return $exceptionArray['204'];
-			}
-			else
-			{
-				$documentResult = array();
-				for($quotationData=0;$quotationData<count($raw);$quotationData++)
-				{
-					DB::beginTransaction();
-					$documentResult[$quotationData] = DB::connection($databaseName)->select("select
-					document_id,
-					quotation_bill_id,
-					document_name,
-					document_size,
-					document_format,
-					document_type,
-					created_at,
-					updated_at
-					from quotation_bill_doc_dtl
-					where quotation_bill_id='".$raw[$quotationData]->quotation_bill_id."' and 
-					deleted_at='0000-00-00 00:00:00'");
-					DB::commit();
-					if(count($documentResult[$quotationData])==0)
-					{
-						$documentResult[$quotationData] = array();
-						$documentResult[$quotationData][0] = new stdClass();
-						$documentResult[$quotationData][0]->document_id = 0;
-						$documentResult[$quotationData][0]->quotation_bill_id = 0;
-						$documentResult[$quotationData][0]->document_name = '';
-						$documentResult[$quotationData][0]->document_size = 0;
-						$documentResult[$quotationData][0]->document_format = '';
-						$documentResult[$quotationData][0]->document_type ='quotation';
-						$documentResult[$quotationData][0]->created_at = '0000-00-00 00:00:00';
-						$documentResult[$quotationData][0]->updated_at = '0000-00-00 00:00:00';
-					}
-				}
-				$quotationArrayData = array();
-				$quotationArrayData['quotationData'] = json_encode($raw);
-				$quotationArrayData['documentData'] = json_encode($documentResult);
-				return json_encode($quotationArrayData);
-			}
+			return json_encode($raw);
 		}
 	}
 	
+	/**
+	 * get specific data
+	 * @param  headerdata
+	 * returns the exception-message/array data
+	*/
+	public function getStatusData($headerData)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		
+		// get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		DB::beginTransaction();
+		$raw = DB::connection($databaseName)->select("select 
+		status_id,
+		status_name,
+		status_position
+		from flow_status_mst 
+		where deleted_at='0000-00-00 00:00:00'");
+		DB::commit();
+		if(count($raw)==0)
+		{
+			return $exceptionArray['204'];
+		}
+		else
+		{
+			return json_encode($raw);
+		}
+	}
+	/**
+	 * get specific data
+	 * @param  headerdata
+	 * returns the exception-message/array data
+	*/
+	public function getSpecificStatus($statusId)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		
+		// get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		DB::beginTransaction();
+		$raw = DB::connection($databaseName)->select("select 
+		status_id,
+		status_name,
+		status_position
+		from flow_status_mst 
+		where deleted_at='0000-00-00 00:00:00' and status_id='$statusId'");
+		DB::commit();
+		if(count($raw)==0)
+		{
+			return $exceptionArray['204'];
+		}
+		else
+		{
+			return json_encode($raw);
+		}
+	}
+	
+	/**
+	 * get specific data
+	 * @param  headerdata
+	 * returns the exception-message/array data
+	*/
+	public function getStatusQuoteCountData($companyId,$headerData)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		$queryParameter = '';
+		if (array_key_exists('fromdate', $headerData)) {
+			$toDate = Carbon\Carbon::now();
+			if (array_key_exists('todate', $headerData)) {
+				$toDate = Carbon\Carbon::createFromFormat('d-m-Y', $headerData['todate'][0])->format('Y-m-d');
+			}
+			$fromDate = Carbon\Carbon::createFromFormat('d-m-Y', $headerData['fromdate'][0])->format('Y-m-d');;
+			$queryParameter .= "(date(process_status_dtl.created_at) BETWEEN '".$fromDate."' AND '".$toDate."') AND ";
+		}
+		// get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		DB::beginTransaction();
+		$raw = DB::connection($databaseName)->select("select 
+		flow_status_mst.status_id,
+		flow_status_mst.status_name,
+		count(process_status_dtl.process_status_dtl_id) as status_count,
+		flow_status_mst.status_position
+		from flow_status_mst 
+		LEFT JOIN (select process_status_dtl_id,workflow_status_id FROM process_status_dtl where sale_id='0' and $queryParameter company_id = '$companyId') as process_status_dtl on flow_status_mst.status_id = process_status_dtl.workflow_status_id
+		where flow_status_mst.deleted_at='0000-00-00 00:00:00' and status_position='quotation' GROUP BY flow_status_mst.status_id");
+		DB::commit();
+		if(count($raw)==0)
+		{
+			return $exceptionArray['204'];
+		}
+		else
+		{
+			$queryParameter = "(date(entry_date) BETWEEN '".$fromDate."' AND '".$toDate."') AND ";
+			$raw2 = DB::connection($databaseName)->select("select 
+			flow_status_mst.status_id,
+			flow_status_mst.status_name,
+			flow_status_mst.status_position,
+			( select 
+			count(DISTINCT(sales_bill.sale_id))
+			FROM sales_bill
+			JOIN sales_bill_doc_dtl ON sales_bill_doc_dtl.sale_id = sales_bill.sale_id
+			where $queryParameter 
+			sales_bill.company_id = '$companyId' and
+			sales_bill.sales_type = 'whole_sales' and
+			sales_bill.deleted_at = '0000-00-00 00:00:00' and
+			sales_bill_doc_dtl.deleted_at = '0000-00-00 00:00:00' and
+			is_salesorder = 'not' and dispatch_status = 0)
+			 as status_count
+			from flow_status_mst 
+			where deleted_at='0000-00-00 00:00:00' and status_position='sales' GROUP BY status_id");
+			if (count($raw2)!=0) {
+				$raw = array_merge($raw,$raw2);
+			}
+			$queryParameter = "(date(entry_date) BETWEEN '".$fromDate."' AND '".$toDate."') AND ";
+			$raw2 = DB::connection($databaseName)->select("select 
+			flow_status_mst.status_id,
+			flow_status_mst.status_name,
+			flow_status_mst.status_position,
+			count(sales_bill.sale_id) as status_count
+			from flow_status_mst 
+			LEFT JOIN ( select 
+			sale_id,
+			dispatch_status
+			FROM sales_bill
+			where $queryParameter 
+			company_id = '$companyId' and
+			deleted_at = '0000-00-00 00:00:00' and
+			is_salesorder = 'not') as sales_bill on sales_bill.dispatch_status = flow_status_mst.status_id
+			where deleted_at='0000-00-00 00:00:00' and (status_position='delivery' || status_position='finalized') GROUP BY status_id");
+			if (count($raw2)!=0) {
+				$raw = array_merge($raw,$raw2);
+			}
+			return json_encode($raw);
+		}
+	}
 	/**
 	 * get previous-next quotation-bill data
 	 * @param  header-data
@@ -1058,6 +1323,116 @@ class QuotationModel extends Model
 		if(count($saleBillData)!=0)
 		{
 			return json_encode($saleBillData);
+		}
+	}
+	/**
+	 * @param dispatch data
+	 * @return status
+	 */
+	public function dispatchInsert($dispatchData)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		$mytime = Carbon\Carbon::now();
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		$statusId = $dispatchData['status_id'];
+		$saleId = $dispatchData['sale_id'];
+		DB::beginTransaction();
+		try {
+			$update = DB::connection($databaseName)->statement("update
+			sales_bill set
+			dispatch_status = '$statusId'
+			where sale_id = '$saleId'
+			");
+			if ($update==1) {
+				unset($dispatchData['status_id']);
+				$keyStr = '';
+				$valueStr = '';
+				$separator = '';
+				foreach ($dispatchData as $key => $value) {
+					$keyStr .= "$separator $key";
+					$valueStr .= "$separator '$value'";
+					$separator = ',';
+				}
+				$raw = DB::connection($databaseName)->statement("insert into dispatch_dtl
+				($keyStr, created_at) values($valueStr, '$mytime')");
+				if ($raw==1) {
+					DB::commit();
+					return $exceptionArray['200'];
+				}else{
+					throw new Exception($exceptionArray['500']);
+				}
+			}else{
+				throw new Exception($exceptionArray['500']);
+			}
+		} catch (Exception $e) {
+			DB::rollback();
+			return $e->getMessage();
+		}
+	}
+	public function getDispatched($saleId)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		$mytime = Carbon\Carbon::now();
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		//delete bill data 
+		DB::beginTransaction();
+		$raw = DB::connection($databaseName)->select("select 
+			dispatch_inv as dispatchInv,
+			remaining_inv as remainingInv
+			from dispatch_dtl
+			where sale_id = '$saleId' and deleted_at = '0000-00-00 00:00:00'
+			order by dispatch_id desc
+			");
+		DB::commit();
+		if(count($raw)==0)
+		{
+			return $exceptionArray['404'];
+		}
+		else
+		{
+			return json_encode($raw[0]);
+		}
+	}
+	public function deleteQuotationData($quoteId)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		$mytime = Carbon\Carbon::now();
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		//delete bill data 
+		DB::beginTransaction();
+		$deleteQuoteData = DB::connection($databaseName)->statement("update
+		quotation_bill_dtl set
+		deleted_at = '".$mytime."'
+		where quotation_bill_id = ".$quoteId." and
+		deleted_at='0000-00-00 00:00:00'");
+		if ($deleteQuoteData==1) {
+			$deleteStatus = DB::connection($databaseName)->statement("DELETE FROM
+			process_status_dtl
+			where quotation_id = '$quoteId' and sale_id = 0");
+		}
+		DB::commit();
+		if( $deleteQuoteData==1)
+		{
+			return $exceptionArray['200'];
+		}
+		else
+		{
+			return $exceptionArray['500'];
 		}
 	}
 }

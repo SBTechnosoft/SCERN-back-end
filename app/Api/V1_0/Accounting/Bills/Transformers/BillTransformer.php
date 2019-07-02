@@ -9,9 +9,12 @@ use ERP\Core\Accounting\Bills\Entities\SalesTypeEnum;
 use ERP\Core\Products\Entities\EnumClasses\DiscountTypeEnum;
 use ERP\Core\Accounting\Bills\Entities\PaymentTransactionEnum;
 use ERP\Exceptions\ExceptionMessage;
+use ERP\Entities\Constants\ConstantClass;
 use ERP\Model\Accounting\Bills\BillModel;
 
 use ERP\Core\Products\Services\ProductService;
+use ERP\Core\Settings\Services\SettingService;
+use ERP\Model\Authenticate\AuthenticateModel;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -31,6 +34,7 @@ class BillTransformer
 		$paymentModeArray = array();
 		$paymentModeEnum = new PaymentModeEnum();
 		$paymentModeArray = $paymentModeEnum->enumArrays();
+		$headerData = $request->header();
 		
 		//get exception message
 		$exception = new ExceptionMessage();
@@ -56,6 +60,7 @@ class BillTransformer
 		$tStateAbb = array_key_exists('stateAbb',$billArrayData)? $this->checkStringValue(trim($billArrayData['stateAbb'])):"";
 		$tCityId = array_key_exists('cityId',$billArrayData)? $this->checkValue(trim($billArrayData['cityId'])):"";
 		$tTotal = trim($billArrayData['total']);
+
 		if(!array_key_exists('totalDiscounttype',$request->input()) && !array_key_exists('totalDiscount',$request->input()))
 		{
 			$tTotalDiscounttype = 'flat';
@@ -147,6 +152,23 @@ class BillTransformer
 		$discountFlag=0;
 		$discountTypeEnum = new DiscountTypeEnum();
 		$ProductService = new ProductService();
+
+		$settingService = new SettingService();
+		$settingStatus = $settingService->getData();
+		if (strcmp($exceptionArray['204'], $settingStatus)==0) {
+			return $settingStatus;
+		}
+		$constantClass = new ConstantClass();
+		$constants = $constantClass->constantVariable();
+
+		$settingArray = json_decode($settingStatus,true);
+		$productSetting = array_first($settingArray, function($key, $value) use ($constants)
+		{
+		    return $value['settingType'] == $constants['productSetting'];
+		},$exceptionArray['204']);
+		$productMeasurementType = $productSetting['productMeasurementType'];
+		$measurementTypes = $constantClass->measurementTypeConstants();
+		
 		for($trimInventory=0;$trimInventory<count($billArrayData['inventory']);$trimInventory++)
 		{
 			$discountTypeArray = array();
@@ -172,40 +194,57 @@ class BillTransformer
 			$tInventoryArray[$trimInventory][2] = trim($billArrayData['inventory'][$trimInventory]['discountType']);
 			$tInventoryArray[$trimInventory][3] = $this->checkValue(trim($billArrayData['inventory'][$trimInventory]['price']));
 			$tInventoryArray[$trimInventory][4] = trim($billArrayData['inventory'][$trimInventory]['qty']);
-			if (array_key_exists('measurementUnit', $billArrayData['inventory'][$trimInventory])) {
-				// Get Product Units to tranform Qty into primary unit Qty
-				$productTransformData = json_decode($ProductService->getProductData($billArrayData['inventory'][$trimInventory]['productId']));
-				$highestMeasurementUnit = $productTransformData->highestMeasurementUnitId;
-				$higherMeasurementUnit = $productTransformData->higherMeasurementUnitId;
-				$mediumMeasurementUnit = $productTransformData->mediumMeasurementUnitId;
-				$mediumLowerMeasurementUnit = $productTransformData->mediumLowerMeasurementUnitId;
-				$lowerMeasurementUnit = $productTransformData->lowerMeasurementUnitId;
-				$lowestMeasurementUnit = $productTransformData->measurementUnitId;
-				$primaryMeasurement = $productTransformData->primaryMeasureUnit;
-				$currentQty = trim($billArrayData['inventory'][$trimInventory]['qty']);
-				$currentMeasurementUnit = $billArrayData['inventory'][$trimInventory]['measurementUnit'];
-				switch ($currentMeasurementUnit) {
-					case $highestMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->highestMouConv);
-						break;
-					case $higherMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->higherMouConv);
-						break;
-					case $mediumMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->mediumMouConv);
-						break;
-					case $mediumLowerMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->mediumLowerMouConv);
-						break;
-					case $lowerMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->lowerMouConv);
-						break;
-					
-					default:
-							$currentQty = round($currentQty * $productTransformData->lowestMouConv);
-						break;
+			if (strcmp($measurementTypes['unit'], $productMeasurementType)==0) {
+
+				if (array_key_exists('stockFt', $billArrayData['inventory'][$trimInventory]) &&
+					$billArrayData['inventory'][$trimInventory]['stockFt'] != 'undefined' &&
+					$billArrayData['inventory'][$trimInventory]['stockFt'] != 0 ) {
+					$tInventoryArray[$trimInventory][4] = trim($billArrayData['inventory'][$trimInventory]['stockFt']);
+
+				}elseif (array_key_exists('totalFt', $billArrayData['inventory'][$trimInventory]) &&
+					$billArrayData['inventory'][$trimInventory]['totalFt'] != 'undefined' &&
+					$billArrayData['inventory'][$trimInventory]['totalFt'] != 0 ){
+					$tInventoryArray[$trimInventory][4] = trim($billArrayData['inventory'][$trimInventory]['totalFt']);
+
+				}else{
+					return $exceptionArray['content'];
 				}
-				$tInventoryArray[$trimInventory][4] = $currentQty;
+			}elseif (strcmp($measurementTypes['advance'], $productMeasurementType)==0) {
+				if (array_key_exists('measurementUnit', $billArrayData['inventory'][$trimInventory])) {
+					// Get Product Units to tranform Qty into primary unit Qty
+					$productTransformData = json_decode($ProductService->getProductData($billArrayData['inventory'][$trimInventory]['productId']));
+					$highestMeasurementUnit = $productTransformData->highestMeasurementUnitId;
+					$higherMeasurementUnit = $productTransformData->higherMeasurementUnitId;
+					$mediumMeasurementUnit = $productTransformData->mediumMeasurementUnitId;
+					$mediumLowerMeasurementUnit = $productTransformData->mediumLowerMeasurementUnitId;
+					$lowerMeasurementUnit = $productTransformData->lowerMeasurementUnitId;
+					$lowestMeasurementUnit = $productTransformData->measurementUnitId;
+					$primaryMeasurement = $productTransformData->primaryMeasureUnit;
+					$currentQty = trim($billArrayData['inventory'][$trimInventory]['qty']);
+					$currentMeasurementUnit = $billArrayData['inventory'][$trimInventory]['measurementUnit'];
+					switch ($currentMeasurementUnit) {
+						case $highestMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->highestMouConv);
+							break;
+						case $higherMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->higherMouConv);
+							break;
+						case $mediumMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->mediumMouConv);
+							break;
+						case $mediumLowerMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->mediumLowerMouConv);
+							break;
+						case $lowerMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->lowerMouConv);
+							break;
+						
+						default:
+								$currentQty = round($currentQty * $productTransformData->lowestMouConv);
+							break;
+					}
+					$tInventoryArray[$trimInventory][4] = $currentQty;
+				}
 			}
 		}
 		//check paymentmode enum type
@@ -224,6 +263,9 @@ class BillTransformer
 		}
 		else
 		{
+			$authenticateModel = new AuthenticateModel();
+ 			$userId = $authenticateModel->getActiveUser($headerData);
+ 			$tCreatedBy = isset($userId[0]->user_id) ? $userId[0]->user_id : 0;
 			// make an array
 			$data = array();
 			$data['company_id'] = $tCompanyId;
@@ -261,6 +303,7 @@ class BillTransformer
 			$data['totalSgstPercentage'] = $tTotalSgstPercentage;
 			$data['totalIgstPercentage'] = $tTotalIgstPercentage;
 			$data['expense'] = $tExpense;
+			$data['created_by'] = $tCreatedBy;
 			$trimArray=array();
 			for($inventoryArray=0;$inventoryArray<count($billArrayData['inventory']);$inventoryArray++)
 			{
@@ -320,12 +363,14 @@ class BillTransformer
 			}
 
 			$branchId = array_key_exists('branchid', $headerData) ? $headerData['branchid'][0] : '';
+			$isSalesOrder = array_key_exists('issalesorder', $headerData) ? $headerData['issalesorder'][0] : '';
 			
 			$trimArray = array();	
 			$trimArray['salesType'] = $salesType;	
 			$trimArray['fromDate'] = $transformFromDate;	
 			$trimArray['toDate'] = $transformToDate;	
 			$trimArray['branchId'] = $branchId;	
+			$trimArray['isSalesOrder'] = $isSalesOrder;
 			return $trimArray;
 		}
 		else
@@ -355,6 +400,7 @@ class BillTransformer
 		$paymentTrnArray = array();
 		$paymentTrnEnum = new PaymentTransactionEnum();
 		$paymentTrnArray = $paymentTrnEnum->enumArrays();
+		$headerData = $request->header();
 		
 		//check paymentmode enum type
 		foreach ($paymentTrnArray as $key => $value)
@@ -401,6 +447,9 @@ class BillTransformer
 					$tPaymentMode=$paymentModeArray['cashPayment'];
 				}
 			}
+			$authenticateModel = new AuthenticateModel();
+ 			$userId = $authenticateModel->getActiveUser($headerData);
+ 			$tCreatedBy = isset($userId[0]->user_id) ? $userId[0]->user_id : 0;
 			$trimArray = array();
 			$trimArray['entry_date'] = $tEntryDate;
 			$trimArray['amount'] = $tAmount;
@@ -409,6 +458,8 @@ class BillTransformer
 			$trimArray['bank_name'] = $tBankName;
 			$trimArray['check_number'] = $tCheckNumber;
 			$trimArray['bank_ledger_id'] = $tBankLedgerId;
+			$trimArray['updated_by'] = $tCreatedBy;
+
 			return $trimArray;
 		}
 	}
@@ -429,7 +480,7 @@ class BillTransformer
 		$tempArray = array();
 		$tBillArray = array();
 		$billArrayData = $request->input();
-		
+		$headerData = $request->header();
 		//get exception message
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
@@ -455,7 +506,23 @@ class BillTransformer
 					return $exceptionArray['content'];
 				}
 			}
-		}	
+		}
+		$settingService = new SettingService();
+		$settingStatus = $settingService->getData();
+		if (strcmp($exceptionArray['204'], $settingStatus)==0) {
+			return $settingStatus;
+		}
+		$constantClass = new ConstantClass();
+		$constants = $constantClass->constantVariable();
+
+		$settingArray = json_decode($settingStatus,true);
+		$productSetting = array_first($settingArray, function($key, $value) use ($constants)
+		{
+		    return $value['settingType'] == $constants['productSetting'];
+		},$exceptionArray['204']);
+		$productMeasurementType = $productSetting['productMeasurementType'];
+		$measurementTypes = $constantClass->measurementTypeConstants();
+		
 		for($inputArrayData=0;$inputArrayData<count($billArrayData);$inputArrayData++)
 		{
 			if(strcmp(array_keys($billArrayData)[$inputArrayData],'inventory')==0)
@@ -467,7 +534,7 @@ class BillTransformer
 				for($inventoryArray=0;$inventoryArray<count($billArrayData['inventory']);$inventoryArray++)
 				{
 					$tempArrayFlag=1;
-					$tempArray[$inventoryArray] = array();
+					$tempArray[$inventoryArray] = $billArrayData['inventory'][$inventoryArray];
 					$tempArray[$inventoryArray]['productId'] = trim($billArrayData['inventory'][$inventoryArray]['productId']);
 					$tempArray[$inventoryArray]['discount'] = trim($billArrayData['inventory'][$inventoryArray]['discount']);
 					$tempArray[$inventoryArray]['discountType'] = trim($billArrayData['inventory'][$inventoryArray]['discountType']);
@@ -585,10 +652,38 @@ class BillTransformer
 		{
 			$tBillArray['inventory'] = $tempArray;
 		}
+		$authenticateModel = new AuthenticateModel();
+ 		$userId = $authenticateModel->getActiveUser($headerData);
+		
+		$tUpdatedBy = isset($userId[0]->user_id) ? $userId[0]->user_id : 0;
+		$tBillArray['updated_by'] = $tUpdatedBy;
+		//get user-id and add it to the database product-insertion operation
+ 		
 		
 		return $tBillArray;
 	}
-	
+	public function trimStatusData(Request $request,$saleData)
+	{
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		$statusData = $request->input();
+		$headerData = $request->header();
+		if (count($statusData)==0) {
+			return $exceptionArray['204'];
+		}
+		$returnArray = array();
+		if ($statusData['statusType'] != 'finalized') {
+			return $exceptionArray['204'];
+		}
+		$returnArray['dispatchStatus'] = trim($statusData['statusId']);
+		$authenticateModel = new AuthenticateModel();
+ 		$userId = $authenticateModel->getActiveUser($headerData);
+ 		$tUpdatedBy = isset($userId[0]->user_id) ? $userId[0]->user_id : 0;
+		$returnArray['updatedBy'] = $tUpdatedBy;
+		$returnArray['saleId'] = $saleData['sale_id'];
+		return $returnArray;
+
+	}
 	/**
 	* check value
 	* @param integer value

@@ -12,7 +12,6 @@ use ERP\Exceptions\ExceptionMessage;
 use ERP\Core\Accounting\Journals\Validations\BuisnessLogic;
 use ERP\Api\V1_0\Products\Transformers\ProductTransformer;
 use ERP\Entities\Constants\ConstantClass;
-use Illuminate\Support\Facades\Log;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -47,7 +46,6 @@ class JournalProcessor extends BaseProcessor
 		}
 		else
 		{
-
 			//trim an input 
 			$journalTransformer = new JournalTransformer();
 			$tRequest = $journalTransformer->trimInsertData($this->request);
@@ -57,7 +55,6 @@ class JournalProcessor extends BaseProcessor
 			}
 			else
 			{
-
 				//simple validation
 				$journalValidate = new JournalValidate();
 				$status = $journalValidate->validate($tRequest);

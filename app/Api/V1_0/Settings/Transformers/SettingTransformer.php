@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use ERP\Http\Requests;
 use ERP\Core\Settings\Entities\ChequeNoEnum;
 use ERP\Core\Settings\Entities\ReminderEnum;
+use ERP\Core\Settings\Entities\LanguageSettingEnum;
 use ERP\Exceptions\ExceptionMessage;
 use ERP\Entities\Constants\ConstantClass;
 /**
@@ -174,6 +175,30 @@ class SettingTransformer
 		{
 			$data['inventory_itemize_status'] = trim($request->input('inventoryItemizeStatus'));
 			if($data['inventory_itemize_status']=='undefined')
+			{
+				return $exceptionArray['content'];
+			}
+		}
+		else if(array_key_exists('languageSettingType',$request->input()))
+		{
+			$languageSettingType = strtolower(trim($request->input('languageSettingType')));
+			$languageSettingEnum = new LanguageSettingEnum();
+			$languageSettingTypeArray = $languageSettingEnum->enumArrays();
+			$selectedLanguage = array_search($languageSettingType, $languageSettingTypeArray);
+			if (is_numeric($selectedLanguage)) {
+				$data['language_setting_type'] = $languageSettingTypeArray[$selectedLanguage];
+			}else{
+				return $exceptionArray['content'];
+			}
+			if($data['language_setting_type']=='undefined')
+			{
+				return $exceptionArray['content'];
+			}
+		}
+		else if(array_key_exists('workflowQuotationStatus',$request->input()))
+		{
+			$data['workflow_quotation_status'] = strtolower(trim($request->input('workflowQuotationStatus')));
+			if($data['workflow_quotation_status']=='undefined')
 			{
 				return $exceptionArray['content'];
 			}

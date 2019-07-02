@@ -316,6 +316,119 @@ class JournalModel extends Model
 			return $enocodedData;
 		}
 	}
+	
+	/**
+	 * get data 
+	 * @param  from-date and to-date
+	 * get data between given date
+	 * returns the error-message/data
+	*/
+	public function getTrnData($fromDate,$toDate,$companyId,$headerType)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		
+		// get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		
+		DB::beginTransaction();
+		$raw = DB::connection($databaseName)->select("
+			SELECT 
+			journal_id as journalId,
+			credit_tbl.jf_id as jfId,
+			DATE_FORMAT(credit_tbl.entry_date, '%d-%m-%Y') as entryDate,
+			creditArray,
+			debitArray,
+			credit_amount as creditAmount,
+			debit_amount as debitAmount,
+			createdAt,
+			updatedAt 
+			FROM 
+			(
+				SELECT 
+				journal_id,
+				jf_id,
+				entry_date,
+				SUM(amount) as credit_amount,
+				DATE_FORMAT(journal_dtl.created_at, '%d-%m-%Y') as createdAt,
+				DATE_FORMAT(journal_dtl.updated_at, '%d-%m-%Y') as updatedAt,
+			    CONCAT( 
+			        '[', 
+			        GROUP_CONCAT( CONCAT( 
+			            '{\"journalId\":', journal_id,
+			            ', \"ledgerName\":\"', ledger_name,
+			            '\", \"ledgerId\":', journal_dtl.ledger_id,
+			            ', \"amount\":\"', amount,
+			            '\", \"amountType\":\"', amount_type,
+			            '\", \"entryDate\":\"', entry_date,
+			            '\" }'
+			        ) SEPARATOR ', '),
+			        ']'
+			    ) creditArray
+     			FROM `journal_dtl`
+     			JOIN ledger_mst on ledger_mst.ledger_id = journal_dtl.ledger_id 
+     			WHERE amount_type='credit' and 
+     			(entry_date BETWEEN '".$fromDate."' AND '".$toDate."') and 
+				journal_dtl.company_id='".$companyId."' and 
+				journal_dtl.journal_type='".$headerType."' and
+				journal_dtl.deleted_at='0000-00-00 00:00:00'
+				GROUP by jf_id
+			)
+     		as credit_tbl 
+			join 
+			(
+			    SELECT 
+			    jf_id,
+			    entry_date,
+			    SUM(amount) as debit_amount,
+			    CONCAT( 
+			        '[', 
+			        GROUP_CONCAT( CONCAT( 
+			            '{\"journalId\":', journal_id,
+			            ', \"ledgerName\":\"', ledger_name,
+			            '\", \"ledgerId\":', journal_dtl.ledger_id,
+			            ', \"amount\":\"', amount,
+			            '\", \"amountType\":\"', amount_type,
+			            '\", \"entryDate\":\"', entry_date,
+			            '\" }'
+			        ) SEPARATOR ', '),
+			        ']'
+			    ) debitArray
+    			FROM `journal_dtl` 
+    			JOIN ledger_mst on ledger_mst.ledger_id = journal_dtl.ledger_id 
+    			WHERE amount_type='debit'  and 
+     			(entry_date BETWEEN '".$fromDate."' AND '".$toDate."') and 
+				journal_dtl.company_id='".$companyId."' and 
+				journal_dtl.journal_type='".$headerType."' and
+				journal_dtl.deleted_at='0000-00-00 00:00:00'
+    			GROUP BY jf_id
+			) 
+			as debit_tbl on credit_tbl.jf_id = debit_tbl.jf_id and debit_tbl.entry_date = credit_tbl.entry_date");
+
+		DB::commit();
+		
+		// get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		
+		if(count($raw)==0)
+		{
+			return $exceptionArray['404'];
+		}
+		else
+		{
+			$raw = array_map(function($rw){
+				$rw->creditArray = json_decode($rw->creditArray);
+				$rw->debitArray = json_decode($rw->debitArray);
+				return $rw;
+			}, $raw);
+			$enocodedData = json_encode($raw);
+			return $enocodedData;
+		}
+	}
 	/**
 	 * get data 
 	 * get current year data

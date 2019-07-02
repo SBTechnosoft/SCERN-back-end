@@ -32,6 +32,7 @@ use ERP\Core\Accounting\PurchaseBills\Properties\BillTypeTrait;
 use ERP\Core\Accounting\PurchaseBills\Properties\TransactionTypeTrait;
 // use ERP\Core\Accounting\PurchaseBills\Properties\IsPurchaseOrderTrait;
 use ERP\Core\Accounting\Bills\Properties\ExpenseTrait;
+use ERP\Core\Accounting\PurchaseBills\Properties\DueDateTrait;
 
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
@@ -69,4 +70,5 @@ class PurchaseBillPersistable
 	use TransactionTypeTrait;
 	// use IsPurchaseOrderTrait;
 	use ExpenseTrait;
+	use DueDateTrait;
 }

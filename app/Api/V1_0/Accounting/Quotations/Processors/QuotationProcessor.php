@@ -16,6 +16,10 @@ use ERP\Entities\Constants\ConstantClass;
 use Carbon;
 use ERP\Core\Clients\Entities\ClientArray;
 use ERP\Api\V1_0\Documents\Controllers\DocumentController;
+
+use ERP\Core\Settings\Services\SettingService;
+use ERP\Core\Settings\InvoiceNumbers\Services\InvoiceService;
+
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -60,7 +64,6 @@ class QuotationProcessor extends BaseProcessor
 			$status = $quotationValidate->validate($tRequest);
 			if($status==$constantArray['success'])
 			{
-				//get contact-number from input data
 				if(!array_key_exists($constantArray['contactNo'],$tRequest))
 				{
 					$contactNo="";
@@ -134,7 +137,7 @@ class QuotationProcessor extends BaseProcessor
 		}
 		$productArray['transactionType']=$constantArray['journalOutward'];
 		$productArray['companyId']=$tRequest['company_id'];	
-		$productArray['branchId']=$tRequest['branch_id'];	
+		$productArray['branchId']=$tRequest['branch_id'];
 		
 		$tInventoryArray = array();
 		for($trimData=0;$trimData<count($request->input()['inventory']);$trimData++)
@@ -172,7 +175,7 @@ class QuotationProcessor extends BaseProcessor
 		$transformEntryDate = Carbon\Carbon::createFromFormat('d-m-Y', $tRequest['entry_date'])->format('Y-m-d');
 		$quotationPersistable = new QuotationPersistable();
 		$quotationPersistable->setProductArray(json_encode($productArray));
-		$quotationPersistable->setQuotationNumber($tRequest['quotation_number']);		
+		$quotationPersistable->setQuotationNumber($tRequest['quotation_number']);
 		$quotationPersistable->setTotal($tRequest['total']);
 		$quotationPersistable->setTotalDiscounttype($tRequest['total_discounttype']);
 		$quotationPersistable->setTotalDiscount($tRequest['total_discount']);
@@ -180,18 +183,18 @@ class QuotationProcessor extends BaseProcessor
 		$quotationPersistable->setTotalSgstPercentage($tRequest['totalSgstPercentage']);
 		$quotationPersistable->setTotalIgstPercentage($tRequest['totalIgstPercentage']);
 		$quotationPersistable->setExtraCharge($tRequest['extra_charge']);
-		$quotationPersistable->setTax($tRequest['tax']);		
+		$quotationPersistable->setTax($tRequest['tax']);
 		$quotationPersistable->setGrandTotal($tRequest['grand_total']);
 		$quotationPersistable->setRemark($tRequest['remark']);
 		$quotationPersistable->setEntryDate($transformEntryDate);
 		$quotationPersistable->setClientId($clientId);
 		$quotationPersistable->setCompanyId($tRequest['company_id']);	
 		$quotationPersistable->setBranchId($tRequest['branch_id']);	
-		$quotationPersistable->setInvoiceNumber($tRequest['invoice_number']);		
-		$quotationPersistable->setPoNumber($tRequest['po_number']);		
-		$quotationPersistable->setPaymentMode($tRequest['payment_mode']);		
-		$quotationPersistable->setBankName($tRequest['bank_name']);		
-		$quotationPersistable->setCheckNumber($tRequest['check_number']);		
+		$quotationPersistable->setInvoiceNumber($tRequest['invoice_number']);
+		$quotationPersistable->setPoNumber($tRequest['po_number']);
+		$quotationPersistable->setPaymentMode($tRequest['payment_mode']);
+		$quotationPersistable->setBankName($tRequest['bank_name']);
+		$quotationPersistable->setCheckNumber($tRequest['check_number']);
 				
 		$quotationPersistable->setJfId(0);	
 		
@@ -573,5 +576,92 @@ class QuotationProcessor extends BaseProcessor
 		$clientRequest = Request::create($path,$method,$clientArray);
 		$processedData = $clientController->updateData($clientRequest,$clientId);
 		return $processedData;
+	}
+	public function convertPersistable(Request $request,$quotationData)
+	{
+		// get exception message
+		$exception = new ExceptionMessage();
+		$msgArray = $exception->messageArrays();
+
+		$invoiceService= new InvoiceService();
+		$status = $invoiceService->getLatestInvoiceData($quotationData['company_id']);
+
+		if(strcmp($status,$msgArray['204'])==0)
+		{
+			return $msgArray['204'];
+		}
+
+		$inputArray = [];
+		$latestData = json_decode($status,true);
+		$invoiceLabel = $latestData['invoiceLabel'];
+		$invoiceNumber = $latestData['endAt'];
+		if ($latestData['invoiceType'] == 'prefix') {
+			$invoiceNumber = $invoiceNumber.$invoiceLabel;
+		}else{
+			$invoiceNumber = $invoiceLabel.$invoiceNumber;
+		}
+		$inputArray['companyId'] = $quotationData['company_id'];
+		$inputArray['transactionDate'] = $inputArray['entryDate'] = Carbon\Carbon::createFromFormat('Y-m-d', $quotationData['entry_date'])->format('d-m-Y');
+
+		$settingService = new SettingService();
+		$settingData = $settingService->getData();
+		if(strcmp($msgArray['204'],$settingData)==0)
+		{
+			return $settingData;
+		}
+		$settingDataArray = json_decode($settingData,true);
+		
+		$serviceSettingKey = array_search('servicedate', array_column($settingDataArray, 'settingType'));
+		$serviceArray = $settingDataArray[$serviceSettingKey];
+		$servicedateNoOfDays = $serviceArray['servicedateNoOfDays'];
+		$entryDate = new \Carbon\Carbon($inputArray['entryDate']);
+		$inputArray['serviceDate'] = $entryDate->addDays($servicedateNoOfDays)->format('d-m-Y');
+		$inputArray['branchId'] = $quotationData['branch_id'];
+		$clientModel = new ClientModel();
+		$clientDataRes = $clientModel->getData($quotationData['client_id']);
+		if(strcmp($msgArray['404'],$clientDataRes)==0)
+		{
+			return $clientDataRes;
+		}
+		$clientDataArray = json_decode($clientDataRes,true);
+		$clientData = $clientDataArray['clientData'][0];
+		$inputArray['stateAbb'] = $clientData['state_abb'];
+		$inputArray['cityId'] = $clientData['city_id'];
+		$inputArray['clientName'] = $clientData['client_name'];
+		$inputArray['contactNo'] = $clientData['contact_no'];
+		$inputArray['paymentMode'] = 'cash';
+		$inputArray['advance'] = 0;
+		$inputArray['balance'] = $quotationData['total'];
+		$inputArray['total'] = $quotationData['total'];
+		$inputArray['grandTotal'] = $quotationData['grand_total'];
+		$inputArray['tax'] = $quotationData['tax'];
+		$inputArray['totalDiscounttype'] = $quotationData['total_discounttype'];
+		$inputArray['totalDiscount'] = $quotationData['total_discount'];
+		$inputArray['totalDiscount'] = $quotationData['total_discount'];
+		$inputArray['totalCgstPercentage'] = $quotationData['total_cgst_percentage'];
+		$inputArray['totalSgstPercentage'] = $quotationData['total_sgst_percentage'];
+		$inputArray['totalIgstPercentage'] = $quotationData['total_igst_percentage'];
+		$inputArray['extraCharge'] = $quotationData['extra_charge'];
+		$inputArray['isDisplay'] = 'yes';
+		$inputArray['invoiceNumber'] = $invoiceNumber;
+		$productArray = json_decode($quotationData['product_array'],true);
+		$inputArray['inventory'] = $productArray['inventory'];
+		return $inputArray;
+	}
+	public function dispatchPersistable(Request $request,$saleData)
+	{
+		$this->request = $request;
+
+		//get exception message
+		$exception = new ExceptionMessage();
+		$msgArray = $exception->messageArrays();
+
+		//get constant variables array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		//trim an input 
+		$quotationTransformer = new QuotationTransformer();
+		$tRequest = $quotationTransformer->trimDispatchData($this->request,$saleData);
+		return $tRequest;
 	}
 }

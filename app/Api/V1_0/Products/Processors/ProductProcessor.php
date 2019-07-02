@@ -243,7 +243,7 @@ class ProductProcessor extends BaseProcessor
      * @return product Persistable object
      */	
     public function createPersistableBatchData(Request $request)
-	{	
+	{
 		$tKeyValue = array();
 		$value = array();
 		
@@ -260,6 +260,7 @@ class ProductProcessor extends BaseProcessor
 			// trim an input 
 			$productTransformer = new ProductTransformer();
 			$trimData = $productTransformer->trimInsertBatchData($request);
+	
 			if(is_array($trimData))
 			{
 				$tRequestData = $trimData['dataArray'];
@@ -268,9 +269,18 @@ class ProductProcessor extends BaseProcessor
 				
 				$productCodeArray = array();
 				$newProductArray = array();
+
+				//Duplicate Reduction Array
+				$pro_company_array = array();
+				$pro_group_array = array();
+				$pro_category_array = array();
+
+				$companyModel = new CompanyModel();
+				$productGroupData = new ProductGroupModel();
+				$productCategoryData = new ProductCategoryModel();
+				$query_count = 0;
 				for($dataArray=0;$dataArray<count($tRequestData);$dataArray++)
 				{
-
 					$data=0;
 					$codeFlag=0;
 					$keyName = array();
@@ -278,20 +288,29 @@ class ProductProcessor extends BaseProcessor
 					$tRequest = $tRequestData[$dataArray];
 					// make a product_code and validate it with other codes
 					// get company_name 
-					$companyModel = new CompanyModel();
-					$companyResult = $companyModel->getData($tRequest['company_id']);
-					$decodedCompanyData = json_decode($companyResult);
+					if (!isset($pro_company_array[$tRequest['company_id']])) {
+						
+						$companyResult = $companyModel->getData($tRequest['company_id']);
+						$pro_company_array[$tRequest['company_id']] = json_decode($companyResult);
+					}	
+					$decodedCompanyData = $pro_company_array[$tRequest['company_id']];
 					
 					//get product group name
-					$productGroupData = new ProductGroupModel();
-					$groupData = $productGroupData->getData($tRequest['product_group_id']);
-					$decodedGroupData = json_decode($groupData);
-					
+					if (!isset($pro_group_array[$tRequest['product_group_id']])) {
+						
+						$groupData = $productGroupData->getData($tRequest['product_group_id']);
+						$pro_group_array[$tRequest['product_group_id']] = json_decode($groupData);
+					}
+					$decodedGroupData = $pro_group_array[$tRequest['product_group_id']];
+
 					//get product category name
-					$productCategoryData = new ProductCategoryModel();
-					$categoryData = $productCategoryData->getData($tRequest['product_category_id']);
-					$decodedCategoryData = json_decode($categoryData);
-					
+					if (!isset($pro_category_array[$tRequest['product_category_id']])) {
+						
+						$categoryData = $productCategoryData->getData($tRequest['product_category_id']);
+						$pro_category_array[$tRequest['product_category_id']] = json_decode($categoryData);
+					}
+					$decodedCategoryData = $pro_category_array[$tRequest['product_category_id']];
+
 					if($tRequest['color']=="")
 					{
 						$tRequest['color'] = "XX";
@@ -300,7 +319,7 @@ class ProductProcessor extends BaseProcessor
 					{
 						$tRequest['size'] = "ZZ";
 					}
-					if($tRequest['variant']=="")
+					if(@$tRequest['variant']=="")
 					{
 						$tRequest['variant'] = "YY";
 					}
@@ -352,43 +371,42 @@ class ProductProcessor extends BaseProcessor
 					
 					if($status=="Success")
 					{
+						$productArray = array();
+						$getFuncName = array();
+
 						foreach ($tRequest as $key => $value)
 						{
 							if(!is_numeric($value))
 							{
 								if (strpos($value, '\'') !== FALSE)
 								{
-									$productValue[$data]= str_replace("'","\'",$value);
-									$keyName[$data] = $key;
+									$productValue_v= str_replace("'","\'",$value);
+									$keyName_v = $key;
 								}
 								else
 								{
-									$productValue[$data] = $value;
-									$keyName[$data] = $key;
+									$productValue_v = $value;
+									$keyName_v = $key;
 								}
 							}
 							else
 							{
-								$productValue[$data]= $value;
-								$keyName[$data] = $key;
+								$productValue_v= $value;
+								$keyName_v = $key;
 							}
-							$data++;
-						}
-						$productArray = array();
-						$getFuncName = array();
-						// set data to the persistable object
-						for($data=0;$data<count($productValue);$data++)
-						{
+
 							// set the data in persistable object
-							$productPersistable = new ProductPersistable();	
-							$str = str_replace(' ', '', ucwords(str_replace('_', ' ', $keyName[$data])));
+							$str = str_replace(' ', '', ucwords(str_replace('_', ' ', $keyName_v)));
 							// make function name dynamically
+							$productPersistable = new ProductPersistable();
 							$setFuncName = 'set'.$str;
-							$getFuncName[$data] = 'get'.$str;
-							$productPersistable->$setFuncName($productValue[$data]);
-							$productPersistable->setName($getFuncName[$data]);
-							$productPersistable->setKey($keyName[$data]);
+							$getFuncName = 'get'.$str;
+							$productPersistable->$setFuncName($productValue_v);
+							$productPersistable->setName($getFuncName);
+							$productPersistable->setKey($keyName_v);
 							$productArray[$data] = array($productPersistable);
+
+							$data++;
 						}
 						array_push($newProductArray,$productArray);
 					}
@@ -438,7 +456,8 @@ class ProductProcessor extends BaseProcessor
 						$totalErrorArray++;
 					}
 				}
-				unset($trimData['dataArray']);
+				// $trimData['dataArray'] = array();
+				// unset($trimData['dataArray']);
 				$trimData['dataArray'] = $newProductArray;
 				return $trimData;
 			}
@@ -447,6 +466,7 @@ class ProductProcessor extends BaseProcessor
 				$errorResult = array();
 				$errorResult['mapping_error'] = $trimData;
 				$encodeResult = json_encode($errorResult);
+				
 				return $encodeResult;
 			}
 		}
@@ -503,7 +523,6 @@ class ProductProcessor extends BaseProcessor
 		// get exception message
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
-		
 		if($tRequest==1)
 		{
 			return $exceptionArray['content'];

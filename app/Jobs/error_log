@@ -1,4 +1,0 @@
-[23-Mar-2018 12:36:55 America/Chicago] PHP Fatal error:  Trait 'Illuminate\Bus\Queueable' not found in /home/prabandhakur/public_html/ERP/back-end/app/Jobs/Job.php on line 22
-[24-Mar-2018 09:03:06 America/Chicago] PHP Fatal error:  Trait 'Illuminate\Bus\Queueable' not found in /home/prabandhakur/public_html/ERP/back-end/app/Jobs/Job.php on line 22
-[25-Mar-2018 20:39:43 America/Chicago] PHP Fatal error:  Trait 'Illuminate\Bus\Queueable' not found in /home/prabandhakur/public_html/ERP/back-end/app/Jobs/Job.php on line 22
-[03-Apr-2018 14:03:27 America/Chicago] PHP Fatal error:  Trait 'Illuminate\Bus\Queueable' not found in /home/prabandhakur/public_html/ERP/back-end/app/Jobs/Job.php on line 22

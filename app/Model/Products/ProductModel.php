@@ -288,54 +288,61 @@ class ProductModel extends Model
 		$mytime = Carbon\Carbon::now();
 		$getProductData = array();
 		$getErrorArray = array();
-		$getproductKey = array();
+		// $getproductKey = array();
 		$getProductData = func_get_arg(0);
-		$getProductKey = func_get_arg(1);
-		$getErrorArray = func_get_arg(2);
+		// $getProductKey = func_get_arg(1);
+	
+		$getErrorArray = func_get_arg(1);
 		$raw=0;
 		$getErrorCount = count($getErrorArray);
 		for($dataArray=0;$dataArray<count($getProductData);$dataArray++)
 		{
 			$productData="";
-			$productCode='';
 			$keyName = "";
-			for($data=0;$data<count($getProductData[$dataArray]);$data++)
-			{
-				if(strcmp('product_code',$getProductKey[$dataArray][$data])==0)
-				{
-					$getProductData[$dataArray][$data];
-					$productCode = $getProductData[$dataArray][$data];
-					$index = $data;
-				}
-				if(strcmp('company_id',$getProductKey[$dataArray][$data])==0)
-				{
-					$companyId = $getProductData[$dataArray][$data];
-				}
-			}
+			$productCode = $getProductData[$dataArray]['product_code'];
+			$companyId = $getProductData[$dataArray]['company_id'];
+			// for($data=0;$data<count($getProductData[$dataArray]);$data++)
+			// {
+			// 	if(strcmp('product_code',$getProductKey[$dataArray][$data])==0)
+			// 	{
+			// 		$getProductData[$dataArray][$data];
+			// 		$productCode = $getProductData[$dataArray][$data];
+			// 		$index = $data;
+			// 	}
+			// 	if(strcmp('company_id',$getProductKey[$dataArray][$data])==0)
+			// 	{
+			// 		$companyId = $getProductData[$dataArray][$data];
+			// 	}
+			// }
 			$indexNumber=0;
 			
 			//check product-code
 			$productCodeResult = $this->batchRepeatProductCodeValidate($productCode,$companyId,$indexNumber);
-			$getProductData[$dataArray][$index] = $productCodeResult;
-			for($data=0;$data<count($getProductData[$dataArray]);$data++)
+			$getProductData[$dataArray]['product_code'] = $productCodeResult;
+			// for($data=0;$data<count($getProductData[$dataArray]);$data++)
+			$separator = '';
+			foreach($getProductData[$dataArray] as $key => $value)
 			{
-				if($data == (count($getProductData[$dataArray])-1))
-				{
-					$productData = $productData."'".$getProductData[$dataArray][$data]."'";
-					$keyName =$keyName.$getProductKey[$dataArray][$data];
-				}
-				else
-				{
-					$productData = $productData."'".$getProductData[$dataArray][$data]."',";
-					$keyName = $keyName.$getProductKey[$dataArray][$data].",";
-				}
+				$productData = $productData.$separator."'$value'";
+				$keyName = $keyName.$separator."$key";
+				$separator = ',';
+				// if($data == (count($getProductData[$dataArray])-1))
+				// {
+				// 	$productData = $productData."'".$getProductData[$dataArray][$data]."'";
+				// 	$keyName =$keyName.$getProductKey[$dataArray][$data];
+				// }
+				// else
+				// {
+				// 	$productData = $productData."'".$getProductData[$dataArray][$data]."',";
+				// 	$keyName = $keyName.$getProductKey[$dataArray][$data].",";
+				// }
 			}
 			
 			//make unique name of barcode svg image
 			$dateTime = date("d-m-Y h-i-s");
 			$convertedDateTime = str_replace(" ","-",$dateTime);
 			$splitDateTime = explode("-",$convertedDateTime);
-			$combineDateTime = $splitDateTime[0].$splitDateTime[1].$dataArray.$splitDateTime[2].$splitDateTime[3].$data.$splitDateTime[4].$splitDateTime[5];
+			$combineDateTime = $splitDateTime[0].$splitDateTime[1].$dataArray.$splitDateTime[2].$splitDateTime[3].$splitDateTime[4].$splitDateTime[5];
 			$documentName = $combineDateTime.mt_rand(1,9999).mt_rand(1,9999).".svg";
 			$documentPath = $path.$documentName;
 			
@@ -1299,6 +1306,7 @@ class ProductModel extends Model
 		$raw = DB::connection($databaseName)->select("select 
 		pmst.product_id,
 		pmst.product_name,
+		pmst.alt_product_name,
 		pmst.highest_measurement_unit_id,
 		pmst.higher_measurement_unit_id,
 		pmst.medium_measurement_unit_id,
@@ -1346,6 +1354,7 @@ class ProductModel extends Model
 		pmst.product_type,
 		pmst.product_menu,
 		pmst.product_code,
+		pmst.item_code,
 		pmst.product_cover_id,
 		pmst.not_for_sale,
 		pmst.max_sale_qty,
@@ -1372,21 +1381,6 @@ class ProductModel extends Model
 		from product_mst as pmst LEFT JOIN product_trn_summary as ptrm ON ptrm.product_id = pmst.product_id where pmst.deleted_at='0000-00-00 00:00:00'");
 		DB::commit();  // 348 ms
 
-		// echo "==> Company \n";
-		// $companyIds = array_unique(array_map(function ($i) { return $i->company_id; }, $raw));
-		// $branchIds = array_unique(array_map(function ($i) { return $i->branch_id; }, $raw));
-		// $categoryIds = array_unique(array_map(function ($i) { return $i->product_category_id; }, $raw));
-		// $groupIds = array_unique(array_map(function ($i) { return $i->product_group_id; }, $raw));
-
-
-		// print_r($companyIds);
-		// echo "==> Branch \n";
-		// print_r($branchIds);
-		// echo "==> Product Category \n";
-		// print_r($categoryIds);
-		// echo "==> Product Group \n";
-		// print_r($groupIds);
-		// exit;
 
 		//get exception message
 		$exception = new ExceptionMessage();
@@ -1649,6 +1643,7 @@ class ProductModel extends Model
 		$raw = DB::connection($databaseName)->select("select 
 		pmst.product_id,
 		pmst.product_name,
+		pmst.alt_product_name,
 		pmst.highest_measurement_unit_id,
 		pmst.higher_measurement_unit_id,
 		pmst.medium_measurement_unit_id,
@@ -1696,6 +1691,7 @@ class ProductModel extends Model
 		pmst.product_type,
 		pmst.product_menu,
 		pmst.product_code,
+		pmst.item_code,
 		pmst.product_cover_id,
 		pmst.not_for_sale,
 		pmst.max_sale_qty,
@@ -1834,6 +1830,7 @@ class ProductModel extends Model
 		$raw = DB::connection($databaseName)->select("select 
 		pmst.product_id,
 		pmst.product_name,
+		pmst.alt_product_name,
 		pmst.highest_measurement_unit_id,
 		pmst.higher_measurement_unit_id,
 		pmst.medium_measurement_unit_id,
@@ -1880,6 +1877,7 @@ class ProductModel extends Model
 		pmst.additional_tax,
 		pmst.product_type,
 		pmst.product_code,
+		pmst.item_code,
 		pmst.product_menu,
 		pmst.product_cover_id,
 		pmst.not_for_sale,
@@ -1938,6 +1936,7 @@ class ProductModel extends Model
 		$raw = DB::connection($databaseName)->select("select 
 		pmst.product_id,
 		pmst.product_name,
+		pmst.alt_product_name,
 		pmst.highest_measurement_unit_id,
 		pmst.higher_measurement_unit_id,
 		pmst.medium_measurement_unit_id,
@@ -1985,6 +1984,7 @@ class ProductModel extends Model
 		pmst.product_type,
 		pmst.product_menu,
 		pmst.product_code,
+		pmst.item_code,
 		pmst.product_cover_id,
 		pmst.not_for_sale,
 		pmst.max_sale_qty,
@@ -2043,6 +2043,7 @@ class ProductModel extends Model
 		$raw = DB::connection($databaseName)->select("select 
 		pmst.product_id,
 		pmst.product_name,
+		pmst.alt_product_name,
 		pmst.highest_measurement_unit_id,
 		pmst.higher_measurement_unit_id,
 		pmst.medium_measurement_unit_id,
@@ -2090,6 +2091,7 @@ class ProductModel extends Model
 		pmst.product_type,
 		pmst.product_menu,
 		pmst.product_code,
+		pmst.item_code,
 		pmst.product_cover_id,
 		pmst.not_for_sale,
 		pmst.max_sale_qty,
@@ -2161,6 +2163,7 @@ class ProductModel extends Model
 		$raw = DB::connection($databaseName)->select("select 
 		pmst.product_id,
 		pmst.product_name,
+		pmst.alt_product_name,
 		pmst.highest_measurement_unit_id,
 		pmst.higher_measurement_unit_id,
 		pmst.medium_measurement_unit_id,
@@ -2208,6 +2211,7 @@ class ProductModel extends Model
 		pmst.product_type,
 		pmst.product_menu,
 		pmst.product_code,
+		pmst.item_code,
 		pmst.product_cover_id,
 		pmst.not_for_sale,
 		pmst.max_sale_qty,
@@ -2368,6 +2372,7 @@ class ProductModel extends Model
 		$raw = DB::connection($databaseName)->select("select 
 		pmst.product_id,
 		pmst.product_name,
+		pmst.alt_product_name,
 		pmst.highest_measurement_unit_id,
 		pmst.higher_measurement_unit_id,
 		pmst.medium_measurement_unit_id,
@@ -2414,6 +2419,7 @@ class ProductModel extends Model
 		pmst.product_type,
 		pmst.product_menu,
 		pmst.product_code,
+		pmst.item_code,
 		pmst.product_cover_id,
 		pmst.not_for_sale,
 		pmst.max_sale_qty,
@@ -2440,8 +2446,8 @@ class ProductModel extends Model
 		pmst.company_id,
 		ptrm.qty as quantity
 		from product_mst as pmst LEFT JOIN product_trn_summary as ptrm ON ptrm.product_id = pmst.product_id
-		where product_code = '".$productCode['productcode'][0]."' and
-		deleted_at='0000-00-00 00:00:00'");
+		where pmst.product_code = '".$productCode['productcode'][0]."' and
+		pmst.deleted_at='0000-00-00 00:00:00'");
 		DB::commit();
 		
 		// get exception message

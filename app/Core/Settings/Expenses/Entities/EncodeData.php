@@ -43,7 +43,9 @@ class EncodeData extends CompanyService
 		$data['expenseId'] = $decodedJson[0]['expense_id'];
 		$data['expenseName'] = $decodedJson[0]['expense_name'];
 		$data['expenseType'] = $decodedJson[0]['expense_type'];
+		$data['expenseGroupType'] = $decodedJson[0]['expense_group_type'];
 		$data['expenseValue'] = $decodedJson[0]['expense_value'];
+		$data['ledgerId'] = $decodedJson[0]['ledger_id'];
 		$data['company'] = $companyDecodedJson;
 		$data['createdAt'] = $getCreatedDate;	
 		$data['updatedAt'] = $getUpdatedDate;	

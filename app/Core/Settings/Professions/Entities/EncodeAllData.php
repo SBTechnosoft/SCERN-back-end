@@ -41,17 +41,13 @@ class EncodeAllData
 				$profession->setUpdated_at($convertedUpdatedDate[$decodedData]);
 				$getUpdatedDate[$decodedData] = $profession->getUpdated_at();
 			}
-		}
-		$data = array();
-		for($jsonData=0;$jsonData<count($decodedJson);$jsonData++)
-		{
-			$data[$jsonData]= array(
-				'professionId'=>$professionId[$jsonData],
-				'professionName' => $professionName[$jsonData],
-				'description' => $description[$jsonData],
-				'professionParentId' => $professionParentId[$jsonData],
-				'createdAt' => $getCreatedDate[$jsonData],
-				'updatedAt' => $getUpdatedDate[$jsonData]
+			$data[$decodedData]= array(
+				'professionId'=>$professionId[$decodedData],
+				'professionName' => $professionName[$decodedData],
+				'description' => $description[$decodedData],
+				'professionParentId' => $professionParentId[$decodedData],
+				'createdAt' => $getCreatedDate[$decodedData],
+				'updatedAt' => $getUpdatedDate[$decodedData]
 			);
 		}
 		return json_encode($data);

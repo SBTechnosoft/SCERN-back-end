@@ -304,6 +304,63 @@ class CommissionModel extends Model
 		}
 	}
 	
+	
+	/**
+	 * get data as per given user Id
+	 * @param $userId
+	 * returns the status
+	*/
+	public function getUserCommissionReport()
+	{		
+		$ledgerId = func_get_arg(0);
+		$userId = func_get_arg(1);
+		$headerData = func_get_arg(2);
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		$companyId = $headerData['companyid'][0];
+		DB::beginTransaction();
+		$raw = DB::connection($databaseName)->select("select 
+		sales_bill.sale_id as saleId,
+		sales_bill.invoice_number as invoiceNumber,
+		sales_bill.total,
+		sales_bill.advance,
+		sales_bill.balance,
+		sales_bill.sales_type as salesType,
+		sales_bill.refund,
+		DATE_FORMAT(sales_bill.entry_date, '%d-%m-%Y') as entryDate,
+		sales_bill.client_id as clientId,
+		sales_bill.user_id as userId,
+		sales_bill.jf_id as jfId,
+		".$ledgerId."_ledger_dtl.".$ledgerId."_id as Id,
+		".$ledgerId."_ledger_dtl.amount as commissionAmount,
+		".$ledgerId."_ledger_dtl.amount_type as commissionAmountType
+		from sales_bill
+		JOIN ".$ledgerId."_ledger_dtl on ".$ledgerId."_ledger_dtl.jf_id = sales_bill.jf_id
+		where sales_bill.user_id ='".$userId."' and 
+		sales_bill.company_id='".$companyId."' and 
+		sales_bill.is_draft='no' and 
+		sales_bill.sales_type='whole_sales' and 
+		sales_bill.is_salesorder='not' and 
+		sales_bill.deleted_at='0000-00-00 00:00:00' and 
+		".$ledgerId."_ledger_dtl.deleted_at='0000-00-00 00:00:00'");
+		DB::commit();
+		
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if(count($raw)==0)
+		{
+			return $exceptionArray['204'];
+		}
+		else
+		{
+			$enocodedData = json_encode($raw);
+			return $enocodedData;
+		}
+	}
+	
 
 	/**
 	 * get All data 

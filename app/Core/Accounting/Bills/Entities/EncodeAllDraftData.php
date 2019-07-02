@@ -22,6 +22,15 @@ class EncodeAllDraftData extends ClientService
 		$convertedUpdatedDate =  array();
 		$deocodedJsonData = json_decode($status,true);
 		$bill = new Bill();
+		$encodeAllData = new EncodeAllData();
+		$companyDetail  = new CompanyDetail();
+		$branchDetail  = new BranchDetail();
+		$userService = new UserService();
+		$clientArray = array();
+		$companyArray = array();
+		$branchArray = array();
+		$userArray = array();
+
 		for($decodedData=0;$decodedData<count($deocodedJsonData);$decodedData++)
 		{
 			$saleId[$decodedData] = $deocodedJsonData[$decodedData]['sale_id'];
@@ -56,21 +65,31 @@ class EncodeAllDraftData extends ClientService
 			$createdAt[$decodedData] = $deocodedJsonData[$decodedData]['created_at'];
 			$updatedAt[$decodedData] = $deocodedJsonData[$decodedData]['updated_at'];
 			//get the client detail from database
-			$encodeAllData = new EncodeAllData();
-			$getClientDetails[$decodedData] = $encodeAllData->getClientData($clientId[$decodedData]);
+			if (!isset($clientArray[$clientId[$decodedData]])) {
+				$clientArray[$clientId[$decodedData]] = $encodeAllData->getClientData($clientId[$decodedData]);
+			}
+			$getClientDetails[$decodedData] = $clientArray[$clientId[$decodedData]];
 
 			//get the company detail from database
-			$companyDetail  = new CompanyDetail();
-			$getCompanyDetails[$decodedData] = $companyDetail->getCompanyDetails($companyId[$decodedData]);
+			if (!isset($companyArray[$companyId[$decodedData]])) {
+				$companyArray[$companyId[$decodedData]] = $companyDetail->getCompanyDetails($companyId[$decodedData]);
+			}
+			$getCompanyDetails[$decodedData] = $companyArray[$companyId[$decodedData]];
 
 			//get the Branch detail from database
-			$branchDetail  = new BranchDetail();
-			$getBranchDetails[$decodedData] = $branchDetail->getBranchDetails($branchId[$decodedData]);
+			if (!isset($branchArray[$branchId[$decodedData]])) {
+				$branchArray[$branchId[$decodedData]] = $branchDetail->getBranchDetails($branchId[$decodedData]);
+			}
+			$getBranchDetails[$decodedData] = $branchArray[$branchId[$decodedData]];
 			
 			//get the user detail from database
-			$userService = new UserService();
-			$userData = $userService->getUserData($userId[$decodedData]);
-			$decodedUserData[$decodedData] = json_decode($userData);
+			if (!isset($userArray[$userId[$decodedData]])) {
+				$userData = $userService->getUserData($userId[$decodedData]);
+				$userArray[$userId[$decodedData]] = json_decode($userData);
+			}
+			
+			$decodedUserData[$decodedData] = $userArray[$userId[$decodedData]];
+			
 
 			//convert amount(round) into their company's selected decimal points
 			$total[$decodedData] = number_format($total[$decodedData],$getCompanyDetails[$decodedData]['noOfDecimalPoints'],'.','');
@@ -118,40 +137,36 @@ class EncodeAllDraftData extends ClientService
 				$serviceDate[$decodedData] = Carbon\Carbon::createFromFormat('Y-m-d', $serviceDate[$decodedData])->format('d-m-Y');
 				
 			}
-		}
-		$data = array();
-		for($jsonData=0;$jsonData<count($deocodedJsonData);$jsonData++)
-		{
-			$clientData = json_decode($getClientDetails[$jsonData]);
-			$data[$jsonData]= array(
-				'saleId'=>$saleId[$jsonData],
-				'productArray'=>$productArray[$jsonData],
-				'paymentMode'=>$paymentMode[$jsonData],
-				'bankName'=>$bankName[$jsonData],
-				'invoiceNumber'=>$invoiceNumber[$jsonData],
-				'jobCardNumber'=>$jobCardNumber[$jsonData],
-				'checkNumber'=>$checkNumber[$jsonData],
-				'total'=>$total[$jsonData],
-				'totalDiscounttype'=>$totalDiscounttype[$jsonData],
-				'totalDiscount'=>$totalDiscount[$jsonData],
-				'totalCgstPercentage'=>$totalCgstPercentage[$jsonData],
-				'totalSgstPercentage'=>$totalSgstPercentage[$jsonData],
-				'totalIgstPercentage'=>$totalIgstPercentage[$jsonData],
-				'extraCharge'=>$extraCharge[$jsonData],
-				'tax'=>$tax[$jsonData],
-				'grandTotal'=>$grandTotal[$jsonData],
-				'advance'=>$advance[$jsonData],
-				'balance'=>$balance[$jsonData],
-				'poNumber'=>$poNumber[$jsonData],
-				'user'=>$decodedUserData[$jsonData],
-				'remark'=>$remark[$jsonData],
-				'salesType'=>$salesType[$jsonData],
-				'refund'=>$refund[$jsonData],
-				'jfId'=>$jfId[$jsonData],
-				'createdAt'=>$getCreatedDate[$jsonData],
-				'updatedAt'=>$getUpdatedDate[$jsonData],
-				'entryDate'=>$getEntryDate[$jsonData],
-				'serviceDate'=>$serviceDate[$jsonData],
+			$clientData = json_decode($getClientDetails[$decodedData]);
+			$data[$decodedData]= array(
+				'saleId'=>$saleId[$decodedData],
+				'productArray'=>$productArray[$decodedData],
+				'paymentMode'=>$paymentMode[$decodedData],
+				'bankName'=>$bankName[$decodedData],
+				'invoiceNumber'=>$invoiceNumber[$decodedData],
+				'jobCardNumber'=>$jobCardNumber[$decodedData],
+				'checkNumber'=>$checkNumber[$decodedData],
+				'total'=>$total[$decodedData],
+				'totalDiscounttype'=>$totalDiscounttype[$decodedData],
+				'totalDiscount'=>$totalDiscount[$decodedData],
+				'totalCgstPercentage'=>$totalCgstPercentage[$decodedData],
+				'totalSgstPercentage'=>$totalSgstPercentage[$decodedData],
+				'totalIgstPercentage'=>$totalIgstPercentage[$decodedData],
+				'extraCharge'=>$extraCharge[$decodedData],
+				'tax'=>$tax[$decodedData],
+				'grandTotal'=>$grandTotal[$decodedData],
+				'advance'=>$advance[$decodedData],
+				'balance'=>$balance[$decodedData],
+				'poNumber'=>$poNumber[$decodedData],
+				'user'=>$decodedUserData[$decodedData],
+				'remark'=>$remark[$decodedData],
+				'salesType'=>$salesType[$decodedData],
+				'refund'=>$refund[$decodedData],
+				'jfId'=>$jfId[$decodedData],
+				'createdAt'=>$getCreatedDate[$decodedData],
+				'updatedAt'=>$getUpdatedDate[$decodedData],
+				'entryDate'=>$getEntryDate[$decodedData],
+				'serviceDate'=>$serviceDate[$decodedData],
 				'client' => array(
 					'clientId'=>$clientData->clientId,
 					'clientName'=>$clientData->clientName,
@@ -168,8 +183,8 @@ class EncodeAllDraftData extends ClientService
 					'stateAbb'=>$clientData->state->stateAbb,
 					'cityId'=>$clientData->city->cityId
 				),
-				'company' => $getCompanyDetails[$jsonData],
-				'branch' => $getBranchDetails[$jsonData]
+				'company' => $getCompanyDetails[$decodedData],
+				'branch' => $getBranchDetails[$decodedData]
 			);
 		}
 		$jsonEncodedData = json_encode($data);

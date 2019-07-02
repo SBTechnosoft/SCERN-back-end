@@ -47,12 +47,9 @@ class SettingProcessor extends BaseProcessor
 			//trim an input 
 			$settingTransformer = new SettingTransformer();
 			$tRequest = $settingTransformer->trimInsertData($this->request);
-			if(!is_array($tRequest))
+			if(!is_array($tRequest) || count($tRequest) == 0)
 			{
-				if(strcmp($msgArray['content'],$tRequest)==0)
-				{
-					return $tRequest;
-				}
+				return $msgArray['content'];
 			}
 			// validation
 			$settingValidate = new SettingValidate();
@@ -101,7 +98,6 @@ class SettingProcessor extends BaseProcessor
 			{
 				return $settingArray;
 			}
-			
 		}
 	}
 	
@@ -213,5 +209,5 @@ class SettingProcessor extends BaseProcessor
 				}
 			}
 		}
-	}	
+	}
 }

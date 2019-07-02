@@ -15,7 +15,7 @@ use ERP\Http\Requests;
 use Illuminate\Http\Request;
 use ERP\Api\V1_0\Documents\Controllers\DocumentController;
 use ERP\Entities\Constants\ConstantClass;
-/**
+/** 
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
 class BillService
@@ -93,9 +93,10 @@ class BillService
 			$jfId= $billArray->getJfId();
 			$expense= $billArray->getExpense();
 			$serviceDate= $billArray->getServiceDate();
+			$createdBy= $billArray->getCreatedBy();
 			//data pass to the model object for insert
 			$billModel = new BillModel();
-			$status = $billModel->insertData($productArray,$paymentMode,$bankLedgerId,$invoiceNumber,$jobCardNumber,$bankName,$checkNumber,$total,$extraCharge,$tax,$grandTotal,$advance,$balance,$remark,$entryDate,$companyId,$branchId,$ClientId,$salesType,$jfId,$totalDiscounttype,$totalDiscount,$totalCgstPercentage,$totalSgstPercentage,$totalIgstPercentage,$poNumber,$requestInput,$expense,$serviceDate,$userId);
+			$status = $billModel->insertData($productArray,$paymentMode,$bankLedgerId,$invoiceNumber,$jobCardNumber,$bankName,$checkNumber,$total,$extraCharge,$tax,$grandTotal,$advance,$balance,$remark,$entryDate,$companyId,$branchId,$ClientId,$salesType,$jfId,$totalDiscounttype,$totalDiscount,$totalCgstPercentage,$totalSgstPercentage,$totalIgstPercentage,$poNumber,$requestInput,$expense,$serviceDate,$userId,$createdBy);
 			//get exception message
 			$exception = new ExceptionMessage();
 			$exceptionArray = $exception->messageArrays();
@@ -143,6 +144,7 @@ class BillService
 			$jfId = $billArray[count($billArray)-1]->getJfId();
 			$expense = $billArray[count($billArray)-1]->getExpense();
 			$serviceDate = $billArray[count($billArray)-1]->getServiceDate();
+			$createdBy= $billArray[count($billArray)-1]->getCreatedBy();
 
 			for($doc=0;$doc<(count($billArray)-1);$doc++)
 			{
@@ -151,7 +153,7 @@ class BillService
 			
 			//data pass to the model object for insert
 			$billModel = new BillModel();
-			$status = $billModel->insertAllData($productArray,$paymentMode,$bankLedgerId,$invoiceNumber,$jobCardNumber,$bankName,$checkNumber,$total,$extraCharge,$tax,$grandTotal,$advance,$balance,$remark,$entryDate,$companyId,$branchId,$ClientId,$salesType,$documentArray,$jfId,$totalDiscounttype,$totalDiscount,$totalCgstPercentage,$totalSgstPercentage,$totalIgstPercentage,$poNumber,$requestInput,$expense,$serviceDate,$userId);
+			$status = $billModel->insertAllData($productArray,$paymentMode,$bankLedgerId,$invoiceNumber,$jobCardNumber,$bankName,$checkNumber,$total,$extraCharge,$tax,$grandTotal,$advance,$balance,$remark,$entryDate,$companyId,$branchId,$ClientId,$salesType,$documentArray,$jfId,$totalDiscounttype,$totalDiscount,$totalCgstPercentage,$totalSgstPercentage,$totalIgstPercentage,$poNumber,$requestInput,$expense,$serviceDate,$userId,$createdBy);
 			//get exception message
 			$exception = new ExceptionMessage();
 			$exceptionArray = $exception->messageArrays();
@@ -171,9 +173,9 @@ class BillService
 	 /**
      * get the data from persistable object and call the model for database get opertation
      * @param BillPersistable $persistable
-     * @return status/error message
+     * @return status/error message 
      */
-	public function getData()
+	public function getData() #done
 	{
 		$data = func_get_arg(0);
 		$companyId = func_get_arg(1);
@@ -258,7 +260,7 @@ class BillService
      * @param headerData
      * @return sale-data/error message
      */
-	public function getPreviousNextData($headerData)
+	public function getPreviousNextData($headerData) #done
 	{
 		// get exception message
 		$exception = new ExceptionMessage();
@@ -284,7 +286,7 @@ class BillService
      * @param headerData
      * @return sale-data/error message
      */
-	public function getBillByJfId($companyId,$jfId)
+	public function getBillByJfId($companyId,$jfId) #done
 	{
 		// get exception message
 		$exception = new ExceptionMessage();
@@ -320,6 +322,25 @@ class BillService
 		//data pass to the model object for getData
 		$billModel = new BillModel();
 		$billResult = $billModel->updatePaymentData($decodedBillData);
+		return $billResult;
+	}
+	
+	 /**
+     * update bill payment data
+     * @param BillPersistable $persistable
+     * @return status/error message
+     */
+	public function updateStatusData($statusData)
+	{
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		$status = [];
+		foreach ($statusData as $key => $value) {
+			$key = strtolower(preg_replace("([A-Z])", "_$0", $key));
+			$status[$key] = $value;
+		}
+		$billModel = new BillModel();
+		$billResult = $billModel->updateStatusData($status);
 		return $billResult;
 	}
 	
@@ -463,7 +484,9 @@ class BillService
 								$documentRequest = Request::create($path,$method,$saleIdArray);
 								if(array_key_exists('operation',$headerData))
 								{
-									$documentRequest->headers->set('operation',$headerData['operation'][0]);
+									if ($headerData['operation'][0]!= 'generate') {
+										$documentRequest->headers->set('operation',$headerData['operation'][0]);
+									}
 								}
 								else
 								{

@@ -4,6 +4,7 @@ namespace ERP\Core\Products\Persistables;
 use ERP\Core\Shared\Properties\NamePropertyTrait;
 use ERP\Core\Products\Properties\ProductIdPropertyTrait;
 use ERP\Core\Products\Properties\ProductNamePropertyTrait;
+use ERP\Core\Products\Properties\AltProductNamePropertyTrait;
 use ERP\Core\Shared\Properties\IsDisplayPropertyTrait;
 use ERP\Core\Shared\Properties\IdPropertyTrait;
 use ERP\Core\Products\Properties\MeasureUnitPropertyTrait;
@@ -53,6 +54,7 @@ use ERP\Core\Products\Properties\MediumMeasurementUnitIdTrait;
 use ERP\Core\Products\Properties\MediumLowerMeasurementUnitIdTrait;
 use ERP\Core\Products\Properties\LowerMeasurementUnitIdTrait;
 use ERP\Core\Products\Properties\PrimaryMeasureUnitTrait;
+use ERP\Core\Products\Properties\ItemCodeTrait;
 
 use ERP\Core\Products\Properties\HighestPurchasePricePropertyTrait;
 use ERP\Core\Products\Properties\HigherPurchasePriceTrait;
@@ -114,6 +116,7 @@ class productPersistable
 	use CompanyIdPropertyTrait;
 	use ProductIdPropertyTrait;
 	use ProductNamePropertyTrait;
+	use AltProductNamePropertyTrait;
 	use IdPropertyTrait;
 	use ProductGrpIdPropertyTrait;
 	use BranchIdPropertyTrait;
@@ -184,6 +187,7 @@ class productPersistable
 	use LowerUnitQtyTrait;
 	use LowestUnitQtyTrait;
 
+	use ItemCodeTrait;
 	use WebIntegrationTrait;
 	
 	use CreatedByTrait;

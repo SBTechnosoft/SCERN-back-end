@@ -20,26 +20,30 @@ class ProductValidate extends ProductModel
      */
 	public function validate($request)
 	{
-		//  Get ERP Settings before validation
-		$settingService= new SettingService();
-		$settingData = $settingService->getData();
-		$settingData = json_decode($settingData);
-		$stCount = count($settingData);
-		$stIndex = 0;
 		$mrpValidate = '';
-		while ($stIndex < $stCount) {
-			$settingSingleData = $settingData[$stIndex];
+		if ($_SERVER['REQUEST_URI'] != "/products/batch") {
+			//  Get ERP Settings before validation
+			$settingService= new SettingService();
+			$settingData = $settingService->getData();
+			$settingData = json_decode($settingData);
+			$stCount = count($settingData);
+			$stIndex = 0;
+			
+			while ($stIndex < $stCount) {
+				$settingSingleData = $settingData[$stIndex];
 
-			if($settingSingleData->settingType == 'product')
-			{
-				/* If MRP Required is enable then set validation Rule as Enable */
-				if ($settingSingleData->productMrpRequireStatus == 'enable') {
-					$mrpValidate = 'required|';
+				if($settingSingleData->settingType == 'product')
+				{
+					/* If MRP Required is enable then set validation Rule as Enable */
+					if ($settingSingleData->productMrpRequireStatus == 'enable') {
+						$mrpValidate = 'required|';
+					}
+					break;
 				}
-				break;
+				$stIndex++;
 			}
-			$stIndex++;
 		}
+		
 	/* End Setting */
 		$rules = array(
 			'product_name'=> 'required|between:1,100|regex:/^[a-zA-Z0-9 &,\/_`#().\'-]+$/', 
@@ -120,7 +124,7 @@ class ProductValidate extends ProductModel
 				$rules = array(
 					'discount'=> 'regex:/^[0-9 .]*$/', 
 					'price'=> 'regex:/^[0-9 .]*$/', 
-					'qty'=> 'regex:/^[0-9]*$/', 
+					'qty'=> 'regex:/^\s*(?=.*[1-9])\d*(?:\.\d{1,2})?\s*$/', 
 				);
 				$messages = [
 					'discount.regex' => 'discount contains character from "0-9 ." only',
@@ -303,7 +307,7 @@ class ProductValidate extends ProductModel
 			$rules = array(
 				'discount'=> 'regex:/^[0-9 .]*$/', 
 				'price'=> 'regex:/^[0-9 .]*$/', 
-				'qty'=> 'regex:/^[0-9]*$/', 
+				'qty'=> 'regex:/^\s*(?=.*[1-9])\d*(?:\.\d{1,2})?\s*$/', 
 			);
 			$messages = [
 				'discount.regex' => 'discount contains character from "0-9 ." only',

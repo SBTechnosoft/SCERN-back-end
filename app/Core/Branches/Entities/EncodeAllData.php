@@ -19,6 +19,15 @@ class EncodeAllData extends StateService
 		$encodeAllData =  array();
 		$decodedJson = json_decode($status,true);
 		$branch = new Branch();
+		$data = array();
+		$encodeDataClass = new EncodeAllData();
+		$cityDetail = new CityDetail();
+		$companyDetail = new CompanyDetail();
+
+		$stateArray = array();
+		$cityArray = array();
+		$companyDetailArray = array();
+
 		for($decodedData=0;$decodedData<count($decodedJson);$decodedData++)
 		{
 			$createdAt[$decodedData] = $decodedJson[$decodedData]['created_at'];
@@ -35,8 +44,10 @@ class EncodeAllData extends StateService
 			$companyId[$decodedData] = $decodedJson[$decodedData]['company_id'];
 			
 			//get the state detail from database
-			$encodeDataClass = new EncodeAllData();
-			$stateStatus[$decodedData] = $encodeDataClass->getStateData($stateAbb[$decodedData]);
+			if (!isset($stateArray[$stateAbb[$decodedData]])) {
+				$stateArray[$stateAbb[$decodedData]] = $encodeDataClass->getStateData($stateAbb[$decodedData]);
+			}
+			$stateStatus[$decodedData] = $stateArray[$stateAbb[$decodedData]];
 			$stateDecodedJson[$decodedData] = json_decode($stateStatus[$decodedData],true);
 			$stateName[$decodedData]= $stateDecodedJson[$decodedData]['stateName'];
 			$stateIsDisplay[$decodedData]= $stateDecodedJson[$decodedData]['isDisplay'];
@@ -44,12 +55,16 @@ class EncodeAllData extends StateService
 			$stateUpdatedAt[$decodedData]= $stateDecodedJson[$decodedData]['updatedAt'];
 			
 			//get the city details from database
-			$cityDetail = new CityDetail();
-			$getCityDetail[$decodedData] = $cityDetail->getCityDetail($cityId[$decodedData]);
+			if (!isset($cityArray[$cityId[$decodedData]])) {
+				$cityArray[$stateAbb[$decodedData]] = $cityDetail->getCityDetail($cityId[$decodedData]);
+			}
+			$getCityDetail[$decodedData] = $cityArray[$stateAbb[$decodedData]];
 			 
 			//get the company details from database
-			$companyDetail = new CompanyDetail();
-			$getCompanyDetails[$decodedData] = $companyDetail->getCompanyDetails($companyId[$decodedData]);
+			if (!isset($companyDetailArray[$companyId[$decodedData]])) {
+				$companyDetailArray[$companyId[$decodedData]] = $companyDetail->getCompanyDetails($companyId[$decodedData]);
+			}
+			$getCompanyDetails[$decodedData] = $companyDetailArray[$companyId[$decodedData]];
 			
 			//date format conversion
 			$convertedCreatedDate[$decodedData] = Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $createdAt[$decodedData])->format('d-m-Y');
@@ -66,65 +81,61 @@ class EncodeAllData extends StateService
 				$branch->setUpdated_at($convertedUpdatedDate[$decodedData]);
 				$getUpdatedDate[$decodedData] = $branch->getUpdated_at();
 			}
-		}
-		$data = array();
-		for($jsonData=0;$jsonData<count($decodedJson);$jsonData++)
-		{
-			$data[$jsonData]= array(
-				'branchId'=>$branchId[$jsonData],
-				'branchName' => $branchName[$jsonData],
-				'address1' => $address1[$jsonData],
-				'address2' => $address2[$jsonData],
-				'pincode'=> $pincode[$jsonData],
-				'isDisplay' => $isDisplay[$jsonData],
-				'isDefault' => $isDefault[$jsonData],
-				'createdAt' => $getCreatedDate[$jsonData],
-				'updatedAt' => $getUpdatedDate[$jsonData],
+			$data[$decodedData]= array(
+				'branchId'=>$branchId[$decodedData],
+				'branchName' => $branchName[$decodedData],
+				'address1' => $address1[$decodedData],
+				'address2' => $address2[$decodedData],
+				'pincode'=> $pincode[$decodedData],
+				'isDisplay' => $isDisplay[$decodedData],
+				'isDefault' => $isDefault[$decodedData],
+				'createdAt' => $getCreatedDate[$decodedData],
+				'updatedAt' => $getUpdatedDate[$decodedData],
 				
 				'state' => array(
-					'stateAbb' => $stateAbb[$jsonData],
-					'stateName' => $stateName[$jsonData],
-					'isDisplay' => $stateIsDisplay[$jsonData],
-					'createdAt' => $stateCreatedAt[$jsonData],
-					'updatedAt' => $stateUpdatedAt[$jsonData]
+					'stateAbb' => $stateAbb[$decodedData],
+					'stateName' => $stateName[$decodedData],
+					'isDisplay' => $stateIsDisplay[$decodedData],
+					'createdAt' => $stateCreatedAt[$decodedData],
+					'updatedAt' => $stateUpdatedAt[$decodedData]
 				),
 				
 				'city' => array(
-					'cityId' => $cityId[$jsonData],
-					'cityName' => $getCityDetail[$jsonData]['cityName'],
-					'isDisplay' => $getCityDetail[$jsonData]['isDisplay'],
-					'createdAt' => $getCityDetail[$jsonData]['createdAt'],
-					'updatedAt' => $getCityDetail[$jsonData]['updatedAt'],
-					'stateAbb' => $getCityDetail[$jsonData]['state']['stateAbb']
+					'cityId' => $cityId[$decodedData],
+					'cityName' => $getCityDetail[$decodedData]['cityName'],
+					'isDisplay' => $getCityDetail[$decodedData]['isDisplay'],
+					'createdAt' => $getCityDetail[$decodedData]['createdAt'],
+					'updatedAt' => $getCityDetail[$decodedData]['updatedAt'],
+					'stateAbb' => $getCityDetail[$decodedData]['state']['stateAbb']
 				),
 				
 				'company' => array(	
-					'companyId' => $getCompanyDetails[$jsonData]['companyId'],
-					'companyName' => $getCompanyDetails[$jsonData]['companyName'],	
-					'companyDisplayName' => $getCompanyDetails[$jsonData]['companyDisplayName'],	
-					'address1' => $getCompanyDetails[$jsonData]['address1'],	
-					'address2'=> $getCompanyDetails[$jsonData]['address2'],	
-					'pincode' => $getCompanyDetails[$jsonData]['pincode'],	
-					'pan' => $getCompanyDetails[$jsonData]['pan'],	
-					'tin'=> $getCompanyDetails[$jsonData]['tin'],	
-					'vatNo' => $getCompanyDetails[$jsonData]['vatNo'],	
-					'serviceTaxNo' => $getCompanyDetails[$jsonData]['serviceTaxNo'],	
-					'basicCurrencySymbol' => $getCompanyDetails[$jsonData]['basicCurrencySymbol'],	
-					'formalName' => $getCompanyDetails[$jsonData]['formalName'],	
-					'noOfDecimalPoints' => $getCompanyDetails[$jsonData]['noOfDecimalPoints'],	
-					'currencySymbol' => $getCompanyDetails[$jsonData]['currencySymbol'],
+					'companyId' => $getCompanyDetails[$decodedData]['companyId'],
+					'companyName' => $getCompanyDetails[$decodedData]['companyName'],	
+					'companyDisplayName' => $getCompanyDetails[$decodedData]['companyDisplayName'],	
+					'address1' => $getCompanyDetails[$decodedData]['address1'],	
+					'address2'=> $getCompanyDetails[$decodedData]['address2'],	
+					'pincode' => $getCompanyDetails[$decodedData]['pincode'],	
+					'pan' => $getCompanyDetails[$decodedData]['pan'],	
+					'tin'=> $getCompanyDetails[$decodedData]['tin'],	
+					'vatNo' => $getCompanyDetails[$decodedData]['vatNo'],	
+					'serviceTaxNo' => $getCompanyDetails[$decodedData]['serviceTaxNo'],	
+					'basicCurrencySymbol' => $getCompanyDetails[$decodedData]['basicCurrencySymbol'],	
+					'formalName' => $getCompanyDetails[$decodedData]['formalName'],	
+					'noOfDecimalPoints' => $getCompanyDetails[$decodedData]['noOfDecimalPoints'],	
+					'currencySymbol' => $getCompanyDetails[$decodedData]['currencySymbol'],
 					'logo' => array(
-						'documentName' => $getCompanyDetails[$jsonData]['logo']['documentName'],	
-						'documentUrl' => $getCompanyDetails[$jsonData]['logo']['documentUrl'],	
-						'documentSize' =>$getCompanyDetails[$jsonData]['logo']['documentSize'],	
-						'documentFormat' => $getCompanyDetails[$jsonData]['logo']['documentFormat']
+						'documentName' => $getCompanyDetails[$decodedData]['logo']['documentName'],	
+						'documentUrl' => $getCompanyDetails[$decodedData]['logo']['documentUrl'],	
+						'documentSize' =>$getCompanyDetails[$decodedData]['logo']['documentSize'],	
+						'documentFormat' => $getCompanyDetails[$decodedData]['logo']['documentFormat']
 					),
-					'isDisplay' => $getCompanyDetails[$jsonData]['isDisplay'],	
-					'isDefault' => $getCompanyDetails[$jsonData]['isDefault'],	
-					'createdAt' => $getCompanyDetails[$jsonData]['createdAt'],	
-					'updatedAt' => $getCompanyDetails[$jsonData]['updatedAt'],	
-					'stateAbb' => $getCompanyDetails[$jsonData]['state']['stateAbb'],	
-					'cityId' => $getCompanyDetails[$jsonData]['city']['cityId']	
+					'isDisplay' => $getCompanyDetails[$decodedData]['isDisplay'],	
+					'isDefault' => $getCompanyDetails[$decodedData]['isDefault'],	
+					'createdAt' => $getCompanyDetails[$decodedData]['createdAt'],	
+					'updatedAt' => $getCompanyDetails[$decodedData]['updatedAt'],	
+					'stateAbb' => $getCompanyDetails[$decodedData]['state']['stateAbb'],	
+					'cityId' => $getCompanyDetails[$decodedData]['city']['cityId']	
 				)		
 			);
 		}

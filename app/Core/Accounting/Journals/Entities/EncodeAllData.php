@@ -19,6 +19,10 @@ class EncodeAllData extends LedgerService
 		$decodedJson = json_decode($status,true);
 		
 		$journal = new Journal();
+		$companyDetail = new CompanyDetail();
+		$encodeDataClass = new EncodeAllData();
+		$ledgerArray = array();
+		$companyArray = array();
 		for($decodedData=0;$decodedData<count($decodedJson);$decodedData++)
 		{
 			$journalId[$decodedData] = $decodedJson[$decodedData]['journal_id'];
@@ -32,8 +36,11 @@ class EncodeAllData extends LedgerService
 			$companyId[$decodedData] = $decodedJson[$decodedData]['company_id'];
 			
 			//get the Ledger detail from database
-			$encodeDataClass = new EncodeAllData();
-			$ledgerStatus[$decodedData] = $encodeDataClass->getLedgerData($ledgerId[$decodedData]);
+			if (!isset($ledgerArray[$ledgerId[$decodedData]])) {
+				$ledgerArray[$ledgerId[$decodedData]] = $encodeDataClass->getLedgerData($ledgerId[$decodedData]);
+			}
+			$ledgerStatus[$decodedData] = $ledgerArray[$ledgerId[$decodedData]];
+
 			$ledgerDecodedJson[$decodedData] = json_decode($ledgerStatus[$decodedData],true);
 			$ledgerId[$decodedData]= $ledgerDecodedJson[$decodedData]['ledgerId'];
 			$ledgerName[$decodedData]= $ledgerDecodedJson[$decodedData]['ledgerName'];
@@ -55,8 +62,9 @@ class EncodeAllData extends LedgerService
 			$ledgerCompanyId[$decodedData]= $ledgerDecodedJson[$decodedData]['company']['companyId'];
 			
 			//get the company details from database
-			$companyDetail = new CompanyDetail();
-			$getCompanyDetails[$decodedData] = $companyDetail->getCompanyDetails($companyId[$decodedData]);
+			if (!isset($companyArray[$companyId[$decodedData]])) {
+				$getCompanyDetails[$decodedData] = $companyDetail->getCompanyDetails($companyId[$decodedData]);
+			}
 			
 			//convert amount(number_format) into their company's selected decimal points
 			$amount[$decodedData] = number_format($amount[$decodedData],$getCompanyDetails[$decodedData]['noOfDecimalPoints'],'.','');
@@ -86,66 +94,62 @@ class EncodeAllData extends LedgerService
 				$journal->setEntryDate($convertedEntryDate[$decodedData]);
 				$getEntryDate[$decodedData] = $journal->getEntryDate();
 			}
-		}
-		$data = array();
-		for($jsonData=0;$jsonData<count($decodedJson);$jsonData++)
-		{
-			$data[$jsonData]= array(
-				'journalId'=>$journalId[$jsonData],
-				'jfId'=>$jfId[$jsonData],
-				'amount'=>$amount[$jsonData],
-				'amountType'=>$amountType[$jsonData],
-				'entryDate'=>$getEntryDate[$jsonData],
-				'createdAt'=>$getCreatedDate[$jsonData],
-				'updatedAt'=>$getUpdatedDate[$jsonData],
+			$data[$decodedData]= array(
+				'journalId'=>$journalId[$decodedData],
+				'jfId'=>$jfId[$decodedData],
+				'amount'=>$amount[$decodedData],
+				'amountType'=>$amountType[$decodedData],
+				'entryDate'=>$getEntryDate[$decodedData],
+				'createdAt'=>$getCreatedDate[$decodedData],
+				'updatedAt'=>$getUpdatedDate[$decodedData],
 				
 				'ledger' => array(	
-					'ledgerId'=>$ledgerId[$jsonData],
-					'ledgerName' => $ledgerName[$jsonData],
-					'alias' => $alias[$jsonData],
-					'inventoryAffected' => $inventoryAffected[$jsonData],
-					'address1' => $address1[$jsonData],
-					'address2' => $address2[$jsonData],
-					'contactNo' => $contactNo[$jsonData],
-					'emailId' => $emailId[$jsonData],
-					'pan'=> $panNo[$jsonData],
-					'tin'=> $tinNo[$jsonData],
-					'cgst'=> $cgst[$jsonData],
-					'sgst'=> $sgst[$jsonData],
-					'createdAt' => $ledgerCreatedAt[$jsonData],
-					'updatedAt' => $ledgerUpdatedAt[$jsonData],
-					'ledgerGroupId' => $ledgerGroupId[$jsonData],
-					'stateAbb' => $stateAbb[$jsonData],
-					'cityId' => $cityId[$jsonData],
-					'companyId' => $ledgerCompanyId[$jsonData]
+					'ledgerId'=>$ledgerId[$decodedData],
+					'ledgerName' => $ledgerName[$decodedData],
+					'alias' => $alias[$decodedData],
+					'inventoryAffected' => $inventoryAffected[$decodedData],
+					'address1' => $address1[$decodedData],
+					'address2' => $address2[$decodedData],
+					'contactNo' => $contactNo[$decodedData],
+					'emailId' => $emailId[$decodedData],
+					'pan'=> $panNo[$decodedData],
+					'tin'=> $tinNo[$decodedData],
+					'cgst'=> $cgst[$decodedData],
+					'sgst'=> $sgst[$decodedData],
+					'createdAt' => $ledgerCreatedAt[$decodedData],
+					'updatedAt' => $ledgerUpdatedAt[$decodedData],
+					'ledgerGroupId' => $ledgerGroupId[$decodedData],
+					'stateAbb' => $stateAbb[$decodedData],
+					'cityId' => $cityId[$decodedData],
+					'companyId' => $ledgerCompanyId[$decodedData]
 				),
 				'company' => array(	
-					'companyId' => $getCompanyDetails[$jsonData]['companyId'],
-					'companyName' => $getCompanyDetails[$jsonData]['companyName'],	
-					'companyDisplayName' => $getCompanyDetails[$jsonData]['companyDisplayName'],	
-					'address1' => $getCompanyDetails[$jsonData]['address1'],	
-					'address2'=> $getCompanyDetails[$jsonData]['address2'],	
-					'pincode' => $getCompanyDetails[$jsonData]['pincode'],	
-					'pan' => $getCompanyDetails[$jsonData]['pan'],	
-					'tin'=> $getCompanyDetails[$jsonData]['tin'],	
-					'vatNo' => $getCompanyDetails[$jsonData]['vatNo'],	
-					'serviceTaxNo' => $getCompanyDetails[$jsonData]['serviceTaxNo'],	
-					'basicCurrencySymbol' => $getCompanyDetails[$jsonData]['basicCurrencySymbol'],	
-					'formalName' => $getCompanyDetails[$jsonData]['formalName'],	
-					'noOfDecimalPoints' => $getCompanyDetails[$jsonData]['noOfDecimalPoints'],	
-					'currencySymbol' => $getCompanyDetails[$jsonData]['currencySymbol'],	
+					'companyId' => $getCompanyDetails[$decodedData]['companyId'],
+					'companyName' => $getCompanyDetails[$decodedData]['companyName'],	
+					'companyDisplayName' => $getCompanyDetails[$decodedData]['companyDisplayName'],	
+					'address1' => $getCompanyDetails[$decodedData]['address1'],	
+					'address2'=> $getCompanyDetails[$decodedData]['address2'],	
+					'pincode' => $getCompanyDetails[$decodedData]['pincode'],	
+					'pan' => $getCompanyDetails[$decodedData]['pan'],	
+					'tin'=> $getCompanyDetails[$decodedData]['tin'],	
+					'vatNo' => $getCompanyDetails[$decodedData]['vatNo'],	
+					'serviceTaxNo' => $getCompanyDetails[$decodedData]['serviceTaxNo'],	
+					'basicCurrencySymbol' => $getCompanyDetails[$decodedData]['basicCurrencySymbol'],	
+					'formalName' => $getCompanyDetails[$decodedData]['formalName'],	
+					'noOfDecimalPoints' => $getCompanyDetails[$decodedData]['noOfDecimalPoints'],	
+					'currencySymbol' => $getCompanyDetails[$decodedData]['currencySymbol'],	
 					'logo'=> array(
-						'documentName' => $getCompanyDetails[$jsonData]['logo']['documentName'],	
-						'documentUrl' => $getCompanyDetails[$jsonData]['logo']['documentUrl'],	
-						'documentSize' =>$getCompanyDetails[$jsonData]['logo']['documentSize'],	
-						'documentFormat' => $getCompanyDetails[$jsonData]['logo']['documentFormat']
+						'documentName' => $getCompanyDetails[$decodedData]['logo']['documentName'],	
+						'documentUrl' => $getCompanyDetails[$decodedData]['logo']['documentUrl'],	
+						'documentSize' =>$getCompanyDetails[$decodedData]['logo']['documentSize'],	
+						'documentFormat' => $getCompanyDetails[$decodedData]['logo']['documentFormat']
 					),
-					'isDisplay' => $getCompanyDetails[$jsonData]['isDisplay'],	
-					'isDefault' => $getCompanyDetails[$jsonData]['isDefault'],	
-					'createdAt' => $getCompanyDetails[$jsonData]['createdAt'],	
-					'updatedAt' => $getCompanyDetails[$jsonData]['updatedAt'],	
-					'stateAbb' => $getCompanyDetails[$jsonData]['state']['stateAbb'],	
-					'cityId' => $getCompanyDetails[$jsonData]['city']['cityId']	
+					'isDisplay' => $getCompanyDetails[$decodedData]['isDisplay'],	
+					'isDefault' => $getCompanyDetails[$decodedData]['isDefault'],	
+					'createdAt' => $getCompanyDetails[$decodedData]['createdAt'],	
+					'updatedAt' => $getCompanyDetails[$decodedData]['updatedAt'],	
+					'stateAbb' => $getCompanyDetails[$decodedData]['state']['stateAbb'],	
+					'cityId' => $getCompanyDetails[$decodedData]['city']['cityId']	
 				)		
 			);
 		}

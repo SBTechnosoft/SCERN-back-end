@@ -229,6 +229,39 @@ class CommissionController extends BaseController implements ContainerInterface
 			return $authenticationResult;
 		}
 	}
+    /**
+     * get the specified resource.
+     * @param  int  $userId
+     */
+    public function getReportData(Request $request,$userId)
+    {
+		//Authentication
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		
+		//get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			if (array_key_exists('companyid', $request->header())) 
+			{
+				$headerData = $request->header();
+				$commissionService= new CommissionService();
+				$status = $commissionService->getUserCommissionReport($userId,$headerData);
+				return $status;
+			}
+			else
+			{
+				return $exceptionArray['204'];
+			}
+		}
+		else
+		{
+			return $authenticationResult;
+		}
+	}
 	public function destroyItemwise(Request $request,$commissionId)
 	{
 		//Authentication

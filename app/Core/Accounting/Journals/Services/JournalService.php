@@ -153,6 +153,24 @@ class JournalService
 		}
 	}
 	
+	/**
+     * get all the data between given date and call the model for database selection opertation
+     * @return status
+     */
+	public function getJournalTrnDetail()
+	{
+		$processArray = array();
+		$processArray = func_get_arg(0);
+		$companyId = func_get_arg(1);
+		$headerType = func_get_arg(2);
+		$fromDate = $processArray->getFromDate();
+		$toDate = $processArray->getToDate();
+		
+		$journalModel = new JournalModel();
+		$status = $journalModel->getTrnData($fromDate,$toDate,$companyId,$headerType);
+		return $status;
+	}
+	
 	 /**
      * get the data from persistable object and call the model for database update opertation
      * @param JournalPersistable $persistable

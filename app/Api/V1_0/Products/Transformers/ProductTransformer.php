@@ -16,9 +16,9 @@ use ERP\Model\ProductGroups\ProductGroupModel;
 use ERP\Model\Branches\BranchModel;
 use ERP\Model\Companies\CompanyModel;
 use ERP\Model\Authenticate\AuthenticateModel;
-
-
+use ERP\Core\Settings\Services\SettingService;
 use ERP\Core\Products\Services\ProductService;
+use Log;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -37,6 +37,7 @@ class ProductTransformer extends ExceptionMessage
 		
 		//trim an input
 		$tProductName = trim($request->input('productName'));
+		$tAltProductName = trim($request->input('altProductName'));
 		$tHighestMeaUnitId = trim($request->input('highestMeasurementUnitId'));
 		$tHigherMeaUnitId = trim($request->input('higherMeasurementUnitId'));
 		$tMediumMeaUnitId = trim($request->input('mediumMeasurementUnitId'));
@@ -174,24 +175,6 @@ class ProductTransformer extends ExceptionMessage
 		
 		$tCreatedBy = isset($userId[0]->user_id) ? $userId[0]->user_id : 0;
 
-		// $enumMeasurementUnitArray = array();
-		// $measurementUnitEnum = new measurementUnitEnum();
-		// $enumMeasurementUnitArray = $measurementUnitEnum->enumArrays();
-		// if($tMeasUnit!="")
-		// {
-		// 	foreach ($enumMeasurementUnitArray as $key => $value)
-		// 	{
-		// 		if(strcmp($value,$tMeasUnit)==0)
-		// 		{
-		// 			$measurementUnitFlag=1;
-		// 			break;
-		// 		}
-		// 		else
-		// 		{
-		// 			$measurementUnitFlag=2;
-		// 		}
-		// 	}
-		// }
 
 		//check Primary Measure enum data
 		$enumPrimaryMeasureUnitArray = array();
@@ -261,6 +244,7 @@ class ProductTransformer extends ExceptionMessage
 			//make an array
 			$data = array();
 			$data['product_name'] = $tProductName;
+			$data['alt_product_name'] = $tAltProductName;
 			$data['highest_measurement_unit_id'] = $tHighestMeaUnitId;
 			$data['higher_measurement_unit_id'] = $tHigherMeaUnitId;
 			$data['measurement_unit'] = $tMeasUnit;
@@ -346,7 +330,7 @@ class ProductTransformer extends ExceptionMessage
 		
 		//data mapping
 		$mappingResult = $this->mappingData($request->input());
-		
+
 		if(is_array($mappingResult))
 		{
 			$data = array();
@@ -366,6 +350,7 @@ class ProductTransformer extends ExceptionMessage
 
 				//trim an input
 				$tProductName = trim($inputRequestData[$arrayData]['productName']);
+				// $tAltProductName = trim($inputRequestData[$arrayData]['altProductName']);
 				$tMeasUnit = trim($inputRequestData[$arrayData]['measurementUnit']);
 				$tColor = array_key_exists("color",$inputRequestData[$arrayData]) ? trim($inputRequestData[$arrayData]['color']) : "XX";
 				$tSize = array_key_exists("size",$inputRequestData[$arrayData]) ? trim($inputRequestData[$arrayData]['size']) : "ZZ";
@@ -385,9 +370,9 @@ class ProductTransformer extends ExceptionMessage
 				$tAdditionalTax = trim($inputRequestData[$arrayData]['additionalTax']);
 				$tMinimumStockLevel = trim($inputRequestData[$arrayData]['minimumStockLevel']);
 
-				$tHigherUnitQty = trim($inputRequestData[$arrayData]['higherUnitQty']);
-				$tHighestUnitQty = trim($inputRequestData[$arrayData]['highestUnitQty']);
-				$tLowestUnitQty = trim($inputRequestData[$arrayData]['lowestUnitQty']);
+				// $tHigherUnitQty = trim($inputRequestData[$arrayData]['higherUnitQty']);
+				// $tHighestUnitQty = trim($inputRequestData[$arrayData]['highestUnitQty']);
+				// $tLowestUnitQty = trim($inputRequestData[$arrayData]['lowestUnitQty']);
 
 
 				if(strcmp("product",strtolower(trim($inputRequestData[$arrayData]['productType'])))==0 || strcmp("accessories",strtolower(trim($inputRequestData[$arrayData]['productType'])))==0 || 
@@ -420,16 +405,16 @@ class ProductTransformer extends ExceptionMessage
 					$tNotForSale =  trim($inputRequestData[$arrayData]['notForSale']);
 					$notForSale=2;
 				}
-				if(strcmp("inclusive",strtolower(trim($inputRequestData[$arrayData]['taxInclusive'])))==0 || strcmp("exclusive",strtolower(trim($inputRequestData[$arrayData]['taxInclusive'])))==0 || 
-					strcmp("",trim($inputRequestData[$arrayData]['taxInclusive']))==0)
-				{
-					$tTaxInclusive =  trim($inputRequestData[$arrayData]['taxInclusive']);
-				}
-				else
-				{
-					$tTaxInclusive =  trim($inputRequestData[$arrayData]['taxInclusive']);
-					$taxInclusive=2;
-				}
+				// if(strcmp("inclusive",strtolower(trim($inputRequestData[$arrayData]['taxInclusive'])))==0 || strcmp("exclusive",strtolower(trim($inputRequestData[$arrayData]['taxInclusive'])))==0 || 
+				// 	strcmp("",trim($inputRequestData[$arrayData]['taxInclusive']))==0)
+				// {
+				// 	$tTaxInclusive =  trim($inputRequestData[$arrayData]['taxInclusive']);
+				// }
+				// else
+				// {
+				// 	$tTaxInclusive =  trim($inputRequestData[$arrayData]['taxInclusive']);
+				// 	$taxInclusive=2;
+				// }
 				if(strcmp("day",strtolower(trim($inputRequestData[$arrayData]['bestBeforeType'])))==0 || strcmp("month",strtolower(trim($inputRequestData[$arrayData]['bestBeforeType'])))==0 || 
 					strcmp("year",strtolower(trim($inputRequestData[$arrayData]['bestBeforeType'])))==0 || strcmp("",trim($inputRequestData[$arrayData]['bestBeforeType']))==0)
 				{
@@ -458,7 +443,8 @@ class ProductTransformer extends ExceptionMessage
 				$tProductCatId = trim($inputRequestData[$arrayData]['productCategoryId']);
 				$tProductGrpId = trim($inputRequestData[$arrayData]['productGroupId']);
 				$tBranchId = trim($inputRequestData[$arrayData]['branchId']);
-				$tBarcodeNo = trim($inputRequestData[$arrayData]['productCode']);
+
+				// $tBarcodeNo = trim($inputRequestData[$arrayData]['productCode']);
 				
 				$tProductName = preg_replace('/[^a-zA-Z0-9 &,\/_`#().\'-]/', '',$tProductName);
 				$enumIsDispArray = array();
@@ -484,32 +470,33 @@ class ProductTransformer extends ExceptionMessage
 					}
 				}
 				
-				$enumMeasurementUnitArray = array();
-				$measurementUnitEnum = new measurementUnitEnum();
-				$enumMeasurementUnitArray = $measurementUnitEnum->enumArrays();
-				if($tMeasUnit!="")
-				{
-					foreach ($enumMeasurementUnitArray as $key => $value)
-					{
-						if(strcmp($value,$tMeasUnit)==0)
-						{
-							$measurementUnitFlag=1;
-							break;
-						}
-						else
-						{
-							$measurementUnitFlag=2;
-						}
-					}
-				}
-				if($isDisplayFlag==2 || $measurementUnitFlag==2 || $notForSale==2 || $taxInclusive==2 || $productType==2 || $productMenu==2 || $bestBeforeType==2)
+				// $enumMeasurementUnitArray = array();
+				// $measurementUnitEnum = new measurementUnitEnum();
+				// $enumMeasurementUnitArray = $measurementUnitEnum->enumArrays();
+				// if($tMeasUnit!="")
+				// {
+				// 	foreach ($enumMeasurementUnitArray as $key => $value)
+				// 	{
+				// 		if(strcmp($value,$tMeasUnit)==0)
+				// 		{
+				// 			$measurementUnitFlag=1;
+				// 			break;
+				// 		}
+				// 		else
+				// 		{
+				// 			$measurementUnitFlag=2;
+				// 		}
+				// 	}
+				// }
+				if($isDisplayFlag==2 || $notForSale==2 || $productType==2 || $productMenu==2 || $bestBeforeType==2)
 				{
 					$errorArray[$errorIndex] = array();
 					$errorArray[$errorIndex]['productName'] = $tProductName;
+					// $errorArray[$errorIndex]['altProductName'] = $tAltProductName;
 					$errorArray[$errorIndex]['measurementUnit'] = $tMeasUnit;
 					$errorArray[$errorIndex]['color'] = $tColor;
 					$errorArray[$errorIndex]['size'] = $tSize;
-					$errorArray[$errorIndex]['variant'] = $tVariant;
+					// $errorArray[$errorIndex]['variant'] = $tVariant;
 					$errorArray[$errorIndex]['isDisplay'] = $tIsDisplay;
 					$errorArray[$errorIndex]['purchasePrice'] = $tPurchasePrice;
 					$errorArray[$errorIndex]['wholesaleMargin'] = $tWholeSaleMargin;
@@ -518,9 +505,9 @@ class ProductTransformer extends ExceptionMessage
 					$errorArray[$errorIndex]['vat'] = $tVat;
 					$errorArray[$errorIndex]['mrp'] = $tMrp;
 
-					$errorArray[$errorIndex]['higherUnitQty'] = $tHigherUnitQty;
-					$errorArray[$errorIndex]['highestUnitQty'] = $tHighestUnitQty;
-					$errorArray[$errorIndex]['lowestUnitQty'] = $tLowestUnitQty;
+					// $errorArray[$errorIndex]['higherUnitQty'] = $tHigherUnitQty;
+					// $errorArray[$errorIndex]['highestUnitQty'] = $tHighestUnitQty;
+					// $errorArray[$errorIndex]['lowestUnitQty'] = $tLowestUnitQty;
 					// $errorArray[$errorIndex]['igst'] = $tIgst;
 					// $errorArray[$errorIndex]['hsn'] = $tHsn;
 					$errorArray[$errorIndex]['margin'] = $tMargin;
@@ -532,7 +519,7 @@ class ProductTransformer extends ExceptionMessage
 					$errorArray[$errorIndex]['productType'] = $tProductType;
 					$errorArray[$errorIndex]['maxSaleQty'] = $tMaxSaleQty;
 					$errorArray[$errorIndex]['notForSale'] = $tNotForSale;
-					$errorArray[$errorIndex]['taxInclusive'] = $tTaxInclusive;
+					// $errorArray[$errorIndex]['taxInclusive'] = $tTaxInclusive;
 					$errorArray[$errorIndex]['bestBeforeTime'] = $tBestBeforeTime;
 					$errorArray[$errorIndex]['bestBeforeType'] = $tBestBeforeType;
 					$errorArray[$errorIndex]['cessFlat'] = $tCessFlat;
@@ -545,7 +532,7 @@ class ProductTransformer extends ExceptionMessage
 					$errorArray[$errorIndex]['productCategoryId'] = $tProductCatId;
 					$errorArray[$errorIndex]['productGroupId'] = $tProductGrpId;
 					$errorArray[$errorIndex]['branchId'] = $tBranchId;
-					$errorArray[$errorIndex]['product_code'] = $tBarcodeNo;
+					// $errorArray[$errorIndex]['product_code'] = $tBarcodeNo;
 					if($isDisplayFlag==2)
 					{
 						$errorArray[$errorIndex]['remark'] = $exceptionArray['isDisplayEnum'];
@@ -582,21 +569,22 @@ class ProductTransformer extends ExceptionMessage
 					//make an array
 					$data[$dataIndex] = array();
 					$data[$dataIndex]['product_name'] = $tProductName;
+					// $data[$dataIndex]['alt_product_name'] = $tAltProductName;
 					$data[$dataIndex]['measurement_unit'] = $tMeasUnit;
 					$data[$dataIndex]['color'] = $tColor;
 					$data[$dataIndex]['size'] = $tSize;
-					$data[$dataIndex]['variant'] = $tVariant;
+					// $data[$dataIndex]['variant'] = $tVariant;
 					$data[$dataIndex]['is_display'] = $tIsDisplay;
 					$data[$dataIndex]['purchase_price'] = $tPurchasePrice;
 					$data[$dataIndex]['wholesale_margin'] = $tWholeSaleMargin;
 					$data[$dataIndex]['wholesale_margin_flat'] = $tWholeSaleMarginFlat;
 					$data[$dataIndex]['vat'] = $tVat;
 					$data[$dataIndex]['mrp'] = $tMrp;
-					$data[$dataIndex]['product_code'] = $tBarcodeNo;
+					// $data[$dataIndex]['product_code'] = $tBarcodeNo;
 
-					$data[$dataIndex]['higherUnitQty'] = $tHigherUnitQty;
-					$data[$dataIndex]['highestUnitQty'] = $tHighestUnitQty;
-					$data[$dataIndex]['lowestUnitQty'] = $tLowestUnitQty;
+					// $data[$dataIndex]['higherUnitQty'] = $tHigherUnitQty;
+					// $data[$dataIndex]['highestUnitQty'] = $tHighestUnitQty;
+					// $data[$dataIndex]['lowestUnitQty'] = $tLowestUnitQty;
 					// $data[$dataIndex]['igst'] = $tIgst;
 					// $data[$dataIndex]['hsn'] = $tHsn;
 					$data[$dataIndex]['margin'] = $tMargin;
@@ -608,7 +596,7 @@ class ProductTransformer extends ExceptionMessage
 					$data[$dataIndex]['product_type'] = $tProductType;
 					$data[$dataIndex]['max_sale_qty'] = $tMaxSaleQty;
 					$data[$dataIndex]['not_for_sale'] = $tNotForSale;
-					$data[$dataIndex]['tax_inclusive'] = $tTaxInclusive;
+					// $data[$dataIndex]['tax_inclusive'] = $tTaxInclusive;
 					$data[$dataIndex]['best_before_time'] = $tBestBeforeTime;
 					$data[$dataIndex]['best_before_type'] = $tBestBeforeType;
 					$data[$dataIndex]['cess_flat'] = $tCessFlat;
@@ -659,15 +647,23 @@ class ProductTransformer extends ExceptionMessage
 				return $exceptionArray['mapping'];
 			}
 		}
+
 		// Git missed change
 		// if(count($mappingArray)!=30)
 		if(count($mappingArray)!=28)
 		{
 			return $exceptionArray['missingField'];
 		}
-		
+			
 		$requestArray = array();
 		$categoryId = array();
+		
+		//Duplication Reduction Array
+		$pro_categoryArray = array();
+		$pro_groupArray = array();
+		$pro_companyArray = array();
+		$pro_branchArray = array();
+
 		//make an requested array
 		for($arrayData=0;$arrayData<count($dataArray);$arrayData++)
 		{
@@ -686,17 +682,21 @@ class ProductTransformer extends ExceptionMessage
 				//database selection
 				$categoryModel = new ProductCategoryModel();
 				$convertedCatString = strtoupper($convertedCatString);
-				$categoryResult = $categoryModel->getCategoryId($convertedCatString);
-				if(strcmp($categoryResult,$exceptionArray['204'])==0)
+
+				if (!isset($pro_categoryArray[$convertedCatString])) {
+					$pro_categoryArray[$convertedCatString] = $categoryModel->getCategoryId($convertedCatString);
+				}
+				
+				if(strcmp($pro_categoryArray[$convertedCatString],$exceptionArray['204'])==0)
 				{
 					$categoryFlag=1;
 				}
 				else
 				{
-					$dataArray[$arrayData][$arrayKey[0]] = $categoryResult;
+					$dataArray[$arrayData][$arrayKey[0]] = $pro_categoryArray[$convertedCatString];
 				}
 			}
-			
+
 			//replace group-name with their id
 			if(in_array("productGroupId",$mappingArray))
 			{
@@ -706,8 +706,11 @@ class ProductTransformer extends ExceptionMessage
 				$convertedGrpString = strtoupper($convertedGrpString);
 				// database selection
 				$groupModel = new ProductGroupModel();
-				$groupResult = $groupModel->getGroupId($convertedGrpString);
-				
+				if (!isset($pro_groupArray[$convertedGrpString])) {
+					$pro_groupArray[$convertedGrpString] = $groupModel->getGroupId($convertedGrpString);
+				}
+				$groupResult = $pro_groupArray[$convertedGrpString];
+
 				if(strcmp($groupResult,$exceptionArray['204'])==0)
 				{
 					$groupFlag=1;
@@ -715,27 +718,6 @@ class ProductTransformer extends ExceptionMessage
 				else
 				{
 					$dataArray[$arrayData][$arrayKey[0]] = $groupResult;
-				}
-			}
-			
-			//replace branch-name with their id
-			if(in_array("branchId",$mappingArray))
-			{
-				$arrayKey = array_keys($mappingArray,"branchId");
-				// replace group-name with parent-group-id
-				$convertedBranchString = preg_replace('/[^A-Za-z0-9]/', '',$dataArray[$arrayData][$arrayKey[0]]);
-				$convertedBranchString = strtoupper($convertedBranchString);
-				// database selection
-				$branchModel = new BranchModel();
-				
-				$branchResult = $branchModel->getBranchId($convertedBranchString);
-				if(strcmp($branchResult,$exceptionArray['204'])==0)
-				{
-					$branchFlag=1;
-				}
-				else
-				{
-					$dataArray[$arrayData][$arrayKey[0]] = $branchResult;
 				}
 			}
 			
@@ -748,9 +730,11 @@ class ProductTransformer extends ExceptionMessage
 				$convertedCompanyString = strtoupper($convertedCompanyString);
 				// database selection
 				$companyModel = new CompanyModel();
-				
-				$companyResult = $companyModel->getCompanyId($convertedCompanyString);
-				
+				if (!isset($pro_companyArray[$convertedCompanyString])) {
+					$pro_companyArray[$convertedCompanyString] = $companyModel->getCompanyId($convertedCompanyString);
+				}
+				$companyResult = $pro_companyArray[$convertedCompanyString];
+
 				if(strcmp($companyResult,$exceptionArray['204'])==0)
 				{
 					$companyFlag=1;
@@ -758,6 +742,33 @@ class ProductTransformer extends ExceptionMessage
 				else
 				{
 					$dataArray[$arrayData][$arrayKey[0]] = $companyResult;
+				}
+			}
+
+			//replace branch-name with their id
+			if(in_array("branchId",$mappingArray))
+			{ 
+				if (!$companyFlag) {
+					$arrayKey = array_keys($mappingArray,"branchId");
+					// replace group-name with parent-group-id
+					$convertedBranchString = preg_replace('/[^A-Za-z0-9]/', '',$dataArray[$arrayData][$arrayKey[0]]);
+					$convertedBranchString = strtoupper($convertedBranchString);
+					// database selection
+					$branchModel = new BranchModel();
+					if (!isset($pro_branchArray[$companyResult.$convertedBranchString.$companyResult])) {
+						$pro_branchArray[$companyResult.$convertedBranchString.$companyResult] = $branchModel->getBranchId($convertedBranchString,$companyResult);
+					}
+					$branchResult = $pro_branchArray[$companyResult.$convertedBranchString.$companyResult];
+					if(strcmp($branchResult,$exceptionArray['204'])==0)
+					{
+						$branchFlag=1;
+					}
+					else
+					{
+						$dataArray[$arrayData][$arrayKey[0]] = $branchResult;
+					}
+				} else {
+					$branchFlag=1;
 				}
 			}
 			
@@ -783,39 +794,44 @@ class ProductTransformer extends ExceptionMessage
 			else
 			{
 				$requestArray[$arrayData] = array();
-				$requestArray[$arrayData][array_keys($keyNameCount)[0]] = $dataArray[$arrayData][0];
-				$requestArray[$arrayData][array_keys($keyNameCount)[1]] = $dataArray[$arrayData][1];
-				$requestArray[$arrayData][array_keys($keyNameCount)[2]] = $dataArray[$arrayData][2];
-				$requestArray[$arrayData][array_keys($keyNameCount)[3]] = $dataArray[$arrayData][3];
-				$requestArray[$arrayData][array_keys($keyNameCount)[4]] = $dataArray[$arrayData][4];
-				$requestArray[$arrayData][array_keys($keyNameCount)[5]] = $dataArray[$arrayData][5];
-				$requestArray[$arrayData][array_keys($keyNameCount)[6]] = $dataArray[$arrayData][6];
-				$requestArray[$arrayData][array_keys($keyNameCount)[7]] = $dataArray[$arrayData][7];
-				$requestArray[$arrayData][array_keys($keyNameCount)[8]] = $dataArray[$arrayData][8];
-				$requestArray[$arrayData][array_keys($keyNameCount)[9]] = $dataArray[$arrayData][9];
-				$requestArray[$arrayData][array_keys($keyNameCount)[10]] = $dataArray[$arrayData][10];
-				$requestArray[$arrayData][array_keys($keyNameCount)[11]] = $dataArray[$arrayData][11];
-				$requestArray[$arrayData][array_keys($keyNameCount)[12]] = $dataArray[$arrayData][12];
-				$requestArray[$arrayData][array_keys($keyNameCount)[13]] = $dataArray[$arrayData][13];
-				$requestArray[$arrayData][array_keys($keyNameCount)[14]] = $dataArray[$arrayData][14];
-				$requestArray[$arrayData][array_keys($keyNameCount)[15]] = $dataArray[$arrayData][15];
-				$requestArray[$arrayData][array_keys($keyNameCount)[16]] = $dataArray[$arrayData][16];
-				$requestArray[$arrayData][array_keys($keyNameCount)[17]] = $dataArray[$arrayData][17];
-				$requestArray[$arrayData][array_keys($keyNameCount)[18]] = $dataArray[$arrayData][18];
-				$requestArray[$arrayData][array_keys($keyNameCount)[19]] = $dataArray[$arrayData][19];
-				$requestArray[$arrayData][array_keys($keyNameCount)[20]] = $dataArray[$arrayData][20];
-				$requestArray[$arrayData][array_keys($keyNameCount)[21]] = $dataArray[$arrayData][21];
-				$requestArray[$arrayData][array_keys($keyNameCount)[22]] = $dataArray[$arrayData][22];
-				$requestArray[$arrayData][array_keys($keyNameCount)[23]] = $dataArray[$arrayData][23];
-				$requestArray[$arrayData][array_keys($keyNameCount)[24]] = $dataArray[$arrayData][24];
-				$requestArray[$arrayData][array_keys($keyNameCount)[25]] = $dataArray[$arrayData][25];
-				$requestArray[$arrayData][array_keys($keyNameCount)[26]] = $dataArray[$arrayData][26];
-				$requestArray[$arrayData][array_keys($keyNameCount)[27]] = $dataArray[$arrayData][27];
+				$arrayKeys = array_keys($keyNameCount);
+				for ($reqIndex=0; $reqIndex < 28; $reqIndex++) { 
+					$requestArray[$arrayData][$arrayKeys[$reqIndex]] = $dataArray[$arrayData][$reqIndex];
+				}
+				// $requestArray[$arrayData][array_keys($keyNameCount)[0]] = $dataArray[$arrayData][0];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[1]] = $dataArray[$arrayData][1];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[2]] = $dataArray[$arrayData][2];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[3]] = $dataArray[$arrayData][3];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[4]] = $dataArray[$arrayData][4];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[5]] = $dataArray[$arrayData][5];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[6]] = $dataArray[$arrayData][6];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[7]] = $dataArray[$arrayData][7];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[8]] = $dataArray[$arrayData][8];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[9]] = $dataArray[$arrayData][9];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[10]] = $dataArray[$arrayData][10];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[11]] = $dataArray[$arrayData][11];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[12]] = $dataArray[$arrayData][12];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[13]] = $dataArray[$arrayData][13];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[14]] = $dataArray[$arrayData][14];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[15]] = $dataArray[$arrayData][15];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[16]] = $dataArray[$arrayData][16];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[17]] = $dataArray[$arrayData][17];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[18]] = $dataArray[$arrayData][18];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[19]] = $dataArray[$arrayData][19];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[20]] = $dataArray[$arrayData][20];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[21]] = $dataArray[$arrayData][21];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[22]] = $dataArray[$arrayData][22];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[23]] = $dataArray[$arrayData][23];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[24]] = $dataArray[$arrayData][24];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[25]] = $dataArray[$arrayData][25];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[26]] = $dataArray[$arrayData][26];
+				// $requestArray[$arrayData][array_keys($keyNameCount)[27]] = $dataArray[$arrayData][27];
 				// Git missed change
 				// $requestArray[$arrayData][array_keys($keyNameCount)[28]] = $dataArray[$arrayData][28];
 				// $requestArray[$arrayData][array_keys($keyNameCount)[29]] = $dataArray[$arrayData][29];
 			}
 		}
+		
 		return $requestArray;
 	}
 	
@@ -832,7 +848,25 @@ class ProductTransformer extends ExceptionMessage
 		
 		$constantClass = new ConstantClass();
 		$constantArray = $constantClass->constantVariable();
-		
+				//get exception message
+		$exception = new ProductTransformer();
+		$exceptionArray = $exception->messageArrays();
+		$settingService = new SettingService();
+		$settingStatus = $settingService->getData();
+		if (strcmp($exceptionArray['204'], $settingStatus)==0) {
+			return $settingStatus;
+		}
+
+		$settingArray = json_decode($settingStatus,true);
+		$productSetting = array_first($settingArray, function($key, $value) use ($constantArray)
+		{
+		    return $value['settingType'] == $constantArray['productSetting'];
+		},$exceptionArray['204']);
+
+		$productMeasurementType = $productSetting['productMeasurementType'];
+		$measurementTypes = $constantClass->measurementTypeConstants();
+
+
 		//data get from body and trim an input
 		$companyId = trim($request->input()['companyId']); 
 		$transactionDate = trim($request->input()['transactionDate']); 
@@ -865,7 +899,7 @@ class ProductTransformer extends ExceptionMessage
 		$enumDiscountTypeArray = array();
 		$discountTypeEnum = new DiscountTypeEnum();
 		$enumDiscountTypeArray = $discountTypeEnum->enumArrays();
-		
+		$ProductService = new ProductService();
 		for($arrayData=0;$arrayData<$numberOfArray;$arrayData++)
 		{
 			$tempArray[$arrayData] = array();
@@ -875,40 +909,58 @@ class ProductTransformer extends ExceptionMessage
 			$tempArray[$arrayData][3] = trim($request->input()['inventory'][$arrayData]['price']);
 			$tempArray[$arrayData][4] = trim($request->input()['inventory'][$arrayData]['qty']);
 			// Get Product Units to tranform Qty into primary unit Qty
-			if (isset($request->input()['inventory'][$arrayData]['measurementUnit'])) {
-				
-				$ProductService = new ProductService();
-				$productTransformData = json_decode($ProductService->getProductData($request->input()['inventory'][$arrayData]['productId']));
-				$highestMeasurementUnit = $productTransformData->highestMeasurementUnitId;
-				$higherMeasurementUnit = $productTransformData->higherMeasurementUnitId;
-				$mediumMeasurementUnit = $productTransformData->mediumMeasurementUnitId;
-				$mediumLowerMeasurementUnit = $productTransformData->mediumLowerMeasurementUnitId;
-				$lowerMeasurementUnit = $productTransformData->lowerMeasurementUnitId;
-				$lowestMeasurementUnit = $productTransformData->measurementUnitId;
-				$primaryMeasurement = $productTransformData->primaryMeasureUnit;
-				$currentQty = trim($request->input()['inventory'][$arrayData]['qty']);
-				$currentMeasurementUnit = $request->input()['inventory'][$arrayData]['measurementUnit'];
-				switch ($currentMeasurementUnit) {
-					case $highestMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->highestMouConv);
-						break;
-					case $higherMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->higherMouConv);
-						break;
-					case $mediumMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->mediumMouConv);
-						break;
-					case $mediumLowerMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->mediumLowerMouConv);
-						break;
-					case $lowerMeasurementUnit:
-							$currentQty = round($currentQty * $productTransformData->lowerMouConv);
-						break;
-					
-					default:
-							$currentQty = round($currentQty * $productTransformData->lowestMouConv);
-						break;
+			if (strcmp($measurementTypes['unit'], $productMeasurementType)==0) {
+
+				if (array_key_exists('stockFt', $request->input()['inventory'][$arrayData]) &&
+					$request->input()['inventory'][$arrayData]['stockFt'] != 'undefined' &&
+					$request->input()['inventory'][$arrayData]['stockFt'] != 0 ) {
+
+					$tempArray[$arrayData][4] = trim($request->input()['inventory'][$arrayData]['stockFt']);
+
+				}elseif (array_key_exists('totalFt', $request->input()['inventory'][$arrayData]) &&
+					$request->input()['inventory'][$arrayData]['totalFt'] != 'undefined' &&
+					$request->input()['inventory'][$arrayData]['totalFt'] != 0 ){
+
+					$tempArray[$arrayData][4] = trim($request->input()['inventory'][$arrayData]['totalFt']);
 				}
+			}elseif (strcmp($measurementTypes['advance'], $productMeasurementType)==0) {
+
+				if (array_key_exists('measurementUnit', $request->input()['inventory'][$arrayData])) {
+					// Get Product Units to tranform Qty into primary unit Qty
+					$productTransformData = json_decode($ProductService->getProductData($request->input()['inventory'][$arrayData]['productId']));
+					$highestMeasurementUnit = $productTransformData->highestMeasurementUnitId;
+					$higherMeasurementUnit = $productTransformData->higherMeasurementUnitId;
+					$mediumMeasurementUnit = $productTransformData->mediumMeasurementUnitId;
+					$mediumLowerMeasurementUnit = $productTransformData->mediumLowerMeasurementUnitId;
+					$lowerMeasurementUnit = $productTransformData->lowerMeasurementUnitId;
+					$lowestMeasurementUnit = $productTransformData->measurementUnitId;
+					$primaryMeasurement = $productTransformData->primaryMeasureUnit;
+					$currentQty = trim($request->input()['inventory'][$arrayData]['qty']);
+					$currentMeasurementUnit = $request->input()['inventory'][$arrayData]['measurementUnit'];
+					switch ($currentMeasurementUnit) {
+						case $highestMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->highestMouConv);
+							break;
+						case $higherMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->higherMouConv);
+							break;
+						case $mediumMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->mediumMouConv);
+							break;
+						case $mediumLowerMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->mediumLowerMouConv);
+							break;
+						case $lowerMeasurementUnit:
+								$currentQty = round($currentQty * $productTransformData->lowerMouConv);
+							break;
+						
+						default:
+								$currentQty = round($currentQty * $productTransformData->lowestMouConv);
+							break;
+					}
+					$tempArray[$arrayData][4] = $currentQty;
+				}
+
 			}
 			// Unitwise qty Conversion ends.
 			
@@ -1124,12 +1176,31 @@ class ProductTransformer extends ExceptionMessage
 		$productArrayFlag=0;
 		$tempFlag=0;
 		
-		$constantClass = new ConstantClass();
-		$constantArray = $constantClass->constantVariable();
-		
 		//get exception message
 		$exception = new ProductTransformer();
 		$exceptionArray = $exception->messageArrays();
+
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		$settingService = new SettingService();
+		$settingStatus = $settingService->getData();
+		$ProductService = new ProductService();
+		if (strcmp($exceptionArray['204'], $settingStatus)==0) {
+			return $settingStatus;
+		}
+
+		$settingArray = json_decode($settingStatus,true);
+		$productSetting = array_first($settingArray, function($key, $value) use ($constantArray)
+		{
+		    return $value['settingType'] == $constantArray['productSetting'];
+		},$exceptionArray['204']);
+
+		$productMeasurementType = $productSetting['productMeasurementType'];
+		$measurementTypes = $constantClass->measurementTypeConstants();
+
+
+		//get exception message
+		
 		for($requestArray=0;$requestArray<count($productArray);$requestArray++)
 		{
 			//check if array is exists
@@ -1145,46 +1216,69 @@ class ProductTransformer extends ExceptionMessage
 					$tempArray[$arrayElement]['discount_type'] = trim($productArray['inventory'][$arrayElement]['discountType']);
 					$tempArray[$arrayElement]['price'] = trim($productArray['inventory'][$arrayElement]['price']);
 					$tempArray[$arrayElement]['qty'] = trim($productArray['inventory'][$arrayElement]['qty']);
+					// Get Product Units to tranform Qty into primary unit Qty
+
+					if (strcmp($measurementTypes['unit'], $productMeasurementType)==0) {
+
+						if (array_key_exists('stockFt', $productArray['inventory'][$arrayElement]) &&
+							$productArray['inventory'][$arrayElement]['stockFt'] != 'undefined' &&
+							$productArray['inventory'][$arrayElement]['stockFt'] != 0 ) {
+
+							$tempArray[$arrayElement]['qty'] = trim($productArray['inventory'][$arrayElement]['stockFt']);
+
+						}elseif (array_key_exists('totalFt', $productArray['inventory'][$arrayElement]) &&
+							$productArray['inventory'][$arrayElement]['totalFt'] != 'undefined' &&
+							$productArray['inventory'][$arrayElement]['totalFt'] != 0 ){
+
+							$tempArray[$arrayElement]['qty'] = trim($productArray['inventory'][$arrayElement]['totalFt']);
+						}
+					}elseif (strcmp($measurementTypes['advance'], $productMeasurementType)==0) {
+
+						if (array_key_exists('measurementUnit', $productArray['inventory'][$arrayElement])) {
 							// Get Product Units to tranform Qty into primary unit Qty
-							if (isset($productArray['inventory'][$arrayElement]['measurementUnit'])) {
-								$ProductService = new ProductService();
-								$productTransformData = json_decode($ProductService->getProductData($productArray['inventory'][$arrayElement]['productId']));
-								$highestMeasurementUnit = $productTransformData->highestMeasurementUnitId;
-								$higherMeasurementUnit = $productTransformData->higherMeasurementUnitId;
-								$lowestMeasurementUnit = $productTransformData->measurementUnitId;
-								$primaryMeasurement = $productTransformData->primaryMeasureUnit;
+							$productTransformData = json_decode($ProductService->getProductData($productArray['inventory'][$arrayElement]['productId']));
+							$highestMeasurementUnit = $productTransformData->highestMeasurementUnitId;
+							$higherMeasurementUnit = $productTransformData->higherMeasurementUnitId;
+							$mediumMeasurementUnit = $productTransformData->mediumMeasurementUnitId;
+							$mediumLowerMeasurementUnit = $productTransformData->mediumLowerMeasurementUnitId;
+							$lowerMeasurementUnit = $productTransformData->lowerMeasurementUnitId;
+							$lowestMeasurementUnit = $productTransformData->measurementUnitId;
+							$primaryMeasurement = $productTransformData->primaryMeasureUnit;
+							$currentQty = trim($productArray['inventory'][$arrayElement]['qty']);
+							$currentMeasurementUnit = $productArray['inventory'][$arrayElement]['measurementUnit'];
+							switch ($currentMeasurementUnit) {
+								case $highestMeasurementUnit:
+										$currentQty = round($currentQty * $productTransformData->highestMouConv);
+									break;
+								case $higherMeasurementUnit:
+										$currentQty = round($currentQty * $productTransformData->higherMouConv);
+									break;
+								case $mediumMeasurementUnit:
+										$currentQty = round($currentQty * $productTransformData->mediumMouConv);
+									break;
+								case $mediumLowerMeasurementUnit:
+										$currentQty = round($currentQty * $productTransformData->mediumLowerMouConv);
+									break;
+								case $lowerMeasurementUnit:
+										$currentQty = round($currentQty * $productTransformData->lowerMouConv);
+									break;
 								
-								$currentQty = trim($productArray['inventory'][$arrayElement]['qty']);
-								$currentMeasurementUnit = $productArray['inventory'][$arrayElement]['measurementUnit'];
-								if ($primaryMeasurement == 'highest') {
-									if ($currentMeasurementUnit == $higherMeasurementUnit) {
-										$currentQty = round($currentQty / $productTransformData->higherUnitQty);
-									}else if ($currentMeasurementUnit == $lowestMeasurementUnit) {
-										$currentQty = round($currentQty / ($productTransformData->higherUnitQty * $productTransformData->lowestUnitQty));
-									}
-								}elseif ($primaryMeasurement == 'higher') {
-									if ($currentMeasurementUnit == $highestMeasurementUnit) {
-										$currentQty = round($currentQty * $productTransformData->higherUnitQty);
-									}else if ($currentMeasurementUnit == $lowestMeasurementUnit) {
-										$currentQty = round($currentQty / $productTransformData->lowestUnitQty);
-									}
-								}elseif ($primaryMeasurement == 'lowest') {
-									if ($currentMeasurementUnit == $highestMeasurementUnit) {
-										$currentQty = round($currentQty * $productTransformData->higherUnitQty * $productTransformData->lowestUnitQty);
-									}else if ($currentMeasurementUnit == $higherMeasurementUnit) {
-										$currentQty = round($currentQty * $productTransformData->lowestUnitQty);
-									}
-								}
-								$tempArray[$arrayElement]['qty'] = $currentQty;
+								default:
+										$currentQty = round($currentQty * $productTransformData->lowestMouConv);
+									break;
 							}
-							// Unitwise qty Conversion ends.
+							$tempArray[$arrayElement]['qty'] = $currentQty;
+						}
+
+					}
+					// Unitwise qty Conversion ends.
 					$tempArray[$arrayElement]['measurementUnit'] = trim($productArray['inventory'][$arrayElement]['measurementUnit']);
 					
 					if($tempArray[$arrayElement]['discount']!=0 && $tempArray[$arrayElement]['discount']!="")
 					{
 						if(strcmp($tempArray[$arrayElement]['discount_type'],$constantArray['percentage'])==0)
 						{
-							$tempArray[$arrayElement]['discount_value']=($tempArray[$arrayElement]['discount']/100)* $tempArray[$arrayElement]['price'];
+							$tempArray[$arrayElement]['discount_value']=($tempArray[$arrayElement]['discount']/100)* $tempArray[$arrayElement]['price'] * $tempArray[$arrayElement]['qty'];
 						}
 						else
 						{

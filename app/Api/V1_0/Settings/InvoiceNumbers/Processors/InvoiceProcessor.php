@@ -118,7 +118,7 @@ class InvoiceProcessor extends BaseProcessor
 		$flag=0;
 		$invoicePersistable;
 		$invoiceArray = array();
-		$invoiceValidate = new InvoiceValidate();
+		
 		$status;
 		$requestMethod = $_SERVER['REQUEST_METHOD'];
 		
@@ -138,15 +138,18 @@ class InvoiceProcessor extends BaseProcessor
 			//data is avalilable for update
 			else
 			{
+				$invoiceTransformer = new InvoiceTransformer();
+				$invoiceValidate = new InvoiceValidate();
+				$requestInputKeys = array_keys($request->input());
 				for($data=0;$data<count($request->input());$data++)
 				{
 					//data get from body
 					$invoicePersistable = new InvoicePersistable();
-					$value[$data] = $request->input()[array_keys($request->input())[$data]];
-					$key[$data] = array_keys($request->input())[$data];
+					$value[$data] = $request->input()[$requestInputKeys[$data]];
+					$key[$data] = $requestInputKeys[$data];
 					
 					//trim an input 
-					$invoiceTransformer = new InvoiceTransformer();
+					
 					$tRequest = $invoiceTransformer->trimUpdateData($key[$data],$value[$data]);
 					
 					//get data from trim array

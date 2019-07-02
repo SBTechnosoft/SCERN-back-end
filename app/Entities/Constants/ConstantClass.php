@@ -30,6 +30,8 @@ class ConstantClass
 		$constantArray['billSetting'] = "bill";
 		$constantArray['advanceBillSetting'] = "advance";
 		$constantArray['inventorySetting'] = "inventory";
+		$constantArray['languageSetting'] = "language";
+		$constantArray['workFlowSetting'] = "workflow";
 		$constantArray['webIntegrationSetting'] = "webintegration";
 		$constantArray['noImage'] = "Storage/No-Image/no-image.jpg";
 		$constantArray['productBarcode'] = "Storage/Barcode/";
@@ -146,6 +148,7 @@ class ConstantClass
 		$constantArray['invoiceUrl']=url('/')."/settings/invoice-numbers";
 		$constantArray['quotationUrl']=url('/')."/settings/quotation-numbers";
 		$constantArray['productUrl']=url('/')."/accounting/products";
+		$constantArray['salesBillUrl']=url('/')."/accounting/bills";
 		return $constantArray;
 	}
 	
@@ -249,7 +252,7 @@ class ConstantClass
 	
 	/**
 	 * making an array contains comment data 
-	 * @param (no parameter)
+	 * @param (no parameter) 
 	*/
     public function getReminderTimeForPayment()
 	{
@@ -272,6 +275,19 @@ class ConstantClass
 		$constantArray = array();
 		$constantArray['Authenticate'] = "authenticate";
 		$constantArray['Product'] = "products";
+		return $constantArray;
+	}
+
+	/**
+	 *  Dropdown data of Measurement Units for Setting
+	 * @param (no parameter)
+	*/
+	public function measurementTypeConstants()
+	{
+		$constantArray = array();
+		$constantArray['normal'] = "normal";
+		$constantArray['advance'] = "Advance Measurement";
+		$constantArray['unit'] = "Unit Measurement";
 		return $constantArray;
 	}
 

@@ -1,12 +1,102 @@
 <?php
 namespace ERP\Core\Settings\Templates\Entities;
 
-/**
+use ERP\Core\Settings\Services\SettingService;
+
+/** 
  *
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
 class TemplateDesign
 {
+	public function getInvoiceHeading ()
+	{
+		$unitColumn = "";
+
+		$customLabel = "Unit";
+		$extraColumnColSpan = "3";
+		$setting_color = $setting_size = $setting_frameNo = $setting_variant = $setting_advanceMou = false;
+		$settingService= new SettingService();
+		$settingData = $settingService->getData();
+		$settingData = json_decode($settingData);
+		$extraFlag = 0;
+
+		$stCount = count($settingData);
+		$stIndex = 0;
+		while ($stIndex < $stCount) 
+		{
+			$settingSingleData = $settingData[$stIndex];
+
+			if($settingSingleData->settingType == 'product')
+			{
+				if ($settingSingleData->productColorStatus == 'enable') {
+					$setting_color = true;
+					$customLabel .= " | Color";
+					$extraFlag = 1;
+				}
+				if ($settingSingleData->productSizeStatus == 'enable') {
+					$setting_size = true;
+					$customLabel .= " | Size";
+					$extraFlag = 1;
+				}
+				if ($settingSingleData->productFrameNoStatus == 'enable') {
+					$setting_frameNo = true;
+					$customLabel .= " | Frame";
+					$extraFlag = 1;
+				}
+				if ($settingSingleData->productVariantStatus == 'enable') {
+					$setting_variant = true;
+					$customLabel .= " | Variant";
+					$extraFlag = 1;
+				}
+				if ($settingSingleData->productMeasurementType == 'Unit Measurement') {
+					$unitColumn = "<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;' colspan='1' rowspan='2'><strong>Total Ft.</strong></td>";
+					$extraColumnColSpan = "2";
+					$extraFlag = 1;
+				}
+				break;
+			}
+			$stIndex++;
+		}
+
+		$productColspan = "3";
+
+		if (!$extraFlag) {
+			$extraColumnColSpan = "1";
+			$productColspan = "5";
+		}
+		$productTitleHead = "
+						</td></tr></tbody>
+						<tbody>
+						<tr style='height: 15px; text-align: left; background-color: transparent;'>
+							<td class='tg-m36b thsrno' style='font-size: 12px; text-align: center; height: 15px; width: 5px; padding: 1px; border: 1px solid black; border-left: 0px;' colspan='1' rowspan='2'><strong>Sr. No</strong></td>
+							<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: left; border: 1px solid black; border-right: 0px; border-left: 0px; max-width: 120px; overflow-wrap: break-word;' colspan='".$productColspan."' rowspan='2'><strong>Perticular</strong></td>
+							<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;' colspan='1' rowspan='2'><strong>HSN</strong></td>
+							[extraColumns]
+							<td class='tg-ullm thsrno' style='font-size: 12px; padding: 2px; height: 15px; width: 10px; text-align: center; border: 1px solid black; border-right: 0px;' colspan='1' rowspan='2'><strong>Qty</strong></td>
+							<td class='tg-ullm thsrno' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;' colspan='1' rowspan='2'><strong>Rate</strong></td>
+							<td class='tg-ullm thsrno' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;' colspan='1' rowspan='2'><strong>Amt</strong></td>
+							<td class='tg-ullm thamt' style='font-size: 12px; padding: 0px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; border-bottom: 0px;' colspan='2'><strong>Discount</strong></td>
+							<td class='tg-ullm thsrno' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;' colspan='1' rowspan='2'><strong>Taxable Amt</strong></td>
+							<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;' colspan='1' rowspan='2'><strong>GST</strong></td>
+							<td class='tg-ullm thamt' style='font-size: 12px; padding: 1px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; min-width: 50px;' colspan='1' rowspan='2'><strong>Amount</strong></td>
+						</tr>
+						<tr style='height: 15px; text-align: left; background-color: transparent;'>
+							<td class='tg-ullm thamt' style='font-size: 12px; padding: 1px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; border-top: 0px;' colspan='1'><strong>Rate</strong></td>
+							<td class='tg-ullm thamt' style='font-size: 12px; padding: 1px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; border-top: 0px;' colspan='1'><strong>Amount</strong></td>
+						</tr>
+					</tbody>
+					<tbody>
+						<tr style='text-align: left; height: 1px; background-color: transparent; display: [displayNone];'>
+							<td style='font-size: 11px; height: 1px;' colspan='16'>[Description]";
+
+		$extraColumns = "<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;' colspan='".$extraColumnColSpan."' rowspan='2'><strong>".$customLabel."</strong></td>".$unitColumn;
+
+		$productTitleHead = str_replace('[extraColumns]', $extraColumns, $productTitleHead);
+
+		return $productTitleHead;
+	}
+
 	public function getTemplate()
 	{
 
@@ -60,29 +150,11 @@ class TemplateDesign
 <td style=''font-size: 12px; vertical-align: middle; height: 20px; border-left: 1px solid rgba(0, 0, 0, .3);'' colspan=''5''>&nbsp; <strong>PO No&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :</strong>&nbsp; &nbsp;[PONO]</td>
 </tr>
 </tbody>
-<tbody>
-<tr style=''height: 15px; text-align: left; background-color: transparent;''>
-<td class=''tg-m36b thsrno'' style=''font-size: 12px; text-align: center; height: 15px; width: 5px; padding: 1px; border: 1px solid black; border-left: 0px;'' colspan=''1'' rowspan=''2''><strong>Sr. No</strong></td>
-<td class=''tg-m36b theqp'' style=''font-size: 12px; padding: 2px; height: 15px; text-align: left; border: 1px solid black; border-right: 0px; border-left: 0px; max-width: 120px; overflow-wrap: break-word;'' colspan=''3'' rowspan=''2''><strong>Perticular</strong></td>
-<td class=''tg-m36b theqp'' style=''font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;'' colspan=''1'' rowspan=''2''><strong>HSN Code</strong></td>
-<td class=''tg-m36b theqp'' style=''font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;'' colspan=''2'' rowspan=''2''><strong>Color | Size</strong></td>
-<td class=''tg-m36b theqp'' style=''font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;'' colspan=''1'' rowspan=''2''><strong>Frame No</strong></td>
-<td class=''tg-ullm thsrno'' style=''font-size: 12px; padding: 2px; height: 15px; width: 10px; text-align: center; border: 1px solid black; border-right: 0px;'' colspan=''1'' rowspan=''2''><strong>Qty</strong></td>
-<td class=''tg-ullm thsrno'' style=''font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;'' colspan=''1'' rowspan=''2''><strong>Rate</strong></td>
-<td class=''tg-ullm thsrno'' style=''font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;'' colspan=''1'' rowspan=''2''><strong>Amt</strong></td>
-<td class=''tg-ullm thamt'' style=''font-size: 12px; padding: 0px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; border-bottom: 0px;'' colspan=''2''><strong>Discount</strong></td>
-<td class=''tg-ullm thsrno'' style=''font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;'' colspan=''1'' rowspan=''2''><strong>Taxable Amt</strong></td>
-<td class=''tg-m36b theqp'' style=''font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;'' colspan=''1'' rowspan=''2''><strong>GST</strong></td>
-<td class=''tg-ullm thamt'' style=''font-size: 12px; padding: 1px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; min-width: 50px;'' colspan=''1'' rowspan=''2''><strong>Amount</strong></td>
-</tr>
-<tr style=''height: 15px; text-align: left; background-color: transparent;''>
-<td class=''tg-ullm thamt'' style=''font-size: 12px; padding: 1px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; border-top: 0px;'' colspan=''1''><strong>Rate</strong></td>
-<td class=''tg-ullm thamt'' style=''font-size: 12px; padding: 1px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; border-top: 0px;'' colspan=''1''><strong>Amount</strong></td>
-</tr>
-</tbody>
-<tbody>
-<tr style=''text-align: left; height: 1px; background-color: transparent; display: [displayNone];''>
-<td style=''font-size: 11px; height: 1px;'' colspan=''16''>[Description]</td>
+<tbody style=''display: [productDisplayNone];''>
+<tr>
+<td>
+[productInfo]
+</td>
 </tr>
 </tbody>
 <tbody>

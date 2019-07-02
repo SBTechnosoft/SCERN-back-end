@@ -37,6 +37,7 @@ class EncodeData extends ClientService
 		$balance = $decodedJson[0]['balance'];
 		$remark= $decodedJson[0]['remark'];
 		$entryDate= $decodedJson[0]['entry_date'];
+		$dueDate = $decodedJson[0]['due_date'];
 		$clientId= $decodedJson[0]['client_id'];
 		$jfId= $decodedJson[0]['jf_id'];
 		$expense= $decodedJson[0]['expense'];
@@ -89,6 +90,16 @@ class EncodeData extends ClientService
 			$bill->setEntryDate($convertedEntryDate);
 			$getEntryDate = $bill->getEntryDate();
 		}
+		if(strcmp($dueDate,'0000-00-00')==0)
+		{
+			$getDueDate = "00-00-0000";
+		}
+		else
+		{
+			$convertedDueDate = Carbon\Carbon::createFromFormat('Y-m-d', $dueDate)->format('d-m-Y');
+			$getDueDate = $convertedDueDate;
+		}
+
 		//set all data into json array
 		$data = array();
 		$data['saleId'] = $saleId;
@@ -113,6 +124,7 @@ class EncodeData extends ClientService
 		$data['createdAt'] = $getCreatedDate;
 		$data['remark'] = $remark;
 		$data['entryDate'] = $getEntryDate;
+		$data['dueDate'] = $getDueDate;
 		$data['clientId'] = $clientId;
 		$data['jfId'] = $jfId;
 		$data['expense'] = $expense;

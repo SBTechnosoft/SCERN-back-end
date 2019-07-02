@@ -30,6 +30,8 @@ class Bill implements RouteRegistrarInterface
 		//update data post request
 		Route::post('Accounting/Bills/Bill/{saleId}','Accounting\Bills\Controllers\BillController@update');
 		Route::post('Accounting/Bills/Bill/{saleId}/payment', 'Accounting\Bills\Controllers\BillController@updateBillPayment');
+		// Update Status only
+		Route::post('Accounting/Bills/Bill/{saleId}/status', 'Accounting\Bills\Controllers\BillController@updateBillStatus');
 		
 		//delete
 		Route::delete('Accounting/Bills/Bill/{saleId}', 'Accounting\Bills\Controllers\BillController@destroy');

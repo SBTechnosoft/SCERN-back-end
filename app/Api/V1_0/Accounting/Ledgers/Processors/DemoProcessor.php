@@ -143,7 +143,6 @@ class DemoProcessor extends BaseProcessor
 		$ledgerValidate = new LedgerValidate();
 		$status;
 		$requestMethod = $_SERVER['REQUEST_METHOD'];
-		
 		//get exception message
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
@@ -159,13 +158,14 @@ class DemoProcessor extends BaseProcessor
 			//data is avalilable for update
 			else
 			{
+				$inputKeys = array_keys($request->input());
 				for($data=0;$data<count($request->input());$data++)
 				{
 					$buisnessFlag=0;
 					//data get from body
 					$ledgerPersistable = new LedgerPersistable();
-					$value[$data] = $request->input()[array_keys($request->input())[$data]];
-					$key[$data] = array_keys($request->input())[$data];
+					$value[$data] = $request->input()[$inputKeys[$data]];
+					$key[$data] = $inputKeys[$data];
 					
 					//trim an input 
 					$ledgerTransformer = new LedgerTransformer();

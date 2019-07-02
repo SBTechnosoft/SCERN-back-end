@@ -22,6 +22,7 @@ use ERP\Api\V1_0\Documents\Controllers\DocumentController;
 use ERP\Model\Accounting\Quotations\QuotationModel;
 use ERP\Core\Accounting\Bills\Services\BillService;
 use ERP\Model\Accounting\Bills\BillModel;
+use ERP\Api\V1_0\Accounting\Bills\Controllers\BillController;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -96,6 +97,28 @@ class QuotationController extends BaseController implements ContainerInterface
 						}
 						else
 						{
+
+							if (array_key_exists('workflowStatus', $request->input()))
+							{
+								$decodedData = json_decode($status);
+								$quotationPersistable = new QuotationPersistable();
+								if (array_key_exists('issalesorder', $request->header())) {
+									$quotationPersistable->setSaleId(trim($decodedData->saleId));
+									
+								}else{
+									$quotationPersistable->setQuotationId($decodedData->quotationBillId);
+								}
+								$quotationPersistable->setCompanyId($decodedData->company->companyId);
+								$quotationPersistable->setWorkflowStatusId(trim($request->input()['workflowStatus']));
+								$quotationPersistable->setAssignedTo(trim($request->input()['assignedTo']));
+								$quotationPersistable->setAssignedBy(trim($request->input()['assignedBy']));
+
+								$logWorkflowStatus = $quotationService->logWorkflowStatus($quotationPersistable,$request->header());
+								if (strcmp($logWorkflowStatus, $msgArray['500'])==0) {
+									return $logWorkflowStatus;
+								}
+							}
+
 							if(array_key_exists("issalesorder",$request->header()))
 							{
 								$decodedData = json_decode($status);
@@ -185,6 +208,32 @@ class QuotationController extends BaseController implements ContainerInterface
 	}
 	
 	/**
+	 * get the specified resource 
+	 * @param  Request object[Request $request]
+	 * method calls the service and get data as per given searching data
+	*/
+	public function getStatusData(Request $request)
+	{
+		//Authentication
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		
+		// get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			$quotationService = new QuotationService();
+			$status = $quotationService->getStatusData($request->header());
+			return $status;
+		}
+		else
+		{
+			return $authenticationResult;
+		}	
+	}
+	
+	/**
 	 * update the specified resource 
 	 * @param  Request object[Request $request] and quotation-bill-id
 	 * method calls the processer...after processing it calls the service and give the document-path of pdf
@@ -222,6 +271,26 @@ class QuotationController extends BaseController implements ContainerInterface
 				{
 					return $msgArray['404'];
 				}
+				if (array_key_exists('workflowStatus', $request->input()))
+				{
+					$decodedData = json_decode($result);
+					$quotationPersistable = new QuotationPersistable();
+					if (array_key_exists('issalesorder', $request->header())) {
+						$quotationPersistable->setSaleId($quotationBillId);
+
+					}else{
+						$quotationPersistable->setQuotationId($quotationBillId);
+					}
+					$quotationPersistable->setWorkflowStatusId(trim($request->input()['workflowStatus']));
+					$quotationPersistable->setAssignedTo(trim($request->input()['assignedTo']));
+					$quotationPersistable->setAssignedBy(trim($request->input()['assignedBy']));
+					$quotationService= new QuotationService();
+					$logWorkflowStatus = $quotationService->logWorkflowStatus($quotationPersistable,$request->header());
+					if (strcmp($logWorkflowStatus, $msgArray['500'])==0) {
+						return $logWorkflowStatus;
+					}
+				}
+				
 				$processor = new QuotationProcessor();
 				$quotationPersistable = new QuotationPersistable();
 				$quotationPersistable = $processor->createPersistableChange($request,$quotationBillId,$result);
@@ -246,13 +315,195 @@ class QuotationController extends BaseController implements ContainerInterface
 			return $authenticationResult;
 		}
 	}
+	/**
+	 * update the specified resource 
+	 * @param  Request object[Request $request] and quotation-bill-id
+	 * method calls the processer...after processing it calls the service and give the document-path of pdf
+	*/
+	public function convert(Request $request,$quotationBillId)
+	{
+		//Authentication
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		// get exception message
+		$exception = new ExceptionMessage();
+		$msgArray = $exception->messageArrays();
+			
+		// get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			if(!empty($request->input()))
+			{
+				//check quotationId exist or not?
+				$quotationModel = new QuotationModel();
+				$result = $quotationModel->getquotationIdData($quotationBillId);
+				if(strcmp($result,$msgArray['204'])==0)
+				{
+					return $msgArray['204'];
+				}
+				$decodedData = json_decode($result,true);
+				$processor = new QuotationProcessor();
+				$inputArray = $processor->convertPersistable($request,$decodedData[0]);
+				$path = $constantArray['salesBillUrl'];
+				$method = $constantArray['postMethod'];
+				$billRequest = Request::create($path,$method,$inputArray);
+				$workflowStatus = trim($request->input()['workflowStatus']);
+				$status = $quotationModel->getSpecificStatus($workflowStatus);
+				if (strcmp($status, $msgArray['204'])==0) {
+					return $status;
+				}
+				$statusData = json_decode($status,true);
+				$billRequest->headers->set('authenticationtoken',$request->header()['authenticationtoken'][0]);
+				$billRequest->headers->set('isQuotationProcess','yes');
+				if ($statusData[0]['status_position']=='salesorder') {
+					$billRequest->headers->set('issalesorder','ok');
+				}
+				$billController = new BillController(new Container());
+				$billStatus = $billController->store($billRequest);
+				if (is_array($billStatus)) {
+					$billResponse = $billStatus['response'];
+					$billId = $billStatus['saleId'];
+					if (isset($billResponse['documentPath'])) {
+						$quotationPersistable = new QuotationPersistable();
+						$quotationPersistable->setWorkflowStatusId(trim($request->input()['workflowStatus']));
+						$quotationPersistable->setAssignedTo(trim($request->input()['assignedTo']));
+						$quotationPersistable->setAssignedBy(trim($request->input()['assignedBy']));
+						$quotationPersistable->setSaleId($billId);
+						$quotationPersistable->setQuotationId($quotationBillId);
+						$quotationService= new QuotationService();
+						$logWorkflowStatus = $quotationService->logWorkflowStatus($quotationPersistable,$request->header());
+						if (strcmp($logWorkflowStatus, $msgArray['500'])==0) {
+							return $logWorkflowStatus;
+						}
+						$quotationModel = new QuotationModel();
+						$deleteQuoteResult = $quotationModel->deleteQuotationData($quotationBillId);
+						return $deleteQuoteResult;
+					}else{
+						return $billResponse;
+					}
+				}else{
+					return $billStatus;
+				}
+			}
+			else
+			{
+				return $msgArray['204'];
+			}
+		}
+		else
+		{
+			return $authenticationResult;
+		}
+	}
+	/**
+	 * update the specified resource 
+	 * @param  Request object[Request $request] and saleId
+	 * method calls the processer...after processing it calls the service and give the document-path of pdf
+	*/
+	public function dispatch(Request $request,$saleId)
+	{
+		//Authentication
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		// get exception message
+		$exception = new ExceptionMessage();
+		$msgArray = $exception->messageArrays();
+			
+		// get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			if(!empty($request->input()))
+			{
+				$billModel = new BillModel();
+				$status = $billModel->getSaleIdData($saleId);
+				if (strcmp($status, $msgArray['404'])==0) {
+					return $status;
+				}
+				$decodedData = json_decode($status,true);
+				$processor = new QuotationProcessor();
+				$persistable = $processor->dispatchPersistable($request,$decodedData[0]);
+				if (is_array($persistable)) {
+					$quotationService = new QuotationService();
+					$status = $quotationService->dispatch($persistable);
+					return $status;
+				}
+			}
+			else
+			{
+				return $msgArray['204'];
+			}
+		}
+		else
+		{
+			return $authenticationResult;
+		}
+	}
+	/**
+	 * get the specified resource 
+	 * @param  saleId
+	 * method calls the processer...after processing it calls the service and give the document-path of pdf
+	*/
+	public function getDispatchData(Request $request,$saleId)
+	{
+		//Authentication
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		// get exception message
+		$exception = new ExceptionMessage();
+		$msgArray = $exception->messageArrays();
+			
+		// get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			$quotationService = new QuotationService();
+			$status = $quotationService->getDispatched($saleId);
+			return $status;
+		}
+		else
+		{
+			return $authenticationResult;
+		}
+	}
+	/**
+	 * @param Request Object
+	 * Get Status wise counts
+	 */
+	public function QuotationStatusCounts(Request $request,$companyId)
+	{
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		
+		// get exception message
+		$exception = new ExceptionMessage();
+		$msgArray = $exception->messageArrays();
+			
+		// get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			$quotationService = new QuotationService();
+			$status = $quotationService->getQuotationStatusCounts($companyId,$request->header());
+			return $status;
+		}
+		else
+		{
+			return $authenticationResult;
+		}
+	}
 	
 	/**
 	 * update the specified resource 
 	 * @param  Request object[Request $request]
 	 * method calls the processor for creating persistable object & setting the data
 	*/
-	public function destroySalesOrderData(Request $request,$saleId)
+	public function destroySalesOrderData(Request $request,$saleId,$dataType = 'order')
 	{
 		//Authentication
 		$tokenAuthentication = new TokenAuthentication();
@@ -263,9 +514,15 @@ class QuotationController extends BaseController implements ContainerInterface
 		$constantArray = $constantClass->constantVariable();
 		if(strcmp($constantArray['success'],$authenticationResult)==0)
 		{
-			$billModel = new BillModel();
-			$deleteBillResult = $billModel->deleteSaleOrderData($saleId);
-			return $deleteBillResult;
+			if ($dataType == 'order') {
+				$billModel = new BillModel();
+				$deleteBillResult = $billModel->deleteSaleOrderData($saleId);
+				return $deleteBillResult;
+			}else{
+				$quotationModel = new QuotationModel();
+				$deleteQuoteResult = $quotationModel->deleteQuotationData($saleId);
+				return $deleteQuoteResult;
+			}
 		}
 		else
 		{

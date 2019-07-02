@@ -2,212 +2,275 @@
 
 namespace ERP\Core\Settings\Templates\Entities;
 
+use ERP\Core\Settings\Services\SettingService;
 
-
-/**
-
+/** 
  *
-
  * @author Reema Patel<reema.p@siliconbrain.in>
-
  */
 
 class TemplateDesign
-
 {
+	public function getInvoiceHeading ()
+	{
+		$unitColumn = "";
+
+		$customLabel = "Unit";
+		$extraColumnColSpan = "3";
+		$setting_color = $setting_size = $setting_frameNo = $setting_variant = $setting_advanceMou = false;
+		$settingService= new SettingService();
+		$settingData = $settingService->getData();
+		$settingData = json_decode($settingData);
+		$extraFlag = 0;
+
+		$stCount = count($settingData);
+		$stIndex = 0;
+		while ($stIndex < $stCount) 
+		{
+			$settingSingleData = $settingData[$stIndex];
+
+			if($settingSingleData->settingType == 'product')
+			{
+				if ($settingSingleData->productColorStatus == 'enable') {
+					$setting_color = true;
+					$customLabel .= " | Color";
+					$extraFlag = 1;
+				}
+				if ($settingSingleData->productSizeStatus == 'enable') {
+					$setting_size = true;
+					$customLabel .= " | Size";
+					$extraFlag = 1;
+				}
+				if ($settingSingleData->productFrameNoStatus == 'enable') {
+					$setting_frameNo = true;
+					$customLabel .= " | Frame";
+					$extraFlag = 1;
+				}
+				if ($settingSingleData->productVariantStatus == 'enable') {
+					$setting_variant = true;
+					$customLabel .= " | Variant";
+					$extraFlag = 1;
+				}
+				if ($settingSingleData->productMeasurementType == 'Unit Measurement') {
+					$unitColumn = "<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;' colspan='1' rowspan='2'><strong>Total Ft.</strong></td>";
+					$extraColumnColSpan = "2";
+					$extraFlag = 1;
+				}
+				break;
+			}
+			$stIndex++;
+		}
+
+		$productColspan = "3";
+
+		if (!$extraFlag) {
+			$extraColumnColSpan = "1";
+			$productColspan = "5";
+		}
+		$productTitleHead = "
+						</td></tr></tbody>
+						<tbody>
+						<tr style='height: 15px; text-align: left; background-color: transparent;'>
+							<td class='tg-m36b thsrno' style='font-size: 12px; text-align: center; height: 15px; width: 5px; padding: 1px; border: 1px solid black; border-left: 0px;' colspan='1' rowspan='2'><strong>Sr. No</strong></td>
+							<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: left; border: 1px solid black; border-right: 0px; border-left: 0px; max-width: 120px; overflow-wrap: break-word;' colspan='".$productColspan."' rowspan='2'><strong>Perticular</strong></td>
+							<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;' colspan='1' rowspan='2'><strong>HSN</strong></td>
+							[extraColumns]
+							<td class='tg-ullm thsrno' style='font-size: 12px; padding: 2px; height: 15px; width: 10px; text-align: center; border: 1px solid black; border-right: 0px;' colspan='1' rowspan='2'><strong>Qty</strong></td>
+							<td class='tg-ullm thsrno' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;' colspan='1' rowspan='2'><strong>Rate</strong></td>
+							<td class='tg-ullm thsrno' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;' colspan='1' rowspan='2'><strong>Amt</strong></td>
+							<td class='tg-ullm thamt' style='font-size: 12px; padding: 0px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; border-bottom: 0px;' colspan='2'><strong>Discount</strong></td>
+							<td class='tg-ullm thsrno' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;' colspan='1' rowspan='2'><strong>Taxable Amt</strong></td>
+							<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;' colspan='1' rowspan='2'><strong>GST</strong></td>
+							<td class='tg-ullm thamt' style='font-size: 12px; padding: 1px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; min-width: 50px;' colspan='1' rowspan='2'><strong>Amount</strong></td>
+						</tr>
+						<tr style='height: 15px; text-align: left; background-color: transparent;'>
+							<td class='tg-ullm thamt' style='font-size: 12px; padding: 1px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; border-top: 0px;' colspan='1'><strong>Rate</strong></td>
+							<td class='tg-ullm thamt' style='font-size: 12px; padding: 1px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; border-top: 0px;' colspan='1'><strong>Amount</strong></td>
+						</tr>
+					</tbody>
+					<tbody>
+						<tr style='text-align: left; height: 1px; background-color: transparent; display: [displayNone];'>
+							<td style='font-size: 11px; height: 1px;' colspan='16'>[Description]";
+
+		$extraColumns = "<td class='tg-m36b theqp' style='font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;' colspan='".$extraColumnColSpan."' rowspan='2'><strong>".$customLabel."</strong></td>".$unitColumn;
+
+		$productTitleHead = str_replace('[extraColumns]', $extraColumns, $productTitleHead);
+
+		return $productTitleHead;
+	}
 
 	public function getTemplate()
-
 	{
-
 		$templateArray = array();
 
-	/* Color,Size,Frame */
+		/* Color,Size,Frame */
 
 		$templateArray['Invoice'] =  "<table style=''height: 100%; width: 100%; margin: 0 0 0 0; font-family: calibri; border: 1px solid black; border-collapse: collapse; border-padding: 0;'' cellspacing=''0'' cellpadding=''0''>
-<tbody style=''height: 10px;''>
-<tr style=''padding: 0px; padding-top: 5px;''>
-<td style=''text-align: left; vertical-align: top; font-size: 8px; padding-top: 5px;'' colspan=''2''>&nbsp;</td>
-<td style=''text-align: center;'' colspan=''11''><strong><span style=''font-size: 10px; vertical-align: top; padding: 0; text-align: top !important; padding-top: 5px;''>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ''SWAMINARAYANO VIJAYTE''</span></strong></td>
-<td style=''text-align: right; vertical-align: top; font-size: 11px; padding-top: 5px;'' colspan=''3''><strong style=''text-transform: uppercase;''>[BILLLABEL] &nbsp;</strong></td>
-</tr>
-</tbody>
-<tbody>
-<tr>
-<td style=''text-align: left; vertical-align: top; font-size: 8px; padding: 0px;'' colspan=''2''>Original<br />Duplicate<br />Triplicate</td>
-<td style=''text-align: center; font-size: 20px; height: 120px; padding: 5px 5px 2px 5px;'' colspan=''14''><strong>[Company]</strong><br /> <span style=''font-size: 12px;''>[CompanyAdd]</span></td>
-</tr>
-</tbody>
-<tbody>
-<tr style=''height: 20px; padding: 5px; border-bottom;none !important;border-bottom: 1px solid black;''>
-<td style=''height: 20px; text-align: center; border-bottom;none !important;padding: 5px;'' colspan=''16''><span style=''font-size: 12px; vertical-align: top; text-align: top !important;''> <strong>Phone : [CompanyContact]</strong>&nbsp;&nbsp;&nbsp;&nbsp; <strong>Email : [CompanyEmail]</strong>&nbsp;&nbsp;&nbsp;&nbsp; <strong>Website : [CompanyWebsite]</strong> </span></td>
-</tr>
-</tbody>
-<tbody>
-<tr style=''height: 20px; padding: 5px;''>
-<td style=''height: 20px; text-align: center; vertical-align: middle; font-size: 12px; border-bottom: 1px solid black; border-top: 1px solid black; padding: 5px;'' colspan=''16''><strong> GSTIN : 24CUCPM0422J1ZZ &nbsp;&nbsp;&nbsp;&nbsp; State Code : 24-GJ </strong></td>
-</tr>
-</tbody>
-<tbody>
-<tr style=''background-color: transparent; height: 20px; text-align: left;''>
-<td style=''font-size: 12px; vertical-align: top; height: 20px; text-align: left; padding-top: 4px;'' colspan=''11'' rowspan=''3''>&nbsp;&nbsp;&nbsp;&nbsp; <strong>M/S.</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style=''color: #000000; font-size: 15px;''><strong>[ClientName]</strong></span> <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style=''font-size: 12px;''>[CLIENTADD]</span></td>
-<td style=''font-size: 12px; vertical-align: middle; text-align: left; height: 20px; border-left: 1px solid rgba(0, 0, 0, .3);'' colspan=''5''>&nbsp;&nbsp;<strong>Invoice No&nbsp; &nbsp; &nbsp;:</strong>&nbsp; &nbsp;[INVID]</td>
-</tr>
-<tr style=''height: 20px; text-align: left; background-color: transparent;''>
-<td style=''font-size: 12px; vertical-align: middle; height: 20px; border-left: 1px solid rgba(0, 0, 0, .3);'' colspan=''5''>&nbsp; <strong>Invoice Date&nbsp; :</strong>&nbsp;&nbsp; [OrderDate]</td>
-</tr>
-<tr style=''height: 20px; text-align: left; background-color: transparent;''>
-<td style=''font-size: 12px; vertical-align: middle; height: 20px; border-left: 1px solid rgba(0, 0, 0, .3);'' colspan=''5''>&nbsp; <strong>Challan No&nbsp; &nbsp; &nbsp;:</strong>&nbsp; &nbsp;[ChallanNo]</td>
-</tr>
-</tbody>
-<tbody>
-<tr style=''background-color: transparent; height: 20px; text-align: left;''>
-<td style=''font-size: 12px; vertical-align: middle; height: 20px;'' colspan=''11''>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>Phone :</strong> &nbsp; &nbsp;&nbsp; [Mobile]</td>
-<td style=''font-size: 12px; vertical-align: middle; height: 20px; border-left: 1px solid rgba(0, 0, 0, .3);'' colspan=''5''>&nbsp; <strong>Challan Date&nbsp; :</strong>&nbsp;&nbsp; [ChallanDate]</td>
-</tr>
-</tbody>
-<tbody>
-<tr style=''background-color: transparent; height: 20px; text-align: left;''>
-<td style=''font-size: 12px; vertical-align: middle; height: 20px;'' colspan=''11''>&nbsp;&nbsp;&nbsp;&nbsp; <strong>GSTIN :</strong> &nbsp; &nbsp;&nbsp; [CLIENTTINNO] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>State Code :</strong> &nbsp; &nbsp;&nbsp; 24-GJ</td>
-<td style=''font-size: 12px; vertical-align: middle; height: 20px; border-left: 1px solid rgba(0, 0, 0, .3);'' colspan=''5''>&nbsp; <strong>PO No&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :</strong>&nbsp; &nbsp;[PONO]</td>
-</tr>
-</tbody>
-<tbody>
-<tr style=''height: 15px; text-align: left; background-color: transparent;''>
-<td class=''tg-m36b thsrno'' style=''font-size: 12px; text-align: center; height: 15px; width: 5px; padding: 1px; border: 1px solid black; border-left: 0px;'' colspan=''1'' rowspan=''2''><strong>Sr. No</strong></td>
-<td class=''tg-m36b theqp'' style=''font-size: 12px; padding: 2px; height: 15px; text-align: left; border: 1px solid black; border-right: 0px; border-left: 0px; max-width: 120px; overflow-wrap: break-word;'' colspan=''3'' rowspan=''2''><strong>Perticular</strong></td>
-<td class=''tg-m36b theqp'' style=''font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;'' colspan=''1'' rowspan=''2''><strong>HSN Code</strong></td>
-<td class=''tg-m36b theqp'' style=''font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; overflow-wrap: break-word; max-width: 100px;'' colspan=''2'' rowspan=''2''><strong>Color | Size</strong></td>
-<td class=''tg-m36b theqp'' style=''font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;'' colspan=''1'' rowspan=''2''><strong>Frame No</strong></td>
-<td class=''tg-ullm thsrno'' style=''font-size: 12px; padding: 2px; height: 15px; width: 10px; text-align: center; border: 1px solid black; border-right: 0px;'' colspan=''1'' rowspan=''2''><strong>Qty</strong></td>
-<td class=''tg-ullm thsrno'' style=''font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;'' colspan=''1'' rowspan=''2''><strong>Rate</strong></td>
-<td class=''tg-ullm thsrno'' style=''font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;'' colspan=''1'' rowspan=''2''><strong>Amt</strong></td>
-<td class=''tg-ullm thamt'' style=''font-size: 12px; padding: 0px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; border-bottom: 0px;'' colspan=''2''><strong>Discount</strong></td>
-<td class=''tg-ullm thsrno'' style=''font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;'' colspan=''1'' rowspan=''2''><strong>Taxable Amt</strong></td>
-<td class=''tg-m36b theqp'' style=''font-size: 12px; padding: 2px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px;'' colspan=''1'' rowspan=''2''><strong>GST</strong></td>
-<td class=''tg-ullm thamt'' style=''font-size: 12px; padding: 1px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; min-width: 50px;'' colspan=''1'' rowspan=''2''><strong>Amount</strong></td>
-</tr>
-<tr style=''height: 15px; text-align: left; background-color: transparent;''>
-<td class=''tg-ullm thamt'' style=''font-size: 12px; padding: 1px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; border-top: 0px;'' colspan=''1''><strong>Rate</strong></td>
-<td class=''tg-ullm thamt'' style=''font-size: 12px; padding: 1px; height: 15px; text-align: center; border: 1px solid black; border-right: 0px; border-top: 0px;'' colspan=''1''><strong>Amount</strong></td>
-</tr>
-</tbody>
-<tbody>
-<tr style=''text-align: left; height: 1px; background-color: transparent; display: [displayNone];''>
-<td style=''font-size: 11px; height: 1px;'' colspan=''16''>[Description]</td>
-</tr>
-</tbody>
-<tbody>
-<tr style=''height: 20px; text-align: left; background-color: transparent; border-right: 0px; vertical-align: middle;''>
-<td class=''tg-jtyd'' style=''font-size: 12px; padding: 0px; height: 25px; text-align: left; border: 1px solid black; border-left: 0px; border-right: 0px;'' colspan=''7''><strong>&nbsp; Our PAN NO : CUCPM0422J</strong></td>
-<td class=''tg-jtyd'' style=''font-size: 12px; padding: 1px; height: 25px; text-align: right; border: 1px solid black; border-left: 0px;'' colspan=''1''><strong>Total &nbsp;</strong></td>
-<td class=''tg-jtyd'' style=''font-size: 12px; padding: 1px; height: 25px; text-align: center; font-family: calibri; border: 1px solid black; border-left: 0px;'' colspan=''1''><strong>[TotalQty]</strong></td>
-<td class=''tg-jtyd'' style=''font-size: 12px; padding: 5px; height: 25px; text-align: center; border: 1px solid black; border-left: 0px;'' colspan=''5''>&nbsp;</td>
-<td class=''tg-jtyd'' style=''font-size: 12px; padding: 2px; height: 25px; border: 1px solid black; border-left: 0px; text-align: right; vertical-align: bottom; ;border-right: 0px;'' colspan=''2''><strong style=''font-size: 12px;''>[Total]</strong>&nbsp;</td>
-</tr>
-</tbody>
-<tbody>
-<tr style=''background-color: transparent; height: 20px; text-align: left; font-size: 11px;''>
-<td style=''height: 20px; text-align: left; vertical-align: middle; font-size: 11px;'' colspan=''10''>&nbsp; <strong> Transporter : </strong> [Transport]</td>
-<td style=''height: 20px; text-align: right; vertical-align: middle; font-size: 11px;'' colspan=''4''><strong>E.Charge &nbsp;</strong></td>
-<td style=''height: 20px; text-align: right; vertical-align: middle; border-left: 1px solid black;'' colspan=''2''><strong style=''padding: 2px; font-size: 12px;''>[ExtraCharge]</strong>&nbsp;</td>
-</tr>
-</tbody>
-<tbody>
-<tr style=''background-color: transparent; height: 20px; text-align: left; font-size: 11px;''>
-<td style=''height: 20px; text-align: left; vertical-align: middle; font-size: 11px;'' colspan=''10''>&nbsp; <strong> GC/LR No. : </strong> [GCLRNO] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong> Eway Bill No : </strong> [GCLRNO]</td>
-<td style=''height: 20px; text-align: right; vertical-align: middle; font-size: 11px;'' colspan=''4''><strong>Overall Discount &nbsp;</strong></td>
-<td style=''height: 20px; text-align: right; vertical-align: middle; border-left: 1px solid black;'' colspan=''2''><strong style=''padding: 2px; font-size: 12px;''>[TotalDiscount]</strong>&nbsp;</td>
-</tr>
-</tbody>
-<tbody>
-<tr style=''background-color: transparent; height: 20px; text-align: left; font-size: 11px;''>
-<td style=''height: 20px; text-align: left; vertical-align: middle; font-size: 11px;'' colspan=''10''>&nbsp; <strong> Reference : </strong> [Reference]</td>
-<td style=''height: 20px; text-align: right; vertical-align: middle; font-size: 11px;'' colspan=''4''><strong>Roundable Amount &nbsp;</strong></td>
-<td style=''height: 20px; text-align: right; vertical-align: middle; border-left: 1px solid black;'' colspan=''2''><strong style=''padding: 2px; font-size: 12px;''>[TotalRoundableAmount]</strong>&nbsp;</td>
-</tr>
-</tbody>
-<tbody>
-<tr style=''background-color: transparent; height: 20px; text-align: left; font-size: 11px;''>
-<td style=''height: 20px; text-align: left; vertical-align: middle; font-size: 11px;'' colspan=''10''>&nbsp; <strong> Remarks : </strong> [REMARK]</td>
-<td style=''height: 20px; text-align: right; vertical-align: middle; font-size: 11px;'' colspan=''4''><strong>Round Up &nbsp;</strong></td>
-<td style=''height: 20px; text-align: right; vertical-align: middle; border-left: 1px solid black;'' colspan=''2''><strong style=''padding: 2px; font-size: 12px;''>[RoundFigure]</strong>&nbsp;</td>
-</tr>
-</tbody>
-<tbody>
-<tr style=''background-color: transparent; height: 22px; text-align: left; vertical-align: middle;''>
-<td style=''height: 22px; text-align: left; vertical-align: middle; border-top: 1px dashed black; font-size: 10px;'' colspan=''10''>&nbsp; <strong>Rupees in Word: </strong><span style=''text-transform: uppercase;''>[TotalInWord]</span></td>
-<td style=''height: 22px; text-align: right; vertical-align: middle; border-top: 1px dashed black; font-size: 11px;'' colspan=''4''><strong>Net Amount &nbsp;</strong></td>
-<td style=''height: 22px; text-align: right; vertical-align: bottom; border-top: 1px dashed black; border-left: 1px solid black; padding: 2px;'' colspan=''2''><strong style=''font-size: 12px;''>[RoundTotal]</strong>&nbsp;</td>
-</tr>
-</tbody>
-<tbody>
-<tr style=''background-color: transparent; height: 15px; font-size: 12px;''>
-<td style=''background-color: transparent; height: 15px; border-top: 1px dashed black; padding: 2px; font-size: 12px;'' colspan=''16'' align=''center'' valign=''bottom''><strong>GST Summary</strong></td>
-</tr>
-</tbody>
-<tbody style=''padding: 2px;''>
-<tr style=''background-color: transparent; height: 15px; font-size: 12px;''>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 10px;'' colspan=''2'' rowspan=''2'' align=''center'' valign=''middle''><strong>HSN/SAC&nbsp; &nbsp;</strong></td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' colspan=''2'' rowspan=''2'' align=''center'' valign=''middle''><strong>Taxable Value</strong></td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''3'' align=''center'' valign=''bottom''><strong>CGST</strong></td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''3'' align=''center'' valign=''bottom''><strong>SGST</strong></td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''3'' align=''center'' valign=''bottom''><strong>IGST</strong></td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''3'' align=''center'' valign=''bottom''><strong>CESS</strong></td>
-</tr>
-<tr style=''background-color: transparent; height: 15px; font-size: 12px;''>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' align=''center'' valign=''bottom''><strong>Rate</strong></td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' colspan=''2'' align=''center'' valign=''bottom''><strong>Amount</strong></td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' align=''center'' valign=''bottom''><strong>Rate</strong></td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' colspan=''2'' align=''center'' valign=''bottom''><strong>Amount</strong></td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' align=''center'' valign=''bottom''><strong>Rate</strong></td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' colspan=''2'' align=''center'' valign=''bottom''><strong>Amount</strong></td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' align=''center'' valign=''bottom''><strong>Rate</strong></td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' colspan=''2'' align=''center'' valign=''bottom''><strong>Amount</strong></td>
-</tr>
-<tr style=''background-color: transparent; height: 1px; font-size: 11px;''>
-<td style=''font-size: 11px; height: 1px;''>[gstSummary]</td>
-</tr>
-<tr style=''background-color: transparent; height: 15px; font-size: 12px;''>
-<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' colspan=''2'' align=''center'' valign=''middle''>&nbsp;</td>
-<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' colspan=''2'' align=''right'' valign=''bottom''>&nbsp;</td>
-<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' align=''center'' valign=''bottom''>&nbsp;</td>
-<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' colspan=''2'' align=''right'' valign=''bottom''>&nbsp;</td>
-<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' align=''center'' valign=''bottom''>&nbsp;</td>
-<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' colspan=''2'' align=''right'' valign=''bottom''>&nbsp;</td>
-<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' align=''center'' valign=''bottom''>&nbsp;</td>
-<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' colspan=''2'' align=''right'' valign=''bottom''>&nbsp;</td>
-<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' align=''center'' valign=''bottom''>&nbsp;</td>
-<td colspan=''2'' align=''right'' valign=''bottom''>&nbsp;</td>
-</tr>
-<tr style=''background-color: transparent; height: 15px; font-size: 12px;''>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''2'' align=''center'' valign=''bottom''>&nbsp;</td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''2'' align=''right'' valign=''bottom''><strong>[TotalTaxableAmt]</strong>&nbsp;</td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' align=''center'' valign=''bottom''><strong>[TotalCgst]</strong>&nbsp;</td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''2'' align=''right'' valign=''bottom''><strong>[TotalCgstAmt]</strong>&nbsp;</td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' align=''center'' valign=''bottom''><strong>[TotalSgst]</strong>&nbsp;</td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''2'' align=''right'' valign=''bottom''><strong>[TotalSgstAmt]</strong>&nbsp;</td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' align=''center'' valign=''bottom''><strong>[TotalIgst]</strong>&nbsp;</td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''2'' align=''right'' valign=''bottom''><strong>[TotalIgstAmt]</strong>&nbsp;</td>
-<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' align=''center'' valign=''bottom''>&nbsp;</td>
-<td style=''border-top: 1px solid black; font-size: 12px;'' colspan=''2'' align=''right'' valign=''bottom''><strong>0</strong>&nbsp;</td>
-</tr>
-</tbody>
-<tbody>
-<tr style=''background-color: transparent; height: 113px; text-align: left; padding: 0 0 0 0; vertical-align: top;''>
-<td style=''padding: 3px; height: 113px; text-align: left; font-size: 11px; font-family: calibri; border-top: 1px solid black;'' colspan=''9''>
-<p style=''line-height: 0.5; vertical-align: top;''><strong>Terms &amp; Conditions: </strong></p>
-&nbsp; * Service-Date:&nbsp;[serviceDate]<br />
-<p style=''line-height: 0.5;''>&nbsp; * Ineterest at 24% p.a. will be charged for late payments.</p>
-<p style=''line-height: 0.5;''>&nbsp; * We check and pack the goods carefully before dispatch.</p>
-<p style=''line-height: 0.5;''>&nbsp; * Cheque Retunrn Charge 150 Rs. Compulsory.</p>
-<p style=''line-height: 0.5;''>&nbsp; * All Disputes are subject to SURAT jurisdiction only.</p>
-</td>
-<td style=''padding: 1px; height: 113px; text-align: right; font-family: calibri; border-top: 1px solid black;'' colspan=''7''><strong style=''vertical-align: top; font-size: 14px !important; padding: 0px;''>FOR, [Company] &nbsp;</strong><br /> &nbsp;<br /> &nbsp;<br />&nbsp;<br /> <strong style=''text-align: right; vertical-align: bottom; font-size: 11px !important; padding: 0px;''>Proprietor / Authorised Signature &nbsp;&nbsp;</strong></td>
-</tr>
-</tbody>
-</table>";
-	/* End Color,Size,Frame */
+			<tbody style=''height: 10px;''>
+			<tr style=''padding: 0px; padding-top: 5px;''>
+			<td style=''text-align: left; vertical-align: top; font-size: 8px; padding-top: 5px;'' colspan=''2''>&nbsp;</td>
+			<td style=''text-align: center;'' colspan=''11''><strong><span style=''font-size: 10px; vertical-align: top; padding: 0; text-align: top !important; padding-top: 5px;''>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ''SWAMINARAYANO VIJAYTE''</span></strong></td>
+			<td style=''text-align: right; vertical-align: top; font-size: 11px; padding-top: 5px;'' colspan=''3''><strong style=''text-transform: uppercase;''>[BILLLABEL] &nbsp;</strong></td>
+			</tr>
+			</tbody>
+			<tbody>
+			<tr>
+			<td style=''text-align: left; vertical-align: top; font-size: 8px; padding: 0px;'' colspan=''2''>Original<br />Duplicate<br />Triplicate</td>
+			<td style=''text-align: center; font-size: 20px; height: 120px; padding: 5px 5px 2px 5px;'' colspan=''14''><strong>[Company]</strong><br /> <span style=''font-size: 12px;''>[CompanyAdd]</span></td>
+			</tr>
+			</tbody>
+			<tbody>
+			<tr style=''height: 20px; padding: 5px; border-bottom;none !important;border-bottom: 1px solid black;''>
+			<td style=''height: 20px; text-align: center; border-bottom;none !important;padding: 5px;'' colspan=''16''><span style=''font-size: 12px; vertical-align: top; text-align: top !important;''> <strong>Phone : [CompanyContact]</strong>&nbsp;&nbsp;&nbsp;&nbsp; <strong>Email : [CompanyEmail]</strong>&nbsp;&nbsp;&nbsp;&nbsp; <strong>Website : [CompanyWebsite]</strong> </span></td>
+			</tr>
+			</tbody>
+			<tbody>
+			<tr style=''height: 20px; padding: 5px;''>
+			<td style=''height: 20px; text-align: center; vertical-align: middle; font-size: 12px; border-bottom: 1px solid black; border-top: 1px solid black; padding: 5px;'' colspan=''16''><strong> GSTIN : 24CUCPM0422J1ZZ &nbsp;&nbsp;&nbsp;&nbsp; State Code : 24-GJ </strong></td>
+			</tr>
+			</tbody>
+			<tbody>
+			<tr style=''background-color: transparent; height: 20px; text-align: left;''>
+			<td style=''font-size: 12px; vertical-align: top; height: 20px; text-align: left; padding-top: 4px;'' colspan=''11'' rowspan=''3''>&nbsp;&nbsp;&nbsp;&nbsp; <strong>M/S.</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style=''color: #000000; font-size: 15px;''><strong>[ClientName]</strong></span> <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style=''font-size: 12px;''>[CLIENTADD]</span></td>
+			<td style=''font-size: 12px; vertical-align: middle; text-align: left; height: 20px; border-left: 1px solid rgba(0, 0, 0, .3);'' colspan=''5''>&nbsp;&nbsp;<strong>Invoice No&nbsp; &nbsp; &nbsp;:</strong>&nbsp; &nbsp;[INVID]</td>
+			</tr>
+			<tr style=''height: 20px; text-align: left; background-color: transparent;''>
+			<td style=''font-size: 12px; vertical-align: middle; height: 20px; border-left: 1px solid rgba(0, 0, 0, .3);'' colspan=''5''>&nbsp; <strong>Invoice Date&nbsp; :</strong>&nbsp;&nbsp; [OrderDate]</td>
+			</tr>
+			<tr style=''height: 20px; text-align: left; background-color: transparent;''>
+			<td style=''font-size: 12px; vertical-align: middle; height: 20px; border-left: 1px solid rgba(0, 0, 0, .3);'' colspan=''5''>&nbsp; <strong>Challan No&nbsp; &nbsp; &nbsp;:</strong>&nbsp; &nbsp;[ChallanNo]</td>
+			</tr>
+			</tbody>
+			<tbody>
+			<tr style=''background-color: transparent; height: 20px; text-align: left;''>
+			<td style=''font-size: 12px; vertical-align: middle; height: 20px;'' colspan=''11''>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>Phone :</strong> &nbsp; &nbsp;&nbsp; [Mobile]</td>
+			<td style=''font-size: 12px; vertical-align: middle; height: 20px; border-left: 1px solid rgba(0, 0, 0, .3);'' colspan=''5''>&nbsp; <strong>Challan Date&nbsp; :</strong>&nbsp;&nbsp; [ChallanDate]</td>
+			</tr>
+			</tbody>
+			<tbody>
+			<tr style=''background-color: transparent; height: 20px; text-align: left;''>
+			<td style=''font-size: 12px; vertical-align: middle; height: 20px;'' colspan=''11''>&nbsp;&nbsp;&nbsp;&nbsp; <strong>GSTIN :</strong> &nbsp; &nbsp;&nbsp; [CLIENTTINNO] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>State Code :</strong> &nbsp; &nbsp;&nbsp; 24-GJ</td>
+			<td style=''font-size: 12px; vertical-align: middle; height: 20px; border-left: 1px solid rgba(0, 0, 0, .3);'' colspan=''5''>&nbsp; <strong>PO No&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; :</strong>&nbsp; &nbsp;[PONO]</td>
+			</tr>
+			</tbody>
+			<tbody style=''display: [productDisplayNone];''>
+			<tr>
+			<td>
+			[productInfo]
+			</td>
+			</tr>
+			</tbody>
+			<tbody>
+			<tr style=''height: 20px; text-align: left; background-color: transparent; border-right: 0px; vertical-align: middle;''>
+			<td class=''tg-jtyd'' style=''font-size: 12px; padding: 0px; height: 25px; text-align: left; border: 1px solid black; border-left: 0px; border-right: 0px;'' colspan=''7''><strong>&nbsp; Our PAN NO : CUCPM0422J</strong></td>
+			<td class=''tg-jtyd'' style=''font-size: 12px; padding: 1px; height: 25px; text-align: right; border: 1px solid black; border-left: 0px;'' colspan=''1''><strong>Total &nbsp;</strong></td>
+			<td class=''tg-jtyd'' style=''font-size: 12px; padding: 1px; height: 25px; text-align: center; font-family: calibri; border: 1px solid black; border-left: 0px;'' colspan=''1''><strong>[TotalQty]</strong></td>
+			<td class=''tg-jtyd'' style=''font-size: 12px; padding: 5px; height: 25px; text-align: center; border: 1px solid black; border-left: 0px;'' colspan=''5''>&nbsp;</td>
+			<td class=''tg-jtyd'' style=''font-size: 12px; padding: 2px; height: 25px; border: 1px solid black; border-left: 0px; text-align: right; vertical-align: bottom; ;border-right: 0px;'' colspan=''2''><strong style=''font-size: 12px;''>[Total]</strong>&nbsp;</td>
+			</tr>
+			</tbody>
+			<tbody>
+			<tr style=''background-color: transparent; height: 20px; text-align: left; font-size: 11px;''>
+			<td style=''height: 20px; text-align: left; vertical-align: middle; font-size: 11px;'' colspan=''10''>&nbsp; <strong> Transporter : </strong> [Transport]</td>
+			<td style=''height: 20px; text-align: right; vertical-align: middle; font-size: 11px;'' colspan=''4''><strong>E.Charge &nbsp;</strong></td>
+			<td style=''height: 20px; text-align: right; vertical-align: middle; border-left: 1px solid black;'' colspan=''2''><strong style=''padding: 2px; font-size: 12px;''>[ExtraCharge]</strong>&nbsp;</td>
+			</tr>
+			</tbody>
+			<tbody>
+			<tr style=''background-color: transparent; height: 20px; text-align: left; font-size: 11px;''>
+			<td style=''height: 20px; text-align: left; vertical-align: middle; font-size: 11px;'' colspan=''10''>&nbsp; <strong> GC/LR No. : </strong> [GCLRNO] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong> Eway Bill No : </strong> [GCLRNO]</td>
+			<td style=''height: 20px; text-align: right; vertical-align: middle; font-size: 11px;'' colspan=''4''><strong>Overall Discount &nbsp;</strong></td>
+			<td style=''height: 20px; text-align: right; vertical-align: middle; border-left: 1px solid black;'' colspan=''2''><strong style=''padding: 2px; font-size: 12px;''>[TotalDiscount]</strong>&nbsp;</td>
+			</tr>
+			</tbody>
+			<tbody>
+			<tr style=''background-color: transparent; height: 20px; text-align: left; font-size: 11px;''>
+			<td style=''height: 20px; text-align: left; vertical-align: middle; font-size: 11px;'' colspan=''10''>&nbsp; <strong> Reference : </strong> [Reference]</td>
+			<td style=''height: 20px; text-align: right; vertical-align: middle; font-size: 11px;'' colspan=''4''><strong>Roundable Amount &nbsp;</strong></td>
+			<td style=''height: 20px; text-align: right; vertical-align: middle; border-left: 1px solid black;'' colspan=''2''><strong style=''padding: 2px; font-size: 12px;''>[TotalRoundableAmount]</strong>&nbsp;</td>
+			</tr>
+			</tbody>
+			<tbody>
+			<tr style=''background-color: transparent; height: 20px; text-align: left; font-size: 11px;''>
+			<td style=''height: 20px; text-align: left; vertical-align: middle; font-size: 11px;'' colspan=''10''>&nbsp; <strong> Remarks : </strong> [REMARK]</td>
+			<td style=''height: 20px; text-align: right; vertical-align: middle; font-size: 11px;'' colspan=''4''><strong>Round Up &nbsp;</strong></td>
+			<td style=''height: 20px; text-align: right; vertical-align: middle; border-left: 1px solid black;'' colspan=''2''><strong style=''padding: 2px; font-size: 12px;''>[RoundFigure]</strong>&nbsp;</td>
+			</tr>
+			</tbody>
+			<tbody>
+			<tr style=''background-color: transparent; height: 22px; text-align: left; vertical-align: middle;''>
+			<td style=''height: 22px; text-align: left; vertical-align: middle; border-top: 1px dashed black; font-size: 10px;'' colspan=''10''>&nbsp; <strong>Rupees in Word: </strong><span style=''text-transform: uppercase;''>[TotalInWord]</span></td>
+			<td style=''height: 22px; text-align: right; vertical-align: middle; border-top: 1px dashed black; font-size: 11px;'' colspan=''4''><strong>Net Amount &nbsp;</strong></td>
+			<td style=''height: 22px; text-align: right; vertical-align: bottom; border-top: 1px dashed black; border-left: 1px solid black; padding: 2px;'' colspan=''2''><strong style=''font-size: 12px;''>[RoundTotal]</strong>&nbsp;</td>
+			</tr>
+			</tbody>
+			<tbody>
+			<tr style=''background-color: transparent; height: 15px; font-size: 12px;''>
+			<td style=''background-color: transparent; height: 15px; border-top: 1px dashed black; padding: 2px; font-size: 12px;'' colspan=''16'' align=''center'' valign=''bottom''><strong>GST Summary</strong></td>
+			</tr>
+			</tbody>
+			<tbody style=''padding: 2px;''>
+			<tr style=''background-color: transparent; height: 15px; font-size: 12px;''>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 10px;'' colspan=''2'' rowspan=''2'' align=''center'' valign=''middle''><strong>HSN/SAC&nbsp; &nbsp;</strong></td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' colspan=''2'' rowspan=''2'' align=''center'' valign=''middle''><strong>Taxable Value</strong></td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''3'' align=''center'' valign=''bottom''><strong>CGST</strong></td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''3'' align=''center'' valign=''bottom''><strong>SGST</strong></td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''3'' align=''center'' valign=''bottom''><strong>IGST</strong></td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''3'' align=''center'' valign=''bottom''><strong>CESS</strong></td>
+			</tr>
+			<tr style=''background-color: transparent; height: 15px; font-size: 12px;''>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' align=''center'' valign=''bottom''><strong>Rate</strong></td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' colspan=''2'' align=''center'' valign=''bottom''><strong>Amount</strong></td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' align=''center'' valign=''bottom''><strong>Rate</strong></td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' colspan=''2'' align=''center'' valign=''bottom''><strong>Amount</strong></td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' align=''center'' valign=''bottom''><strong>Rate</strong></td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' colspan=''2'' align=''center'' valign=''bottom''><strong>Amount</strong></td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' align=''center'' valign=''bottom''><strong>Rate</strong></td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 12px;'' colspan=''2'' align=''center'' valign=''bottom''><strong>Amount</strong></td>
+			</tr>
+			<tr style=''background-color: transparent; height: 1px; font-size: 11px;''>
+			<td style=''font-size: 11px; height: 1px;''>[gstSummary]</td>
+			</tr>
+			<tr style=''background-color: transparent; height: 15px; font-size: 12px;''>
+			<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' colspan=''2'' align=''center'' valign=''middle''>&nbsp;</td>
+			<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' colspan=''2'' align=''right'' valign=''bottom''>&nbsp;</td>
+			<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' align=''center'' valign=''bottom''>&nbsp;</td>
+			<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' colspan=''2'' align=''right'' valign=''bottom''>&nbsp;</td>
+			<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' align=''center'' valign=''bottom''>&nbsp;</td>
+			<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' colspan=''2'' align=''right'' valign=''bottom''>&nbsp;</td>
+			<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' align=''center'' valign=''bottom''>&nbsp;</td>
+			<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' colspan=''2'' align=''right'' valign=''bottom''>&nbsp;</td>
+			<td style=''border-right: 1px solid rgba(0, 0, 0, .3);'' align=''center'' valign=''bottom''>&nbsp;</td>
+			<td colspan=''2'' align=''right'' valign=''bottom''>&nbsp;</td>
+			</tr>
+			<tr style=''background-color: transparent; height: 15px; font-size: 12px;''>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''2'' align=''center'' valign=''bottom''>&nbsp;</td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''2'' align=''right'' valign=''bottom''><strong>[TotalTaxableAmt]</strong>&nbsp;</td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' align=''center'' valign=''bottom''><strong>[TotalCgst]</strong>&nbsp;</td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''2'' align=''right'' valign=''bottom''><strong>[TotalCgstAmt]</strong>&nbsp;</td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' align=''center'' valign=''bottom''><strong>[TotalSgst]</strong>&nbsp;</td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''2'' align=''right'' valign=''bottom''><strong>[TotalSgstAmt]</strong>&nbsp;</td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' align=''center'' valign=''bottom''><strong>[TotalIgst]</strong>&nbsp;</td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' colspan=''2'' align=''right'' valign=''bottom''><strong>[TotalIgstAmt]</strong>&nbsp;</td>
+			<td style=''border-right: 1px solid black; border-top: 1px solid black; font-size: 12px;'' align=''center'' valign=''bottom''>&nbsp;</td>
+			<td style=''border-top: 1px solid black; font-size: 12px;'' colspan=''2'' align=''right'' valign=''bottom''><strong>0</strong>&nbsp;</td>
+			</tr>
+			</tbody>
+			<tbody>
+			<tr style=''background-color: transparent; height: 113px; text-align: left; padding: 0 0 0 0; vertical-align: top;''>
+			<td style=''padding: 3px; height: 113px; text-align: left; font-size: 11px; font-family: calibri; border-top: 1px solid black;'' colspan=''9''>
+			<p style=''line-height: 0.5; vertical-align: top;''><strong>Terms &amp; Conditions: </strong></p>
+			&nbsp; * Service-Date:&nbsp;[serviceDate]<br />
+			<p style=''line-height: 0.5;''>&nbsp; * Ineterest at 24% p.a. will be charged for late payments.</p>
+			<p style=''line-height: 0.5;''>&nbsp; * We check and pack the goods carefully before dispatch.</p>
+			<p style=''line-height: 0.5;''>&nbsp; * Cheque Retunrn Charge 150 Rs. Compulsory.</p>
+			<p style=''line-height: 0.5;''>&nbsp; * All Disputes are subject to SURAT jurisdiction only.</p>
+			</td>
+			<td style=''padding: 1px; height: 113px; text-align: right; font-family: calibri; border-top: 1px solid black;'' colspan=''7''><strong style=''vertical-align: top; font-size: 14px !important; padding: 0px;''>FOR, [Company] &nbsp;</strong><br /> &nbsp;<br /> &nbsp;<br />&nbsp;<br /> <strong style=''text-align: right; vertical-align: bottom; font-size: 11px !important; padding: 0px;''>Proprietor / Authorised Signature &nbsp;&nbsp;</strong></td>
+			</tr>
+			</tbody>
+			</table>";
+		/* End Color,Size,Frame */
 	
 	/* Color,Size */
 	$templateArray['Invoice_color_size'] =  "<table style=''height: 100%; width: 100%; margin: 0 0 0 0; font-family: calibri; border: 1px solid black; border-collapse: collapse; border-padding: 0;'' cellspacing=''0'' cellpadding=''0''>

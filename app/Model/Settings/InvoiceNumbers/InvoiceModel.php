@@ -262,4 +262,34 @@ class InvoiceModel extends Model
 			return $enocodedData;
 		}
 	}
+	/**
+	 * get latest data 
+	 * returns the status
+	*/
+	public function incrementInvoiceNumber($invoiceId)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		$mytime = Carbon\Carbon::now();
+		DB::beginTransaction();
+		$raw = DB::connection($databaseName)->statement("update invoice_dtl 
+		set end_at = end_at + 1 ,updated_at='".$mytime."'
+		where invoice_id = '".$invoiceId."' and 
+		deleted_at='0000-00-00 00:00:00'");
+		DB::commit();
+		
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if($raw==1)
+		{
+			return $exceptionArray['200'];
+		}
+		else
+		{
+			return $exceptionArray['500'];
+		}
+	}
 }

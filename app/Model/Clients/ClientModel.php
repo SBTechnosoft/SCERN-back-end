@@ -186,6 +186,62 @@ class ClientModel extends Model
 			deleted_at
 			from client_doc_dtl where client_id = '".$clientData[0]->client_id."' and deleted_at='0000-00-00 00:00:00'");
 			DB::commit();
+
+			DB::beginTransaction();
+			$clientLedger = DB::connection($databaseName)->select("select
+			ledger_id,
+			ledger_name,
+			outstanding_limit,
+			outstanding_limit_type,
+			company_id,
+			client_id
+			from ledger_mst
+			where client_id = '".$clientData[0]->client_id."' and deleted_at='0000-00-00 00:00:00'");
+			DB::commit();
+
+			if (count($clientLedger)==0) 
+			{
+				$clientData[0]->closing_balance = array([
+					'outstandingLimit' => '0',
+					'outstandingLimitType' => 'debit',
+					'closingBalance' => '0',
+					'closingBalanceType' => 'debit'
+				]);
+			}
+			else
+			{
+				$ledgerArray = [];
+				for ($ledgerData=0; $ledgerData < count($clientLedger); $ledgerData++) 
+				{ 
+					$ledgerArray[$ledgerData]['outstandingLimit'] = $clientLedger[$ledgerData]->outstanding_limit;
+					$ledgerArray[$ledgerData]['outstandingLimitType'] = $clientLedger[$ledgerData]->outstanding_limit_type;
+					$ledgerArray[$ledgerData]['companyId'] = $clientLedger[$ledgerData]->company_id;
+					$ledgerArray[$ledgerData]['clientId'] = $clientLedger[$ledgerData]->client_id;
+					$ledgerArray[$ledgerData]['ledgerId'] = $clientLedger[$ledgerData]->ledger_id;
+					$ledgerArray[$ledgerData]['ledgerName'] = $clientLedger[$ledgerData]->ledger_name;
+					$ledgerArray[$ledgerData]['closingBalance'] = '0';
+					$ledgerArray[$ledgerData]['closingBalanceType'] = 'debit';
+					DB::beginTransaction();
+					$balanceRaws = DB::connection($databaseName)->select("select
+					SUM(CASE WHEN amount_type = 'credit' THEN amount END) as credit_amount,
+					SUM(CASE WHEN amount_type = 'debit' THEN amount END) as debit_amount
+					from ".$clientLedger[$ledgerData]->ledger_id."_ledger_dtl
+					where deleted_at='0000-00-00 00:00:00'");
+					DB::commit();
+					if (count($balanceRaws)) {
+						$ledgerArray[$ledgerData]['closingBalance'] = (float)$balanceRaws[0]->credit_amount - (float)$balanceRaws[0]->debit_amount;
+						if ($ledgerArray[$ledgerData]['closingBalance'] > 0) {
+							$ledgerArray[$ledgerData]['closingBalanceType'] = 'credit';
+						}else{
+							$ledgerArray[$ledgerData]['closingBalance'] = abs($ledgerArray[$ledgerData]['closingBalance']);
+							$ledgerArray[$ledgerData]['closingBalanceType'] = 'debit';
+						}
+					}
+				}
+				$clientData[0]->closing_balance = $ledgerArray;
+				// print_r($clientData[$documentArrayData]->closing_balance);exit();
+			}
+
 			$clientArraydata = array();
 			$clientArraydata['clientData'] = $clientData;
 			$clientArraydata['clientDocumentData'] = $clientDocumentData;
@@ -409,7 +465,8 @@ class ClientModel extends Model
 		updated_at,
 		deleted_at,
 		state_abb,
-		city_id			
+		city_id,
+		0 as closing_balance			
 		from client_mst where ".$queryParameter.$clientIdParam." deleted_at='0000-00-00 00:00:00'");
 		DB::commit();
 		
@@ -422,6 +479,7 @@ class ClientModel extends Model
 			$documentArray = array();
 			for($documentArrayData=0;$documentArrayData<count($clientData);$documentArrayData++)
 			{
+
 				//get data from client-document
 				DB::beginTransaction();
 				$clientDocumentData = DB::connection($databaseName)->select("select 
@@ -438,6 +496,58 @@ class ClientModel extends Model
 				from client_doc_dtl where client_id = '".$clientData[$documentArrayData]->client_id."' and deleted_at='0000-00-00 00:00:00'");
 				DB::commit();
 				$documentArray[$documentArrayData] = $clientDocumentData;
+				DB::beginTransaction();
+				$clientLedger = DB::connection($databaseName)->select("select
+				ledger_id,
+				ledger_name,
+				outstanding_limit,
+				outstanding_limit_type,
+				company_id,
+				client_id
+				from ledger_mst
+				where client_id = '".$clientData[$documentArrayData]->client_id."' and deleted_at='0000-00-00 00:00:00'");
+				DB::commit();
+				if (count($clientLedger)==0) 
+				{
+					$clientData[$documentArrayData]->closing_balance = array([
+						'outstandingLimit' => '0',
+						'outstandingLimitType' => 'debit',
+						'closingBalance' => '0',
+						'closingBalanceType' => 'debit'
+					]);
+				}
+				else
+				{
+					$ledgerArray = [];
+					for ($ledgerData=0; $ledgerData < count($clientLedger); $ledgerData++) 
+					{ 
+						$ledgerArray[$ledgerData]['outstandingLimit'] = $clientLedger[$ledgerData]->outstanding_limit;
+						$ledgerArray[$ledgerData]['outstandingLimitType'] = $clientLedger[$ledgerData]->outstanding_limit_type;
+						$ledgerArray[$ledgerData]['companyId'] = $clientLedger[$ledgerData]->company_id;
+						$ledgerArray[$ledgerData]['clientId'] = $clientLedger[$ledgerData]->client_id;
+						$ledgerArray[$ledgerData]['ledgerId'] = $clientLedger[$ledgerData]->ledger_id;
+						$ledgerArray[$ledgerData]['ledgerName'] = $clientLedger[$ledgerData]->ledger_name;
+						$ledgerArray[$ledgerData]['closingBalance'] = '0';
+						$ledgerArray[$ledgerData]['closingBalanceType'] = 'debit';
+						DB::beginTransaction();
+						$balanceRaws = DB::connection($databaseName)->select("select
+						SUM(CASE WHEN amount_type = 'credit' THEN amount END) as credit_amount,
+						SUM(CASE WHEN amount_type = 'debit' THEN amount END) as debit_amount
+						from ".$clientLedger[$ledgerData]->ledger_id."_ledger_dtl
+						where deleted_at='0000-00-00 00:00:00'");
+						DB::commit();
+						if (count($balanceRaws)) {
+							$ledgerArray[$ledgerData]['closingBalance'] = (float)$balanceRaws[0]->credit_amount - (float)$balanceRaws[0]->debit_amount;
+							if ($ledgerArray[$ledgerData]['closingBalance'] > 0) {
+								$ledgerArray[$ledgerData]['closingBalanceType'] = 'credit';
+							}else{
+								$ledgerArray[$ledgerData]['closingBalance'] = abs($ledgerArray[$ledgerData]['closingBalance']);
+								$ledgerArray[$ledgerData]['closingBalanceType'] = 'debit';
+							}
+						}
+					}
+					$clientData[$documentArrayData]->closing_balance = $ledgerArray;
+				}
 			}
 			$clientArraydata = array();
 			$clientArraydata['clientData'] = $clientData;

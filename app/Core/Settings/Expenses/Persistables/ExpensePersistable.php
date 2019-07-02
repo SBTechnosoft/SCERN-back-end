@@ -6,6 +6,8 @@ use ERP\Core\Settings\Expenses\Properties\ExpenseIdTrait;
 use ERP\Core\Settings\Expenses\Properties\ExpenseNameTrait;
 use ERP\Core\Settings\Expenses\Properties\ExpenseTypeTrait;
 use ERP\Core\Settings\Expenses\Properties\ExpenseValueTrait;
+use ERP\Core\Settings\Expenses\Properties\ExpenseGroupTypeTrait;
+use ERP\Core\Accounting\Ledgers\Properties\LedgerIdPropertyTrait;
 use ERP\Core\Shared\Properties\KeyPropertyTrait;
 use ERP\Core\Companies\Properties\CompanyIdPropertyTrait;
 /**
@@ -19,5 +21,7 @@ class ExpensePersistable
     use ExpenseNameTrait;
     use ExpenseTypeTrait;
     use ExpenseValueTrait;
+    use ExpenseGroupTypeTrait;
+    use LedgerIdPropertyTrait;
     use CompanyIdPropertyTrait;
 }

@@ -1,5 +1,0 @@
-[23-Mar-2018 07:32:44 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Seeder' not found in /home/prabandhakur/public_html/ERP/back-end/database/seeds/DatabaseSeeder.php on line 6
-[24-Mar-2018 09:43:06 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Seeder' not found in /home/prabandhakur/public_html/ERP/back-end/database/seeds/DatabaseSeeder.php on line 6
-[24-Mar-2018 17:11:01 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Seeder' not found in /home/prabandhakur/public_html/ERP/back-end/database/seeds/DatabaseSeeder.php on line 6
-[25-Mar-2018 20:40:53 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Seeder' not found in /home/prabandhakur/public_html/ERP/back-end/database/seeds/DatabaseSeeder.php on line 6
-[03-Apr-2018 14:48:02 America/Chicago] PHP Fatal error:  Class 'Illuminate\Database\Seeder' not found in /home/prabandhakur/public_html/ERP/back-end/database/seeds/DatabaseSeeder.php on line 6

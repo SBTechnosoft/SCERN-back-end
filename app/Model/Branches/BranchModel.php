@@ -256,7 +256,7 @@ class BranchModel extends Model
 	 * get data as per given branch-name
 	 * returns the error-message/branchId
 	*/
-	public function getBranchId($convertedBranchName)
+	public function getBranchId($convertedBranchName,$companyId = 0)
 	{
 		$flag=0;
 		//database selection
@@ -269,7 +269,7 @@ class BranchModel extends Model
 		branch_id,
 		branch_name
 		from branch_mst 
-		where deleted_at='0000-00-00 00:00:00'");
+		where deleted_at='0000-00-00 00:00:00' and company_id =".$companyId);
 		DB::commit();
 		for($dataArray=0;$dataArray<count($branchResult);$dataArray++)
 		{

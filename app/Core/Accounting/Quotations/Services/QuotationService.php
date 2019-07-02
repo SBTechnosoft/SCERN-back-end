@@ -40,7 +40,6 @@ class QuotationService
     public function create(LedgerPersistable $persistable)
     {
 		return "create method of LedgerService";
-		
     }
 	
 	 /**
@@ -147,6 +146,42 @@ class QuotationService
 			}
 		}
 	}
+
+	/**
+     * get the data from persistable object and call the model for database insertion opertation
+     * @param BillPersistable $persistable
+     * @return status/error message
+     */
+	public function logWorkflowStatus()
+	{
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		$statusArray = func_get_arg(0);
+		$headerData = func_get_arg(1);
+		if(is_object($statusArray))
+		{
+			$statusLogData = [];
+			$conditionCheck = [];
+			$statusLogData['workflow_status_id'] = $statusArray->getWorkflowStatusId();
+			$statusLogData['assigned_to'] = $statusArray->getAssignedTo();
+			$statusLogData['assigned_by'] = $statusArray->getAssignedBy();
+			if ($statusArray->getCompanyId()) {
+				$statusLogData['company_id'] = $statusArray->getCompanyId();
+			}
+			if ($statusArray->getQuotationId()) {
+				$conditionCheck['quotation_id'] = $statusLogData['quotation_id'] = $statusArray->getQuotationId();
+			}
+			if ($statusArray->getSaleId()) {
+				$statusLogData['sale_id'] = $conditionCheck['sale_id'] = $statusArray->getSaleId();
+			}
+			$quotationModel = new QuotationModel();
+			$logStatus = $quotationModel->logWorkflowStatus($statusLogData,$headerData,$conditionCheck);
+			return $logStatus;
+		}
+		else{
+			return $exceptionArray['content'];
+		}
+	}
 	
 	/**
      * get quotation data as per given data in header
@@ -173,7 +208,85 @@ class QuotationService
 			return $encodingResult;
 		}
 	}
-	
+	/**
+	 * @param trimmed request
+	 * @return status
+	 */
+	public function dispatch($dispatchData)
+	{
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		$dispatch = [];
+		foreach ($dispatchData as $key => $value) {
+			$key = strtolower(preg_replace("([A-Z])", "_$0", $key));
+			$dispatch[$key] = $value;
+		}
+		$quotationModel = new QuotationModel();
+		$status = $quotationModel->dispatchInsert($dispatch);
+		return $status;
+	}
+	/**
+     * get quotation data as per given data in header
+     * @param header-data
+     * @return array-data/error message
+     */
+	public function getStatusData($headerData)
+	{
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+			
+		//data pass to the model object for getData
+		$quotationModel = new QuotationModel();
+		$result = $quotationModel->getStatusData($headerData);
+		if(strcmp($result,$exceptionArray['204'])==0)
+		{
+			return $result;
+		}
+		else
+		{
+			$encodeAllData = new EncodeAllData();
+			$encodingResult = $encodeAllData->getEncodedStatusData($result);
+			return $encodingResult;
+		}
+	}
+	/**
+     * get quotation data as per given data in header
+     * @param header-data
+     * @return array-data/error message
+     */
+	public function getQuotationStatusCounts($companyId,$headerData)
+	{
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+			
+		//data pass to the model object for getData
+		$quotationModel = new QuotationModel();
+		$result = $quotationModel->getStatusQuoteCountData($companyId,$headerData);
+		if(strcmp($result,$exceptionArray['204'])==0)
+		{
+			return $result;
+		}
+		else
+		{
+			$encodeAllData = new EncodeAllData();
+			$encodingResult = $encodeAllData->getEncodedStatusCountData($result);
+			return $encodingResult;
+		}
+	}
+	public function getDispatched($saleId)
+	{
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+			
+		//data pass to the model object for getData
+		$quotationModel = new QuotationModel();
+		$result = $quotationModel->getDispatched($saleId);
+		return $result;
+	}
 	/**
      * update quotation data
      * @param QuotationPersistable $persistable

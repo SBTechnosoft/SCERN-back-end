@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use ERP\Core\Accounting\Ledgers\Services\LedgerService;
 use ERP\Http\Requests;
 use ERP\Api\V1_0\Support\BaseController;
-// use ERP\Api\V1_0\Accounting\Ledgers\Processors\LedgerProcessor;
 use ERP\Api\V1_0\Accounting\Ledgers\Processors\DemoProcessor as LedgerProcessor;
 use ERP\Core\Accounting\Ledgers\Persistables\LedgerPersistable;
 use ERP\Core\Support\Service\ContainerInterface;
@@ -50,7 +49,9 @@ class LedgerController extends BaseController implements ContainerInterface
     public function store(Request $request)
     {
 		$requestUri = explode('/',$_SERVER['REQUEST_URI']);
-		if(strcmp($requestUri[1],"accounting")==0 && strcmp($requestUri[2],"bills")==0)
+		if((strcmp($requestUri[1],"accounting")==0 && strcmp($requestUri[2],"bills")==0) ||
+			(strcmp($requestUri[2], 'quotations')==0 && strcmp($requestUri[3], 'convert')==0) ||
+			(strcmp($requestUri[1], 'accounting')==0 && strcmp($requestUri[2], 'purchase-bills')==0))
 		{
 			$this->request = $request;
 			// check the requested Http method
@@ -156,6 +157,39 @@ class LedgerController extends BaseController implements ContainerInterface
 		}
 	}
 	
+	/**
+     * get the specified resource.
+     * @param  int  $userId
+     */
+	public function getUserData(Request $request,$userId)
+	{
+		//Authentication
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		
+		//get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
+		{
+			if (array_key_exists('companyid', $request->header())) 
+			{
+				$headerData = $request->header();
+				$ledgerService= new LedgerService();
+				$status = $ledgerService->getUserData($userId,$headerData);
+				return $status;
+			}else{
+				return $exceptionArray['204'];
+			}
+			
+		}
+		else
+		{
+			return $authenticationResult;
+		}
+	}
 	/**
      * get the specified resource.
      * @param  int  $ledgerGrpId
@@ -287,7 +321,8 @@ class LedgerController extends BaseController implements ContainerInterface
 	public function update(Request $request,$ledgerId)
     {  
 		$RequestUri = explode("/", $_SERVER['REQUEST_URI']);
-		if(strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"bills")==0 || strcmp($RequestUri[1],"clients")==0)
+		if(strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"bills")==0 || strcmp($RequestUri[1],"clients")==0 ||
+			(strcmp($RequestUri[2], 'quotations')==0 && strcmp($RequestUri[3], 'convert')==0))
 		{
 			$this->request = $request;
 			
@@ -371,7 +406,7 @@ class LedgerController extends BaseController implements ContainerInterface
 	
     /**
      * Remove the specified resource from storage.
-     * @param  Request object[Request $request]     
+     * @param  Request object[Request $request]
      * @param  ledger_id     
      */
     public function destroy(Request $request,$ledgerId)
@@ -391,7 +426,7 @@ class LedgerController extends BaseController implements ContainerInterface
 			return $result;
 		}
 		else
-		{		
+		{
 			$ledgerPersistable = $Processor->createPersistableChange($this->request,$ledgerId);
 			$ledgerService->create($ledgerPersistable);
 			$status = $ledgerService->delete($ledgerPersistable);
