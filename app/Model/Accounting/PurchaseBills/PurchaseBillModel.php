@@ -374,6 +374,7 @@ class PurchaseBillModel extends Model
 			GROUP BY purchase_id 
 		) d ON d.purchase_id = p.purchase_id
 		where p.bill_type='purchase_bill' and
+		p.company_id = '".$headerData['companyid'][0]."' and
 		p.deleted_at='0000-00-00 00:00:00' and ".$isPurchaseOrder.$extraQuery.$orderBy);
 		DB::commit();
 		

@@ -335,7 +335,7 @@ class BillModel extends Model
 					branch_id,
 					jf_id,
 					created_at,
-					updated_at 
+					updated_at
 					from sales_bill where sale_id=(select MAX(sale_id) as sale_id from sales_bill) and deleted_at='0000-00-00 00:00:00' and is_draft='no' and ".$isSalesOrder); 
 					DB::commit();
 					//get latest expense sale data from database

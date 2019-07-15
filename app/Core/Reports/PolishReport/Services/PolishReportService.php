@@ -33,7 +33,6 @@ class PolishReportService extends AbstractService
     public function create(PolishReportPersistable $persistable)
     {
 		return "create method of PolishReportService";
-		
     }
 	
 	/**
