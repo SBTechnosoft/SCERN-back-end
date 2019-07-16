@@ -343,5 +343,6 @@ class ConstantClass
 		// Sales Return
 		$constantArray['JOIN_SALES_TO_RETURN'] = "INNER JOIN sale_bill on sale_bill.sale_id = sales_return.sale_id";
 
+		return $constantArray;
 	}
 }

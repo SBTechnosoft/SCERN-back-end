@@ -29,6 +29,8 @@ class ReportBuilderController extends BaseController implements ContainerInterfa
 
 	/**
 	 * get the specified resource 
+	 * @param (no param)
+	 * @return array-data/exception message
 	 * method calls the model and get the data
 	*/
 	public function getReportBuilderGroups(Request $request)
@@ -48,9 +50,34 @@ class ReportBuilderController extends BaseController implements ContainerInterfa
 			$reportBuilder = new ReportBuilderService();
 			return $reportBuilder->getReportBuilderGroups();
 		}
-		else
+		
+		return $authenticationResult;
+	}
+
+	/**
+	 * get the specified resource 
+	 * @param $groupId
+	 * @return array-data/exception message
+	 * method calls the model and get the data
+	*/
+	public function getTablesByGroup(Request $request, $groupId)
+	{
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		
+		//get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if(strcmp($constantArray['success'],$authenticationResult)==0)
 		{
-			return $authenticationResult;
+			$reportBuilder = new ReportBuilderService();
+			return $reportBuilder->getTablesByGroup($groupId);
 		}
+		
+		return $authenticationResult;
 	}
 }

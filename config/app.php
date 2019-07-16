@@ -246,7 +246,8 @@ return [
         'Expenses',
         'PurchaseBills',
         'MeasurementUnits',
-        'Merge'
+        'Merge',
+        'ReportBuilder'
 	],
 
     /*
