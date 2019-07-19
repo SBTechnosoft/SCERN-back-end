@@ -66,4 +66,15 @@ class ReportBuilderService extends AbstractService
     	$reportBuilderModel = new ReportBuilderModel();
     	return $reportBuilderModel->getTablesByGroup($groupId);
     }
+
+    /**
+     * get preview data
+     * @param trimmed (Request)
+     * @return  array-data/exception message
+     */
+    public function preview($builderArray)
+    {
+        $reportBuilderModel = new ReportBuilderModel();
+        return $reportBuilderModel->getPreview($builderArray);
+    }
 }

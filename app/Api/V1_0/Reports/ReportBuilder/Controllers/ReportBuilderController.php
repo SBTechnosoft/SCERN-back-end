@@ -4,6 +4,7 @@ namespace ERP\Api\V1_0\Reports\ReportBuilder\Controllers;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use ERP\Core\Reports\ReportBuilder\Services\ReportBuilderService;
+use ERP\Api\V1_0\Reports\ReportBuilder\Processors\ReportBuilderProcessor;
 use ERP\Http\Requests;
 use ERP\Api\V1_0\Support\BaseController;
 use ERP\Entities\AuthenticationClass\TokenAuthentication;
@@ -79,5 +80,41 @@ class ReportBuilderController extends BaseController implements ContainerInterfa
 		}
 		
 		return $authenticationResult;
+	}
+
+	/**
+	 * get the specified resource 
+	 * @param $request Object
+	 * @return array-data/exception message
+	 * method calls the model and get the data
+	*/
+	public function generatePreview(Request $request)
+	{
+		
+		$tokenAuthentication = new TokenAuthentication();
+		$authenticationResult = $tokenAuthentication->authenticate($request->header());
+		
+		//get constant array
+		$constantClass = new ConstantClass();
+		$constantArray = $constantClass->constantVariable();
+		
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if(strcmp($constantArray['success'],$authenticationResult)!=0)
+		{
+			return $authenticationResult;
+		}
+		if (!$request->isMethod('post') || !count($request->all())) {
+			return $exceptionArray['204'];
+		}
+		
+		$reportBuilderProcessor = new ReportBuilderProcessor();
+		$status = $reportBuilderProcessor->previewProcess($request);
+		if (!is_array($status)) {
+			return $status;
+		}
+		$reportBuilderService = new ReportBuilderService();
+		return $reportBuilderService->preview($status);
 	}
 }

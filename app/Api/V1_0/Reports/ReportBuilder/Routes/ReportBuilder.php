@@ -22,6 +22,8 @@ class ReportBuilder implements RouteRegistrarInterface
 			Route::get('Reports/ReportBuilder/ReportBuilder/groups', 'Reports\ReportBuilder\Controllers\ReportBuilderController@getReportBuilderGroups');
 			Route::get('Reports/ReportBuilder/ReportBuilder/groups/{groupId}', 'Reports\ReportBuilder\Controllers\ReportBuilderController@getTablesByGroup');
 		});
+
+		Route::post('Reports/ReportBuilder/ReportBuilder/preview', 'Reports\ReportBuilder\Controllers\ReportBuilderController@generatePreview');
 		
 	}
 }
