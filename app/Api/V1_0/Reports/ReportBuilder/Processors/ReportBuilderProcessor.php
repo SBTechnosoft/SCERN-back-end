@@ -7,7 +7,6 @@ use ERP\Http\Requests;
 use Illuminate\Http\Response;
 use ERP\Exceptions\ExceptionMessage;
 use ERP\Api\V1_0\Reports\ReportBuilder\Transformers\ReportBuilderTransformer;
-use ERP\Model\Reports\ReportBuilder\ReportBuilderModel;
 /**
  * @author Hiren Faldu<hiren.f@siliconbrain.in>
  */
@@ -20,8 +19,8 @@ class ReportBuilderProcessor extends BaseProcessor
 
 	/**
      * get the form-data and set into the persistable object
-     * $param Request object [Request $request]
-     * @return setting Array / Error Message Array / Exception Message
+     * @param Request object [Request $request]
+     * @return preview Array / Error Message Array / Exception Message
      */	
 	public function previewProcess(Request $request)
 	{
@@ -36,21 +35,27 @@ class ReportBuilderProcessor extends BaseProcessor
 		if (!is_array($trimRequest)) {
 			return $trimRequest;
 		}
-		$trimRequest['joins'] = array();
 		$selectedColumns = array_column($trimRequest['columns'], 'id');
 		$filterColumns = array_column(array_column($trimRequest['filters'] , 'field'), 'id');
 		array_push($filterColumns, $trimRequest['group_by'], $trimRequest['order_by']);
 		$columns = array_values(array_unique(array_merge($selectedColumns, $filterColumns)));
-		$reportBuilderModel = new ReportBuilderModel();
-		$tables = $reportBuilderModel->getRequiredTableByFields($columns);
-		if (!is_array($tables) && !count($tables)) {
-			return $tables;
-		}
-		$trimRequest['joins'] = array_column(json_decode(json_encode($tables), true), 'table_name');
-		if (!count($trimRequest['joins'])) {
-			return $exceptionArray['404'];
-		}
-		
+		$trimRequest['join_columns'] = $columns;
 		return $trimRequest;
+	}
+
+	/**
+	 * @param Request Object [Request $request]
+	 * @return report template Array / Exception Message
+	 */
+	public function storeProcess(Request $request)
+	{
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+
+		if (!count($request->all())) {
+			return $exceptionArray['204'];
+		}
+		$reportBuilderTransformer = new ReportBuilderTransformer();
+		return $reportBuilderTransformer->trimStore($request);
 	}
 }

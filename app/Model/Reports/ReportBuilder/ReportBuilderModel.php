@@ -12,6 +12,35 @@ use stdClass;
 class ReportBuilderModel extends Model
 {
 	/**
+	 * get all stored reports
+	 * @param (no params)
+	 * @return array -data / exception message
+	 */
+	public function getAllData()
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		DB::beginTransaction();
+		$raw = DB::connection($databaseName)->select("SELECT
+			report_id as reportId,
+			report_name as reportName,
+			report_title as reportTitle,
+			title_alignment as titlePosition
+			FROM reports_rb_mst
+			WHERE deleted_at = 0;
+		");
+		DB::commit();
+		if (count($raw)) {
+			return json_encode($raw);
+		}
+		return $exceptionArray['404'];
+	}
+	/**
 	 * get data 
 	 * returns the array-data/exception message
 	*/
@@ -91,12 +120,236 @@ class ReportBuilderModel extends Model
 		return $exceptionArray['404'];
 	}
 
+
+	/**
+	 * Get preview data for report builder
+	 * @param reportbuilder array
+	 * @return report builder preview data
+	 */
+
+	public function getPreview($reportBuildArray)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+
+		$reportGroupId = $reportBuildArray['report_group'];
+		if(!$reportGroupId) {
+			return $exceptionArray['content'];
+		}
+		DB::beginTransaction();
+		$raw = DB::connection()->select("SELECT
+			query_summary,
+			query_details
+			FROM reports_rb_groups
+			WHERE rb_group_id = ? ", [$reportGroupId]);
+		if (count($raw) != 1) {
+			return $exceptionArray['content'];
+		}
+
+		$tables = $this->getRequiredTableByFields($reportBuildArray['join_columns']);
+		if (!is_array($tables) && !count($tables)) {
+			return $tables;
+		}
+
+		$joinTables = array_column(json_decode(json_encode($tables), true), 'table_name');
+		if (!count($joinTables)) {
+			return $exceptionArray['404'];
+		}
+
+
+		$query = $reportBuildArray['report_type'] == 'details' ? $raw[0]->query_details : $raw[0]->query_summary;
+		$selectFields = array_column($reportBuildArray['columns'], 'id');
+		$fieldIn = implode(', ', $selectFields);
+		$raw = DB::connection()->select("SELECT
+			CONCAT(table_name, '.',field_name,' as field', field_id) as field
+			FROM reports_rb_tblfields
+			JOIN reports_rb_tables ON reports_rb_tblfields.table_id = reports_rb_tables.rb_table_id
+			WHERE field_id IN ($fieldIn)
+		");
+		if (!count($raw)) {
+			return $exceptionArray['content'];
+		}
+		$selectors = json_decode(json_encode($raw), true);
+		$selectQuery = implode(', ', array_column($selectors, 'field'));
+		$query = str_replace('|@@|SELECT_FIELDS|@@|', $selectQuery, $query);
+
+		$query = $this->resolveJoins($query, $joinTables);
+		
+		$filterStr = $this->createFilters($reportBuildArray['filters']);
+
+		$query = str_replace('|@@|FILTERS|@@|', $filterStr, $query);
+		// In case of Having Filter
+		$query = str_replace('|@@|HAVINGFILTERS|@@|', '', $query);
+		
+		$filterFields = array();
+		$orderBy = $this->applyOrderBy($reportBuildArray['order_by']);
+		$query = str_replace('|@@|ORDERBY_FIELDS|@@|', $orderBy, $query);
+
+		$groupBy = $this->applyGroupBy($reportBuildArray['group_by']);;
+		
+		$query = str_replace('|@@|GROUP_BY|@@|', $groupBy, $query);
+		$raw = DB::connection()->select($query." LIMIT 0,20;");
+		if (!count($raw)) {
+			return $exceptionArray['404'];
+		}
+		DB::commit();
+		return json_encode($raw);
+	}
+
+	/**
+	 * @param $reportId
+	 * @return array-data / exception message
+	 */
+	public function generate($reportId)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$database = $constantDatabase->constantDatabase();
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+
+		DB::beginTransaction();
+		$raw = DB::connection($database)->select("SELECT
+			reports_rb_mst.report_type,
+			reports_rb_mst.order_by,
+			reports_rb_mst.group_by,
+			reports_rb_groups.query_summary,
+			reports_rb_groups.query_details
+			FROM reports_rb_mst
+			INNER JOIN reports_rb_groups ON reports_rb_mst.rb_group_id = reports_rb_groups.rb_group_id
+			WHERE reports_rb_mst.report_id = ? AND
+			reports_rb_mst.deleted_at = 0 AND
+			reports_rb_groups.deleted_at = 0
+			", [$reportId]);
+		if (count($raw) != 1) {
+			return $exceptionArray['content'];
+		}
+		$query = $raw[0]->report_type == 'details' ? $raw[0]->query_details : $raw[0]->query_summary;
+		$orderBy = $raw[0]->order_by;
+		$groupBy = $raw[0]->group_by;
+		$raw = DB::connection($database)->select("SELECT
+			field_id,
+			field_label,
+			position
+			FROM reports_rb_selects
+			WHERE report_id = ?
+		", [$reportId]);
+		if (!count($raw)) {
+			return $exceptionArray['content'];
+		}
+		$join_columns = array();
+		$fields = json_decode(json_encode($raw), true);
+		$join_columns = array_column('field_id', $fields);
+		array_push($join_columns, $orderBy, $groupBy);
+
+		$raw = DB::connection($database)->select("SELECT
+			field_id,
+			filter_type as conditionType,
+			filter_value as filterValue
+			FROM reports_rb_filters
+			WHERE report_id = ?
+			",[$reportId]);
+		$filters = json_decode(json_encode($raw, true);
+		$filterColumns = array_column($filters, 'field_id');
+		$join_columns = array_values(array_unique(array_merge($join_columns, $filterColumns)));
+			
+		$tables = $this->getRequiredTableByFields($join_columns);
+		if (!is_array($tables) && !count($tables)) {
+			return $tables;
+		}
+		
+	}
+	/**
+	 * @param trimmed request of report template
+	 * @return status / exception message
+	 */
+	public function insertData($reportTemplate)
+	{
+		//database selection
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+
+		if(!$reportTemplate['report_group_id']) {
+			return $exceptionArray['content'];
+		}
+		DB::beginTransaction();
+		try {
+			$raw = DB::connection($databaseName)->select("SELECT
+				query_summary,
+				query_details
+				FROM reports_rb_groups
+				WHERE rb_group_id = ? ;", [$reportTemplate['report_group_id']]);
+			if (count($raw) != 1) {
+				throw new Exception($exceptionArray['content']);
+			}
+			$storeArray = array();
+			$storeArray[0] = $reportTemplate['report_group_id'];
+			$storeArray[1] = $reportTemplate['report_name'];
+			$storeArray[2] = $reportTemplate['report_title'];
+			$storeArray[3] = $reportTemplate['title_alignment'];
+			$storeArray[4] = $reportTemplate['report_type'];
+			$storeArray[5] = $reportTemplate['order_by'];
+			$storeArray[6] = $reportTemplate['group_by'];
+			$store = DB::connection($databaseName)->statement("INSERT INTO reports_rb_mst (rb_group_id, report_name, report_title, title_alignment, report_type, order_by, group_by) VALUES(?, ?, ?, ?, ?, ?, ?);", $storeArray);
+			if (!$store) {
+				throw new Exception($exceptionArray['500']);
+			}
+			$raw = DB::connection($databaseName)->select("SELECT LAST_INSERT_ID() as insertId;");
+			if(!count($raw)) {
+				throw new Exception($exceptionArray['500']);
+			}
+			$reportId = $raw[0]->insertId;
+			$selectStore = call_user_func_array('array_merge', array_map(function($ar) use ($reportId) {
+				$b = array();
+				$b[0] = $reportId;
+				$b[1] = $ar['id'];
+				$b[2] = addslashes($ar['label']);
+				$b[3] = $ar['position'];
+				return $b;
+			}, $reportTemplate['columns']));
+			$preValue = str_repeat(',(?, ?, ?, ?)', count($reportTemplate['columns']) - 1);
+			$store = DB::connection($databaseName)->statement("INSERT INTO reports_rb_selects (report_id, field_id, field_label, position) VALUES (?, ?, ?, ?)".$preValue.";", $selectStore);
+			if (!$store) {
+				throw new Exception($exceptionArray['500']);
+			}
+			$filterStore = call_user_func_array('array_merge', array_map(function($ar) use ($reportId) {
+				$b = array();
+				$b[0] = $reportId;
+				$b[1] = $ar['field_id'];
+				$b[2] = $ar['conditionType'];
+				$b[3] = addslashes($ar['filterValue']);
+				return $b;
+			}, $reportTemplate['filters']));
+			$preValue = str_repeat(',(?, ?, ?, ?)', count($reportTemplate['filters']) - 1);
+			$store = DB::connection($databaseName)->statement("INSERT INTO reports_rb_filters (report_id, field_id, filter_type, filter_value) VALUES (?, ?, ?, ?)".$preValue.";", $filterStore);
+
+			if (!$store) {
+				throw new Exception($exceptionArray['500']);
+			}
+			DB::commit();
+			return $exceptionArray['200'];
+		} catch (Exception $e) {
+			DB::rollback();
+			return $e->getMessage();
+		}
+	}
 	/**
 	 * @param fields
 	 * get data
 	 * @return array-data/exception message
 	 */
-	public function getRequiredTableByFields($fields)
+	private function getRequiredTableByFields($fields)
 	{
 		//database selection
 		$database = "";
@@ -122,90 +375,6 @@ class ReportBuilderModel extends Model
 			return $raw;
 		}
 		return $exceptionArray['404'];
-	}
-
-	/**
-	 * Get preview data for report builder
-	 * @param reportbuilder array
-	 * @return report builder preview data
-	 */
-
-	public function getPreview($reportBuildArray)
-	{
-		//database selection
-		$database = "";
-		$constantDatabase = new ConstantClass();
-		$databaseName = $constantDatabase->constantDatabase();
-		//get exception message
-		$exception = new ExceptionMessage();
-		$exceptionArray = $exception->messageArrays();
-
-		$joinVariables = $constantDatabase->reportBuilderJoin();
-		$joinFilters = $constantDatabase->defaultJoinConditions();
-
-		$reportGroupId = $reportBuildArray['report_group'];
-		if(!$reportGroupId) {
-			return $exceptionArray['content'];
-		}
-		DB::beginTransaction();
-		$raw = DB::connection()->select("SELECT
-			query_summary,
-			query_details
-			FROM reports_rb_groups
-			WHERE rb_group_id ='{$reportGroupId}'
-		");
-		if (count($raw) != 1) {
-			return $exceptionArray['content'];
-		}
-		$query = $reportBuildArray['report_type'] == 'details' ? $raw[0]->query_details : $raw[0]->query_summary;
-		$selectFields = array_column($reportBuildArray['columns'], 'id');
-		$fieldIn = implode(', ', $selectFields);
-		$raw = DB::connection()->select("SELECT
-			CONCAT(table_name, '.',field_name,' as field', field_id) as field
-			FROM reports_rb_tblfields
-			JOIN reports_rb_tables ON reports_rb_tblfields.table_id = reports_rb_tables.rb_table_id
-			WHERE field_id IN ($fieldIn)
-		");
-		if (!count($raw)) {
-			return $exceptionArray['content'];
-		}
-		$selectors = json_decode(json_encode($raw), true);
-		$selectQuery = implode(', ', array_column($selectors, 'field'));
-		$query = str_replace('|@@|SELECT_FIELDS|@@|', $selectQuery, $query);
-		$filterStr = '';
-		foreach ($joinVariables as $variable => $joinStr) {
-			$joinConcat = '';
-			for ($joinIter=0; $joinIter < count($reportBuildArray['joins']); $joinIter++) { 
-				if (strpos($joinStr, 'JOIN '.$reportBuildArray['joins'][$joinIter].' ') > -1) {
-					$joinConcat = $joinStr;
-					if (array_key_exists($variable, $joinFilters)) {
-						$filterStr .= $joinFilters[$variable];
-					}
-					break;
-				}
-			}
-			$query = str_replace('|@@|'.$variable.'|@@|', $joinConcat, $query);
-		}
-
-		$filterStr .= $this->createFilters($reportBuildArray['filters']);
-
-		$query = str_replace('|@@|FILTERS|@@|', $filterStr, $query);
-		// In case of Having Filter
-		$query = str_replace('|@@|HAVINGFILTERS|@@|', '', $query);
-		
-		$filterFields = array();
-		$orderBy = $this->applyOrderBy($reportBuildArray['order_by']);
-		$query = str_replace('|@@|ORDERBY_FIELDS|@@|', $orderBy, $query);
-
-		$groupBy = $this->applyGroupBy($reportBuildArray['group_by']);;
-		
-		$query = str_replace('|@@|GROUP_BY|@@|', $groupBy, $query);
-		$raw = DB::connection()->select($query." LIMIT 0,20;");
-		if (!count($raw)) {
-			return $exceptionArray['404'];
-		}
-		DB::commit();
-		return json_encode($raw);
 	}
 
 	private function createFilters($filters)
@@ -314,23 +483,31 @@ class ReportBuilderModel extends Model
 
 	private function applyOrderBy($fieldId)
 	{
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+
 		$orderBy = "";
-		$raw = DB::connection()->select("SELECT
-			CONCAT(table_name, '.',field_name) as field,
-			data_type
-			FROM reports_rb_tblfields
-			JOIN reports_rb_tables ON reports_rb_tblfields.table_id = reports_rb_tables.rb_table_id
-			WHERE field_id = {$fieldId}
-		");
-		if (!count($raw)) {
-			return $exceptionArray['content'];
+		if ($fieldId) {
+			$raw = DB::connection()->select("SELECT
+				CONCAT(table_name, '.',field_name) as field,
+				data_type
+				FROM reports_rb_tblfields
+				JOIN reports_rb_tables ON reports_rb_tblfields.table_id = reports_rb_tables.rb_table_id
+				WHERE field_id = {$fieldId}
+			");
+			if (!count($raw)) {
+				return $exceptionArray['content'];
+			}
+			$orderBy = "ORDER BY {$raw[0]->field} ASC";
 		}
-		$orderBy = "ORDER BY {$raw[0]->field} ASC";
 		return $orderBy;
 	}
 
 	private function applyGroupBy($fieldId)
 	{
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+
 		$groupBy = "";
 		if ($fieldId) {
 			$raw = DB::connection()->select("SELECT
@@ -346,5 +523,30 @@ class ReportBuilderModel extends Model
 			$groupBy = "GROUP BY {$raw[0]->field}";
 		}
 		return $groupBy;
+	}
+
+	private function resolveJoins($query, $joins)
+	{
+		$constants = new ConstantClass();
+		$joinVariables = $constants->reportBuilderJoin();
+		$joinFilters = $constants->defaultJoinConditions();
+		$filterStr = '';
+
+		foreach ($joinVariables as $variable => $joinStr) {
+			$joinConcat = '';
+			for ($joinIter=0; $joinIter < count($joins); $joinIter++) { 
+				if (strpos($joinStr, 'JOIN '.$joins[$joinIter].' ') > -1) {
+					$joinConcat = $joinStr;
+					if (array_key_exists($variable, $joinFilters)) {
+						$filterStr .= $joinFilters[$variable];
+					}
+					break;
+				}
+			}
+			$query = str_replace('|@@|'.$variable.'|@@|', $joinConcat, $query);
+		}
+		$filterStr .= '|@@FILTERS|@@|';
+		$query = str_replace('|@@FILTERS|@@|', $filterStr, $query);
+		return $query;
 	}
 }
