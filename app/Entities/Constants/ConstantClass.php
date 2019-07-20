@@ -327,22 +327,46 @@ class ConstantClass
 	{
 		$constantArray = array();
 		// Sales join
-		$constantArray['JOIN_SALES_DOC'] = 'LEFT JOIN sales_bill_doc_dtl on sales_bill_doc_dtl.sale_id = sale_bill.sale_id';
-		$constantArray['JOIN_SALES_EXPENSE_WITH_EXPENSE'] = "LEFT JOIN sale_expense_dtl on sale_expense_dtl.sale_id = sale_bill.sale_id";
-		$constantArray['JOIN_CLIENT_TO_SALES'] = "LEFT JOIN client_mst on client_mst.client_id = sale_bill.client_id";
-		$constantArray['JOIN_COMPANY_TO_SALES'] = "INNER JOIN company_mst on company_mst.company_id = sale_bill.company_id";
-		$constantArray['JOIN_BRANCH_TO_SALES'] = "LEFT JOIN branch_mst on branch_mst.branch_id = sale_bill.branch_id";
-		$constantArray['JOIN_USER_TO_SALE'] = "LEFT JOIN user_mst on user_mst.user_id = sale_bill.user_id";
-		$constantArray['JOIN_USER_TO_SALE'] = "LEFT JOIN user_mst on user_mst.user_id = sale_bill.user_id";
+		$constantArray['JOIN_SALES_DOC'] = 'LEFT JOIN sales_bill_doc_dtl on sales_bill_doc_dtl.sale_id = sales_bill.sale_id';
+		$constantArray['JOIN_SALES_EXPENSE_WITH_EXPENSE'] = "LEFT JOIN sale_expense_dtl on sale_expense_dtl.sale_id = sales_bill.sale_id";
+		$constantArray['JOIN_CLIENT_TO_SALES'] = "INNER JOIN client_mst on client_mst.client_id = sales_bill.client_id";
+		$constantArray['JOIN_COMPANY_TO_SALES'] = "INNER JOIN company_mst on company_mst.company_id = sales_bill.company_id";
+		$constantArray['JOIN_BRANCH_TO_SALES'] = "LEFT JOIN branch_mst on branch_mst.branch_id = sales_bill.branch_id";
+		$constantArray['JOIN_USER_TO_SALE'] = "LEFT JOIN user_mst on user_mst.user_id = sales_bill.user_id";
 		// Purchase join
 		$constantArray['JOIN_PURCHASE_DOC'] = 'LEFT JOIN purchase_doc_dtl on purchase_doc_dtl.purchase_id = purchase_bill.purchase_id';
 		$constantArray['JOIN_PURCHASE_EXPENSE_WITH_EXPENSE'] = "LEFT JOIN purchase_expense_dtl on purchase_expense_dtl.purchase_id = purchase_bill.purchase_id";
-		$constantArray['JOIN_VENDOR_TO_PURCHASE'] = "LEFT JOIN ledger_mst on ledger_mst.ledger_id = purchase_bill.vendor_id";
-		$constantArray['JOIN_COMPANY_TO_PURCHASE'] = "LEFT JOIN company_mst on company_mst.company_id = purchase_bill.company_id";
+		$constantArray['JOIN_VENDOR_TO_PURCHASE'] = "INNER JOIN ledger_mst on ledger_mst.ledger_id = purchase_bill.vendor_id";
+		$constantArray['JOIN_COMPANY_TO_PURCHASE'] = "INNER JOIN company_mst on company_mst.company_id = purchase_bill.company_id";
 		$constantArray['JOIN_BRANCH_TO_PURCHASE'] = "LEFT JOIN branch_mst on branch_mst.branch_id = purchase_bill.branch_id";
 		// Sales Return
-		$constantArray['JOIN_SALES_TO_RETURN'] = "INNER JOIN sale_bill on sale_bill.sale_id = sales_return.sale_id";
+		$constantArray['JOIN_SALES_TO_RETURN'] = "INNER JOIN sales_bill on sales_bill.sale_id = sales_return.sale_id";
 
+		return $constantArray;
+	}
+
+	/**
+	 * making an array contains constant data 
+	 * @param (no parameter)
+	*/
+
+	public function defaultJoinConditions()
+	{
+		$constantArray = array();
+		$constantArray['JOIN_SALES_DOC'] = '(sales_bill_doc_dtl.deleted_at = 0 OR sales_bill_doc_dtl.sale_id IS NULL) AND ';
+		$constantArray['JOIN_SALES_EXPENSE_WITH_EXPENSE'] = "(sale_expense_dtl.deleted_at = 0 OR sale_expense_dtl.sale_id IS NULL) AND ";
+		$constantArray['JOIN_CLIENT_TO_SALES'] = "client_mst.deleted_at = 0 AND ";
+		$constantArray['JOIN_COMPANY_TO_SALES'] = "company_mst.deleted_at = 0 AND ";
+		$constantArray['JOIN_BRANCH_TO_SALES'] = "(branch_mst.deleted_at = 0 OR branch_mst.branch_id IS NULL) AND ";
+		$constantArray['JOIN_USER_TO_SALE'] = "((user_mst.deleted_at = 0 AND user_mst.user_type <> 'superadmin') OR user_mst.user_id IS NULL) AND ";
+		// Purchase join
+		$constantArray['JOIN_PURCHASE_DOC'] = '(purchase_doc_dtl.deleted_at = 0 OR purchase_doc_dtl.purchase_id IS NULL) AND ';
+		$constantArray['JOIN_PURCHASE_EXPENSE_WITH_EXPENSE'] = "(purchase_expense_dtl.deleted_at = 0 OR purchase_expense_dtl.purchase_id IS NULL) AND ";
+		$constantArray['JOIN_VENDOR_TO_PURCHASE'] = "ledger_mst.deleted_at = 0 AND ";
+		$constantArray['JOIN_COMPANY_TO_PURCHASE'] = "company_mst.deleted_at = 0 AND ";
+		$constantArray['JOIN_BRANCH_TO_PURCHASE'] = "(branch_mst.deleted_at = 0 OR branch_mst.branch_id IS NULL) AND ";
+		// Sales Return
+		$constantArray['JOIN_SALES_TO_RETURN'] = "sales_bill.deleted_at = 0 AND ";
 		return $constantArray;
 	}
 }
