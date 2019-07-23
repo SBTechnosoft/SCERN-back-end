@@ -57,6 +57,17 @@ class ReportBuilderService extends AbstractService
 	}
 
 	/**
+	 * get specific data
+	 * @param $reportId
+	 * @return array-data/exception message
+	 */
+	public function getData($reportId)
+	{
+		$reportBuilderModel = new ReportBuilderModel();
+		return $reportBuilderModel->getData($reportId);
+	}
+
+	/**
 	 * get all the data
 	 * @param (no params)
 	 * @return array-data/exception message
@@ -101,6 +112,17 @@ class ReportBuilderService extends AbstractService
 	}
 
 	/**
+	 * store report Template data
+	 * @param trimmer (Request)
+	 * @return staus / exception message
+	 */
+	public function updateService($reportTemplate, $reportId)
+	{
+		$reportBuilderModel = new ReportBuilderModel();
+		return $reportBuilderModel->updateData($reportTemplate, $reportId);
+	}
+
+	/**
 	 * @param $reportId
 	 * @return array-data/ exception message
 	 */
@@ -108,5 +130,15 @@ class ReportBuilderService extends AbstractService
 	{
 		$reportBuilderModel = new ReportBuilderModel();
 		return $reportBuilderModel->generate($reportId);
+	}
+
+	/**
+	 * @param $reportId
+	 * @return array-data/ exception message
+	 */
+	public function destroy($reportId)
+	{
+		$reportBuilderModel = new ReportBuilderModel();
+		return $reportBuilderModel->deleteData($reportId);
 	}
 }

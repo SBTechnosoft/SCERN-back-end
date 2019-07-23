@@ -341,6 +341,21 @@ class ConstantClass
 		$constantArray['JOIN_BRANCH_TO_PURCHASE'] = "LEFT JOIN branch_mst on branch_mst.branch_id = purchase_bill.branch_id";
 		// Sales Return
 		$constantArray['JOIN_SALES_TO_RETURN'] = "INNER JOIN sales_bill on sales_bill.sale_id = sales_return.sale_id";
+		$constantArray['JOIN_SALES_DOC_TO_RETURN'] = "LEFT JOIN sales_bill_doc_dtl on sales_bill_doc_dtl.sale_id = sales_return.sale_id";
+		$constantArray['JOIN_CLIENT_TO_RETURN'] = "INNER JOIN client_mst on client_mst.client_id = sales_return.client_id";
+		$constantArray['JOIN_COMPANY_TO_RETURN'] = "INNER JOIN company_mst on company_mst.company_id = sales_return.company_id";
+		$constantArray['JOIN_BRANCH_TO_RETURN'] = "LEFT JOIN branch_mst on branch_mst.branch_id = sales_return.branch_id";
+		// Product Joins
+		$constantArray['JOIN_PRODUCT_GROUP'] = "LEFT JOIN product_group_mst ON product_group_mst.product_group_id = product_mst.product_group_id";
+		$constantArray['JOIN_PRODUCT_CATEGORY'] = "LEFT JOIN product_category_mst ON product_category_mst.product_category_id = product_mst.product_category_id";
+		$constantArray['JOIN_PRODUCT_CATEGORY'] = "LEFT JOIN product_category_mst ON product_category_mst.product_category_id = product_mst.product_category_id";
+		$constantArray['JOIN_PRODUCT_STOCK_SUMMARY'] = "LEFT JOIN product_trn_summary ON product_trn_summary.product_id = product_mst.product_id";
+		$constantArray['JOIN_PRODUCT_STOCK'] = "LEFT JOIN product_trn ON product_trn.product_id = product_mst.product_id";
+		$constantArray['JOIN_PRODUCT_COMPANY'] = "INNER JOIN company_mst ON company_mst.company_id = product_mst.company_id";
+		$constantArray['JOIN_PRODUCT_BRANCH'] = "LEFT JOIN branch_mst ON branch_mst.branch_id = product_mst.branch_id";
+		// Stock Joins
+		$constantArray['JOIN_STOCK_TO_SALE'] = "LEFT JOIN sales_bill ON product_trn.jf_id = sales_bill.jf_id";
+		$constantArray['JOIN_STOCK_TO_PURCHASE'] = "LEFT JOIN purchase_bill ON product_trn.jf_id = purchase_bill.jf_id";
 
 		return $constantArray;
 	}
@@ -367,6 +382,21 @@ class ConstantClass
 		$constantArray['JOIN_BRANCH_TO_PURCHASE'] = "(branch_mst.deleted_at = 0 OR branch_mst.branch_id IS NULL) AND ";
 		// Sales Return
 		$constantArray['JOIN_SALES_TO_RETURN'] = "sales_bill.deleted_at = 0 AND ";
+		$constantArray['JOIN_SALES_DOC_TO_RETURN'] = "(sales_bill_doc_dtl.deleted_at = 0 OR sales_bill_doc_dtl.sale_id IS NULL) AND ";
+		$constantArray['JOIN_CLIENT_TO_RETURN'] = "client_mst.deleted_at = 0 AND ";
+		$constantArray['JOIN_COMPANY_TO_RETURN'] = "company_mst.deleted_at = 0 AND ";
+		$constantArray['JOIN_BRANCH_TO_RETURN'] = "(branch_mst.deleted_at = 0 OR branch_mst.branch_id IS NULL) AND ";
+		// Products
+		$constantArray['JOIN_PRODUCT_GROUP'] = "(product_group_mst.deleted_at = 0 OR product_group_mst.product_group_id IS NULL) AND ";
+		$constantArray['JOIN_PRODUCT_CATEGORY'] = "(product_category_mst.deleted_at = 0 OR product_category_mst.product_category_id IS NULL) AND ";
+		$constantArray['JOIN_PRODUCT_STOCK_SUMMARY'] = "(product_trn_summary.deleted_at = 0 OR product_trn_summary.product_id IS NULL) AND ";
+		$constantArray['JOIN_PRODUCT_STOCK'] = "(product_trn.deleted_at = 0 OR product_trn.product_id IS NULL) AND ";
+		$constantArray['JOIN_PRODUCT_COMPANY'] = "company_mst.deleted_at = 0 AND ";
+		$constantArray['JOIN_PRODUCT_BRANCH'] = "(branch_mst.deleted_at = 0 OR branch_mst.branch_id IS NULL) AND ";
+		// Stock 
+		$constantArray['JOIN_STOCK_TO_SALE'] = "(sales_bill.deleted_at = 0 OR sales_bill.sale_id IS NULL) AND ";
+		$constantArray['JOIN_STOCK_TO_PURCHASE'] = "(purchase_bill.deleted_at = 0 OR purchase_bill.sale_id IS NULL) AND ";
+
 		return $constantArray;
 	}
 }

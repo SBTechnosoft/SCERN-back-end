@@ -46,7 +46,6 @@ class ReportBuilderTransformer
 		$response['group_by'] = array_key_exists('id', $group_by) ? $group_by['id'] : 0;
 		$order_by = array_key_exists('orderBy', $request->input()) ? json_decode($request->input('orderBy'), true) : array();
 		$response['order_by'] = array_key_exists('id', $order_by) ? $order_by['id'] : 0;
-
 		return $response;
 	}
 	/**
