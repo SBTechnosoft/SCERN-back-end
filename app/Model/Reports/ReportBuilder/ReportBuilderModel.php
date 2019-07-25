@@ -74,6 +74,7 @@ class ReportBuilderModel extends Model
 		}
 		
 		$report['headers'] = (array) $raw[0];
+		DB::statement('SET group_concat_max_len = 1000000');
 		$raw = DB::connection($database)->select("SELECT
 			reports_rb_filters.filter_type as conditionType,
 			reports_rb_filters.filter_value as filterValue,
@@ -122,7 +123,10 @@ class ReportBuilderModel extends Model
 			} else {
 				$report['headers']['orderBy'] = array();
 			}
+		} else {
+			$report['headers']['orderBy'] = array();
 		}
+
 		if ($report['headers']['groupBy']) {
 			$raw = DB::connection($database)->select("SELECT
 				field_id as id,
@@ -136,6 +140,8 @@ class ReportBuilderModel extends Model
 			} else {
 				$report['headers']['groupBy'] = array();
 			}
+		} else {
+			$report['headers']['groupBy'] = array();
 		}
 		DB::commit();
 		return json_encode($report);
@@ -186,6 +192,7 @@ class ReportBuilderModel extends Model
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
 		DB::beginTransaction();
+		DB::statement('SET group_concat_max_len = 1000000');
 		$raw = DB::connection()->select("SELECT
 			reports_rb_tables.rb_table_id as id,
 			reports_rb_tables.table_label as label,
@@ -461,19 +468,21 @@ class ReportBuilderModel extends Model
 			if (!$store) {
 				throw new Exception($exceptionArray['500']);
 			}
-			$filterStore = call_user_func_array('array_merge', array_map(function($ar) use ($reportId) {
-				$b = array();
-				$b[0] = $reportId;
-				$b[1] = $ar['field_id'];
-				$b[2] = $ar['conditionType'];
-				$b[3] = addslashes($ar['filterValue']);
-				return $b;
-			}, $reportTemplate['filters']));
-			$preValue = str_repeat(',(?, ?, ?, ?)', count($reportTemplate['filters']) - 1);
-			$store = DB::connection($databaseName)->statement("INSERT INTO reports_rb_filters (report_id, field_id, filter_type, filter_value) VALUES (?, ?, ?, ?)".$preValue.";", $filterStore);
+			if (count($reportTemplate['filters'])) {
+				$filterStore = call_user_func_array('array_merge', array_map(function($ar) use ($reportId) {
+					$b = array();
+					$b[0] = $reportId;
+					$b[1] = $ar['field_id'];
+					$b[2] = $ar['conditionType'];
+					$b[3] = addslashes($ar['filterValue']);
+					return $b;
+				}, $reportTemplate['filters']));
+				$preValue = str_repeat(',(?, ?, ?, ?)', count($reportTemplate['filters']) - 1);
+				$store = DB::connection($databaseName)->statement("INSERT INTO reports_rb_filters (report_id, field_id, filter_type, filter_value) VALUES (?, ?, ?, ?)".$preValue.";", $filterStore);
 
-			if (!$store) {
-				throw new Exception($exceptionArray['500']);
+				if (!$store) {
+					throw new Exception($exceptionArray['500']);
+				}
 			}
 			DB::commit();
 			return $exceptionArray['200'];
