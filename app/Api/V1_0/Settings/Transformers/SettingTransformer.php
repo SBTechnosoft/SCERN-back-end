@@ -66,6 +66,7 @@ class SettingTransformer
 		{
 			$data['advance_sales_status'] = trim($request->input('advanceSalesStatus'));
 			$data['advance_purchase_status'] = trim($request->input('advancePurchaseStatus'));
+			$data['advance_tax_read_only_status'] = trim($request->input('advanceTaxReadOnlyStatus'));
 		}
 		else if(array_key_exists('chequeno',$request->input()))
 		{

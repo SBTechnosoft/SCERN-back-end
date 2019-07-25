@@ -42,6 +42,7 @@ use ERP\Core\Settings\Properties\BillSalesmanStatusTrait;
 
 use ERP\Core\Settings\Properties\AdvanceSalesStatusTrait;
 use ERP\Core\Settings\Properties\AdvancePurchaseStatusTrait;
+use ERP\Core\Settings\Properties\AdvanceTaxReadOnlyStatusTrait;
 
 use ERP\Core\Settings\Properties\WebintegrationStatusTrait;
 use ERP\Core\Settings\Properties\WebintegrationUserIdTrait;
@@ -100,6 +101,7 @@ class SettingPersistable
 
     use AdvanceSalesStatusTrait;
     use AdvancePurchaseStatusTrait;
+    use AdvanceTaxReadOnlyStatusTrait;
 
     use WebintegrationStatusTrait;
     use WebintegrationUserIdTrait;

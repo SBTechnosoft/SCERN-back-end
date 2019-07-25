@@ -189,6 +189,7 @@ class EncodeAllData extends Setting
 					'settingType' => $decodedJson[$decodedData]['setting_type'],
 					'advanceSalesStatus' => $decodedSettingData->advance_sales_status,
 					'advancePurchaseStatus' => $decodedSettingData->advance_purchase_status,
+					'advanceTaxReadOnlyStatus' => isset($decodedSettingData->advance_tax_read_only_status) ? $decodedSettingData->advance_tax_read_only_status : 'disable',
 					'createdAt' => $getCreatedDate[$decodedData],
 					'updatedAt' => $getUpdatedDate[$decodedData]
 				);

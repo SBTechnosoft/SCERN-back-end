@@ -131,11 +131,6 @@ class SettingModel extends Model
 				$inventoryFlag=1;
 				$inventoryArray[$getSettingKey[$data]] = $getSettingData[$data];
 			}
-			else if(strcmp($constantArray['inventorySetting'],$explodedSetting[0])==0)
-			{
-				$inventoryFlag=1;
-				$inventoryArray[$getSettingKey[$data]] = $getSettingData[$data];
-			}
 			else if(strcmp($constantArray['languageSetting'],$explodedSetting[0])==0)
 			{
 				$languageFlag=1;
