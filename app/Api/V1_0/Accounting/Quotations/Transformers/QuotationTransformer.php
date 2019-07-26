@@ -434,7 +434,7 @@ class QuotationTransformer
 		{
 			return 0;
 		}
-		return $tax;	
+		return $tax;
 	}
 
 	/**

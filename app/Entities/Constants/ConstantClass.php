@@ -356,6 +356,11 @@ class ConstantClass
 		// Stock Joins
 		$constantArray['JOIN_STOCK_TO_SALE'] = "LEFT JOIN sales_bill ON product_trn.jf_id = sales_bill.jf_id";
 		$constantArray['JOIN_STOCK_TO_PURCHASE'] = "LEFT JOIN purchase_bill ON product_trn.jf_id = purchase_bill.jf_id";
+		// Journal Joins
+		$constantArray['JOIN_SALES_TO_JOURNAL'] = "LEFT JOIN sales_bill ON sales_bill.jf_id = journal_dtl.jf_id";
+		// User Joins
+		$constantArray['JOIN_USER_TO_COMPANY'] = "INNER JOIN company_mst ON company_mst.company_id = user_mst.company_id";
+		$constantArray['JOIN_USER_BRANCH'] = "LEFT JOIN branch_mst ON branch_mst.branch_id = user_mst.branch_id";
 
 		return $constantArray;
 	}
@@ -396,6 +401,11 @@ class ConstantClass
 		// Stock 
 		$constantArray['JOIN_STOCK_TO_SALE'] = "(sales_bill.deleted_at = 0 OR sales_bill.sale_id IS NULL) AND ";
 		$constantArray['JOIN_STOCK_TO_PURCHASE'] = "(purchase_bill.deleted_at = 0 OR purchase_bill.sale_id IS NULL) AND ";
+		// Journal Joins
+		$constantArray['JOIN_SALES_TO_JOURNAL'] = "(sales_bill.deleted_at = 0 OR sales_bill.sale_id IS NULL) AND ";
+		// User Joins
+		$constantArray['JOIN_USER_TO_COMPANY'] = "company_mst.deleted_at = 0 AND ";
+		$constantArray['JOIN_USER_BRANCH'] = "(branch_mst.deleted_at = 0 OR branch_mst.branch_id IS NULL) AND ";
 
 		return $constantArray;
 	}
