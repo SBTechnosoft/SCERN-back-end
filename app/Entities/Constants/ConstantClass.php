@@ -338,7 +338,7 @@ class ConstantClass
 		$constantArray['JOIN_PURCHASE_EXPENSE_WITH_EXPENSE'] = "LEFT JOIN purchase_expense_dtl on purchase_expense_dtl.purchase_id = purchase_bill.purchase_id";
 		$constantArray['JOIN_VENDOR_TO_PURCHASE'] = "INNER JOIN ledger_mst on ledger_mst.ledger_id = purchase_bill.vendor_id";
 		$constantArray['JOIN_COMPANY_TO_PURCHASE'] = "INNER JOIN company_mst on company_mst.company_id = purchase_bill.company_id";
-		$constantArray['JOIN_BRANCH_TO_PURCHASE'] = "LEFT JOIN branch_mst on branch_mst.branch_id = purchase_bill.branch_id";
+		// $constantArray['JOIN_BRANCH_TO_PURCHASE'] = "LEFT JOIN branch_mst on branch_mst.branch_id = purchase_bill.branch_id";
 		// Sales Return
 		$constantArray['JOIN_SALES_TO_RETURN'] = "INNER JOIN sales_bill on sales_bill.sale_id = sales_return.sale_id";
 		$constantArray['JOIN_SALES_DOC_TO_RETURN'] = "LEFT JOIN sales_bill_doc_dtl on sales_bill_doc_dtl.sale_id = sales_return.sale_id";
@@ -384,7 +384,7 @@ class ConstantClass
 		$constantArray['JOIN_PURCHASE_EXPENSE_WITH_EXPENSE'] = "(purchase_expense_dtl.deleted_at = 0 OR purchase_expense_dtl.purchase_id IS NULL) AND ";
 		$constantArray['JOIN_VENDOR_TO_PURCHASE'] = "ledger_mst.deleted_at = 0 AND ";
 		$constantArray['JOIN_COMPANY_TO_PURCHASE'] = "company_mst.deleted_at = 0 AND ";
-		$constantArray['JOIN_BRANCH_TO_PURCHASE'] = "(branch_mst.deleted_at = 0 OR branch_mst.branch_id IS NULL) AND ";
+		// $constantArray['JOIN_BRANCH_TO_PURCHASE'] = "(branch_mst.deleted_at = 0 OR branch_mst.branch_id IS NULL) AND ";
 		// Sales Return
 		$constantArray['JOIN_SALES_TO_RETURN'] = "sales_bill.deleted_at = 0 AND ";
 		$constantArray['JOIN_SALES_DOC_TO_RETURN'] = "(sales_bill_doc_dtl.deleted_at = 0 OR sales_bill_doc_dtl.sale_id IS NULL) AND ";
