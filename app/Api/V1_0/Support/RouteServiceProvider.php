@@ -88,6 +88,7 @@ class RouteServiceProvider extends ServiceProvider
 				$routeArray['clients'] = "Client";
 				$routeArray['bills'] = "Bill";
 				$routeArray['sales-returns'] = "SalesReturn";
+				$routeArray['purchase-returns'] = "PurchaseReturn";
 				$routeArray['trial-balance'] = "TrialBalance";
 				$routeArray['balance-sheet'] = "BalanceSheet";
 				$routeArray['profit-loss'] = "ProfitLoss";

@@ -1,14 +1,14 @@
 <?php
-namespace ERP\Api\V1_0\Accounting\SalesReturns\Routes;
+namespace ERP\Api\V1_0\Accounting\PurchaseReturns\Routes;
 
-use ERP\Api\V1_0\Accounting\SalesReturns\Controllers\SalesReturnController;
+use ERP\Api\V1_0\Accounting\PurchaseReturns\Controllers\PurchaseReturnController;
 use ERP\Support\Interfaces\RouteRegistrarInterface;
 use Illuminate\Contracts\Routing\Registrar as RegistrarInterface;
 use Illuminate\Support\Facades\Route;
 /**
  * @author Hiren Faldu<hiren.f@siliconbrain.in>
  */
-class SalesReturn implements RouteRegistrarInterface
+class PurchaseReturn implements RouteRegistrarInterface
 {
     /**
      * @param RegistrarInterface $registrar
@@ -20,6 +20,6 @@ class SalesReturn implements RouteRegistrarInterface
 		ini_set('memory_limit', '256M');
 		// get data
 		// insert data post request
-		Route::post('Accounting/SalesReturns/SalesReturn/{saleId}','Accounting\SalesReturns\Controllers\SalesReturnController@store');
+		Route::post('Accounting/PurchaseReturns/PurchaseReturn/{saleId}','Accounting\PurchaseReturns\Controllers\PurchaseReturnController@store');
 	}
 }

@@ -206,7 +206,6 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Carbon' => 'Carbon\Carbon'
-
     ],
 	'packages' => [
         'Companies',
@@ -227,6 +226,7 @@ return [
         'Clients',
         'Bills',
         'SalesReturns',
+        'PurchaseReturns',
         'TrialBalance',
         'BalanceSheet',
         'ProfitLoss',
