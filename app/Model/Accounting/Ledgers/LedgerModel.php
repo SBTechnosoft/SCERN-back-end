@@ -2182,7 +2182,41 @@ class LedgerModel extends Model
 			return $exceptionArray['404'];
 		}
 	}
-	
+	/**
+	 * @param: companyId
+	 * @return: general Ledgers
+	 */
+	function getGeneralLedgers($companyId) {
+		$database = "";
+		$constantDatabase = new ConstantClass();
+		$databaseName = $constantDatabase->constantDatabase();
+		$ledgerArray = new ledgerArray();
+		$generalLedgerArray = $ledgerArray->ledgerArrays();
+		$ledgerNames = array_values($generalLedgerArray);
+		$where_in_string = "( ?";
+		$where_in_string .= str_repeat(', ?', count($ledgerNames) - 1);
+		$where_in_string .= " )";
+		DB::beginTransaction();
+		$status = DB::connection($databaseName)->select("SELECT 
+		ledger_id,
+		ledger_name,
+		ledger_group_id,
+		company_id
+		FROM ledger_mst 
+		WHERE company_id ='".$companyId."' 
+		AND ledger_name IN $where_in_string
+		AND deleted_at='0000-00-00 00:00:00'", $ledgerNames);
+		DB::commit();
+		
+		//get exception message
+		$exception = new ExceptionMessage();
+		$exceptionArray = $exception->messageArrays();
+		if(count($status)==0)
+		{
+			return $exceptionArray['204'];
+		}
+		return json_encode($status);
+	}
 	/**
 	 * delete the data
 	 * @param: ledgerId

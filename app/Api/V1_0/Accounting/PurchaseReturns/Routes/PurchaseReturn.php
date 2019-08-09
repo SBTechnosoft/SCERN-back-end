@@ -20,6 +20,6 @@ class PurchaseReturn implements RouteRegistrarInterface
 		ini_set('memory_limit', '256M');
 		// get data
 		// insert data post request
-		Route::post('Accounting/PurchaseReturns/PurchaseReturn/{saleId}','Accounting\PurchaseReturns\Controllers\PurchaseReturnController@store');
+		Route::post('Accounting/PurchaseReturns/PurchaseReturn/{purchaseId}','Accounting\PurchaseReturns\Controllers\PurchaseReturnController@store');
 	}
 }

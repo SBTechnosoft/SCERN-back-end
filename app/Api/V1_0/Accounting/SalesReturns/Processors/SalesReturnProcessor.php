@@ -219,68 +219,68 @@ class SalesReturnProcessor extends BaseProcessor
 			if (strcmp($processedData, $msgArray['200']) != 0) {
 				return $processedData;
 			}
-			$productArray = array();
-			$productArray['invoiceNumber']=$tRequest['invoice_number'];
-			$productArray['transactionType']=$constantArray['journalInward'];
-			$productArray['companyId']=$tRequest['company_id'];
-			$tInventoryArray = array();
-			$itemizeBatch = array();
-			$tempInvArray = $request->input()['inventory'];
-			foreach ($tempInvArray as $singleInvKey => $singleInvArray) {
-				// insertion for itemize (IMEI/Serial) purchase bill
-				if (isset($singleInvArray['itemizeDetail'])) {
-					$itemizeArray = json_decode($singleInvArray['itemizeDetail']);
-					if (count($itemizeArray) > 0) {
-						$itemizeJsonArray = [];
-						$itemizeProduct =  $singleInvArray['productId'];
-						foreach ($itemizeArray as $serialArray) {
-							$itemizeJsonArray[] = [
-								'imei_no' => trim($serialArray->imei_no),
-								'barcode_no' => trim($serialArray->barcode_no),
-								'qty' => trim($serialArray->qty)
-							];
-							$itemizeBatch[] = [
-								'product_id' => trim($itemizeProduct),
-								'imei_no' => trim($serialArray->imei_no),
-								'barcode_no' => trim($serialArray->barcode_no),
-								'qty' => trim($serialArray->qty),
-								'jfId' => $jsonDecodedJfId,
-								'sales_bill_no' => $productArray['invoiceNumber']
-							];
-						}
-						$singleInvArray['itemizeDetail'] = $itemizeJsonArray;
-					}
-				}
-				$productArray['inventory'][$singleInvKey] = $singleInvArray;
-				// end of insertion of itemize (IMEI/Serial)
-			}
-			if (!empty($itemizeBatch) && count($itemizeBatch) > 0) {
-				$productService = new ProductService();
-				$itemizeBatchInsertion = $productService->insertInOutwardItemizeData($itemizeBatch);
-				if (strcmp($itemizeBatchInsertion, $msgArray['200']) != 0) {
-					return $itemizeBatchInsertion;
-				}
-			}
-			$requestData = array_except($tRequest,['inventory','contact_no']);
-			$billPersistable = new BillPersistable();
-			$getNameArray = [];
-			foreach ($requestData as $key => $value) {
-				if (!is_numeric($key)) 
-				{
-					if (strpos($value, '\'') !== FALSE)
-					{
-						$value= str_replace("'","\'",$value);
-					}
-					$str = str_replace(' ', '', (ucwords(str_replace('_', ' ', $key))));
-					$setFuncName = 'set'.$str;
-					$getFuncName = 'get'.$str;
-					$billPersistable->$setFuncName($value);
-					$getNameArray[$key] = $getFuncName;
-				}
-			}
-			$billPersistable->setProductArray(json_encode($productArray));
-			$billPersistable->setJfId($jsonDecodedJfId);
-			return [$getNameArray,$billPersistable];
 		}
+		$productArray = array();
+		$productArray['invoiceNumber']=$tRequest['invoice_number'];
+		$productArray['transactionType']=$constantArray['journalInward'];
+		$productArray['companyId']=$tRequest['company_id'];
+		$tInventoryArray = array();
+		$itemizeBatch = array();
+		$tempInvArray = $request->input()['inventory'];
+		foreach ($tempInvArray as $singleInvKey => $singleInvArray) {
+			// insertion for itemize (IMEI/Serial) purchase bill
+			if (isset($singleInvArray['itemizeDetail'])) {
+				$itemizeArray = json_decode($singleInvArray['itemizeDetail']);
+				if (count($itemizeArray) > 0) {
+					$itemizeJsonArray = [];
+					$itemizeProduct =  $singleInvArray['productId'];
+					foreach ($itemizeArray as $serialArray) {
+						$itemizeJsonArray[] = [
+							'imei_no' => trim($serialArray->imei_no),
+							'barcode_no' => trim($serialArray->barcode_no),
+							'qty' => trim($serialArray->qty)
+						];
+						$itemizeBatch[] = [
+							'product_id' => trim($itemizeProduct),
+							'imei_no' => trim($serialArray->imei_no),
+							'barcode_no' => trim($serialArray->barcode_no),
+							'qty' => trim($serialArray->qty),
+							'jfId' => $jsonDecodedJfId,
+							'sales_bill_no' => $productArray['invoiceNumber']
+						];
+					}
+					$singleInvArray['itemizeDetail'] = $itemizeJsonArray;
+				}
+			}
+			$productArray['inventory'][$singleInvKey] = $singleInvArray;
+			// end of insertion of itemize (IMEI/Serial)
+		}
+		if (!empty($itemizeBatch) && count($itemizeBatch) > 0) {
+			$productService = new ProductService();
+			$itemizeBatchInsertion = $productService->insertInOutwardItemizeData($itemizeBatch);
+			if (strcmp($itemizeBatchInsertion, $msgArray['200']) != 0) {
+				return $itemizeBatchInsertion;
+			}
+		}
+		$requestData = array_except($tRequest,['inventory','contact_no']);
+		$billPersistable = new BillPersistable();
+		$getNameArray = [];
+		foreach ($requestData as $key => $value) {
+			if (!is_numeric($key)) 
+			{
+				if (strpos($value, '\'') !== FALSE)
+				{
+					$value= str_replace("'","\'",$value);
+				}
+				$str = str_replace(' ', '', (ucwords(str_replace('_', ' ', $key))));
+				$setFuncName = 'set'.$str;
+				$getFuncName = 'get'.$str;
+				$billPersistable->$setFuncName($value);
+				$getNameArray[$key] = $getFuncName;
+			}
+		}
+		$billPersistable->setProductArray(json_encode($productArray));
+		$billPersistable->setJfId($jsonDecodedJfId);
+		return [$getNameArray,$billPersistable];
 	}
 }

@@ -3,7 +3,7 @@ namespace ERP\Api\V1_0\Accounting\SalesReturns\Transformers;
 
 use Illuminate\Http\Request;
 use ERP\Http\Requests;
-use ERP\Core\Accounting\Bills\Entities\PaymentModeEnum;;
+use ERP\Core\Accounting\Bills\Entities\PaymentModeEnum;
 use ERP\Core\Products\Entities\EnumClasses\DiscountTypeEnum;
 use ERP\Exceptions\ExceptionMessage;
 use ERP\Model\Accounting\Bills\BillModel;

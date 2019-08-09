@@ -292,6 +292,9 @@ class PurchaseBillModel extends Model
 			$extraQuery = " and p.purchase_id = '".$headerData['purchasebillid'][0]."'";
 
 		}
+		if(array_key_exists('companyid', $headerData)) {
+			$extraQuery .= " and p.company_id = '".$headerData['companyid'][0]."'";
+		}
 		//get all the purchase-bill data
 		DB::beginTransaction();
 		DB::statement('SET group_concat_max_len = 1000000');
@@ -374,7 +377,6 @@ class PurchaseBillModel extends Model
 			GROUP BY purchase_id 
 		) d ON d.purchase_id = p.purchase_id
 		where p.bill_type='purchase_bill' and
-		p.company_id = '".$headerData['companyid'][0]."' and
 		p.deleted_at='0000-00-00 00:00:00' and ".$isPurchaseOrder.$extraQuery.$orderBy);
 		DB::commit();
 		

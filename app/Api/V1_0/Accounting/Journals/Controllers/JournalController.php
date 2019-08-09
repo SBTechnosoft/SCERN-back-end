@@ -63,7 +63,11 @@ class JournalController extends BaseController implements ContainerInterface
 		$exception = new ExceptionMessage();
 		$exceptionArray = $exception->messageArrays();
 		$RequestUri = explode("/", $_SERVER['REQUEST_URI']);
-		if(strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"bills")==0 || strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"purchase-bills")==0 || strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"sales-returns")==0 || strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"quotations")==0 && strcmp($RequestUri[3], 'convert')==0 )
+		if(strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"bills")==0 ||
+		strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"purchase-bills")==0 ||
+		strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"sales-returns")==0 ||
+		strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"purchase-returns")==0 ||
+		strcmp($RequestUri[1],"accounting")==0 && strcmp($RequestUri[2],"quotations")==0 && strcmp($RequestUri[3], 'convert')==0 )
 		{
 		}
 		else
@@ -115,7 +119,7 @@ class JournalController extends BaseController implements ContainerInterface
 				$status = $journalService->insert($journalPersistable);
 				if(count($request->input())>4)
 				{
-					$productService= new ProductService();	
+					$productService= new ProductService();
 					$productPersistable = new ProductPersistable();
 					if(strcmp($request->header()['type'][0],$constantArray['sales'])==0)
 					{
@@ -156,6 +160,19 @@ class JournalController extends BaseController implements ContainerInterface
 						$inward = $constantArray['journalInward'];
 						$productProcessor = new ProductProcessor();
 						$productPersistable = $productProcessor->createPersistableInOutWard($this->request,$inward);
+						if(is_array($productPersistable))
+						{
+							$status = $productService->insertInOutward($productPersistable,$jfId,'');
+							return $status;
+						}
+						else
+						{
+							return $productPersistable;
+						}
+					} elseif(strcmp($request->header()['type'][0], $constantArray['purchaseReturnType'])==0) {
+						$outward = $constantArray['journalOutward'];
+						$productProcessor = new ProductProcessor();
+						$productPersistable = $productProcessor->createPersistableInOutWard($this->request,$outward);
 						if(is_array($productPersistable))
 						{
 							$status = $productService->insertInOutward($productPersistable,$jfId,'');

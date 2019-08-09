@@ -119,6 +119,7 @@ class ConstantClass
 		//for journal-type
 		$constantArray['saleType']="sale";
 		$constantArray['salesReturnType']="sales_return";
+		$constantArray['purchaseReturnType']="purchase_return";
 		$constantArray['purchaseType']="purchase";
 		$constantArray['emailType']="email";
 		$constantArray['emailSubject']="Cycle Store";
