@@ -110,6 +110,8 @@ class RouteServiceProvider extends ServiceProvider
 				$routeArray['settings'] = "Setting";
 				$routeArray['merge'] = "Merge";
 				$routeArray['report-builder'] = "ReportBuilder";
+				$routeArray['credit-notes'] = "CreditNote";
+				$routeArray['debit-notes'] = "DebitNote";
 				$routeName = "";
 				
 				foreach($routeArray as $key => $value)

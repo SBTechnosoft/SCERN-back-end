@@ -12,7 +12,7 @@ use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use stdClass;
 /**
- * @author Reema Patel<reema.p@siliconbrain.in>
+ * @author Hiren Faldu<hiren.f@siliconbrain.in>
  */
 class SalesReturnModel extends Model
 {

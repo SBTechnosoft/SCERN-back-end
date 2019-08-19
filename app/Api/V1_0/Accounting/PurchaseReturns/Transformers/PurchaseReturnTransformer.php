@@ -59,7 +59,6 @@ class PurchaseReturnTransformer
 		$purchaseBillArray['balance'] = array_key_exists('balance', $dataArray) ? $this->checkValue(trim($dataArray['balance'])) : 0;
 		$purchaseBillArray['extraCharge'] = array_key_exists('extraCharge', $dataArray) ? $this->checkValue(trim($dataArray['extraCharge'])) : 0;
 		$purchaseBillArray['bankName'] = array_key_exists('bankName', $dataArray) ? trim($dataArray['bankName']) : '';
-		$purchaseBillArrey['returnValue'] = array_key_exists('returnValue', $dataArray) ? eval($dataArray['returnValue']) : '';
 		$purchaseBillArray['checkNumber'] = array_key_exists('checkNumber', $dataArray) ? trim($dataArray['checkNumber']) : '';
 		$purchaseBillArray['bankLedgerId'] = array_key_exists('bankLedgerId', $dataArray) ? trim($dataArray['bankLedgerId']) : 0;
 		$purchaseBillArray['remark'] = array_key_exists('remark', $dataArray) ? trim($dataArray['remark']) : '';

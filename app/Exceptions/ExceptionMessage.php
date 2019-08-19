@@ -40,6 +40,7 @@ class ExceptionMessage
 		$msgArray['notForSale'] = "Not For Sale value is not proper(true/false)";
 		$msgArray['taxInclusive'] = "Tax Inclusive value is not proper(inclusive/Exclusive)";
 		$msgArray['invalidProductCode'] = "Enter Diffrenet product-name/color/size";
+		$msgArray['invalidAmount'] = "Total amount is invalid";
 		$msgArray['invalidCategoryName'] = "Brand-Name is invalid";
 		$msgArray['invalidGroupName'] = "Category-Name is invalid";
 		$msgArray['invalidBranchName'] = "Branch-Name is invalid";

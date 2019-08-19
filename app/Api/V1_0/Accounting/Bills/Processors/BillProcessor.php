@@ -71,7 +71,7 @@ class BillProcessor extends BaseProcessor
 		if($tRequest==1)
 		{
 			return $msgArray['content'];
-		}	
+		}
 		else
 		{
 			$ledgerModel = new LedgerModel();

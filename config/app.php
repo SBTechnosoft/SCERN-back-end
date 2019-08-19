@@ -247,7 +247,9 @@ return [
         'PurchaseBills',
         'MeasurementUnits',
         'Merge',
-        'ReportBuilder'
+        'ReportBuilder',
+        'CreditNotes',
+        'DebitNotes'
 	],
 
     /*

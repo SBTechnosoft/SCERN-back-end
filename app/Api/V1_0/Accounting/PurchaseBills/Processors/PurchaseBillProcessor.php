@@ -285,7 +285,7 @@ class PurchaseBillProcessor extends BaseProcessor
 				{
 					$expenseDataArray = json_decode($expenseStatus,true)[0];
 					$expenseLedgerId = $expenseDataArray['ledger_id'];
-					if ($expenseLedgerId) 
+					if ($expenseLedgerId)
 					{
 						$expenseValue = round($expenseArray[$expenseIter]['expenseAmt'] / ( 1 + ( $expenseArray[$expenseIter]['expenseTax'] / 100 )),2);
 						// $expenseArray[$expenseIter]['expenseOperation'];
@@ -310,7 +310,7 @@ class PurchaseBillProcessor extends BaseProcessor
 								"ledgerId"=>$expenseLedgerId
 							);
 						}
-						if ($expenseSingleArray['amount'] != 0) 
+						if ($expenseSingleArray['amount'] != 0)
 						{
 							$expenseJournalArray[] = $expenseSingleArray;
 						}
