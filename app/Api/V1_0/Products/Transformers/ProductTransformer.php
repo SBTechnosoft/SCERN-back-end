@@ -798,37 +798,6 @@ class ProductTransformer extends ExceptionMessage
 				for ($reqIndex=0; $reqIndex < 28; $reqIndex++) { 
 					$requestArray[$arrayData][$arrayKeys[$reqIndex]] = $dataArray[$arrayData][$reqIndex];
 				}
-				// $requestArray[$arrayData][array_keys($keyNameCount)[0]] = $dataArray[$arrayData][0];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[1]] = $dataArray[$arrayData][1];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[2]] = $dataArray[$arrayData][2];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[3]] = $dataArray[$arrayData][3];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[4]] = $dataArray[$arrayData][4];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[5]] = $dataArray[$arrayData][5];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[6]] = $dataArray[$arrayData][6];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[7]] = $dataArray[$arrayData][7];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[8]] = $dataArray[$arrayData][8];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[9]] = $dataArray[$arrayData][9];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[10]] = $dataArray[$arrayData][10];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[11]] = $dataArray[$arrayData][11];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[12]] = $dataArray[$arrayData][12];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[13]] = $dataArray[$arrayData][13];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[14]] = $dataArray[$arrayData][14];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[15]] = $dataArray[$arrayData][15];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[16]] = $dataArray[$arrayData][16];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[17]] = $dataArray[$arrayData][17];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[18]] = $dataArray[$arrayData][18];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[19]] = $dataArray[$arrayData][19];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[20]] = $dataArray[$arrayData][20];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[21]] = $dataArray[$arrayData][21];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[22]] = $dataArray[$arrayData][22];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[23]] = $dataArray[$arrayData][23];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[24]] = $dataArray[$arrayData][24];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[25]] = $dataArray[$arrayData][25];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[26]] = $dataArray[$arrayData][26];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[27]] = $dataArray[$arrayData][27];
-				// Git missed change
-				// $requestArray[$arrayData][array_keys($keyNameCount)[28]] = $dataArray[$arrayData][28];
-				// $requestArray[$arrayData][array_keys($keyNameCount)[29]] = $dataArray[$arrayData][29];
 			}
 		}
 		
@@ -900,6 +869,7 @@ class ProductTransformer extends ExceptionMessage
 		$discountTypeEnum = new DiscountTypeEnum();
 		$enumDiscountTypeArray = $discountTypeEnum->enumArrays();
 		$ProductService = new ProductService();
+		$precision = 0;
 		for($arrayData=0;$arrayData<$numberOfArray;$arrayData++)
 		{
 			$tempArray[$arrayData] = array();
@@ -968,7 +938,11 @@ class ProductTransformer extends ExceptionMessage
 			{
 				if(strcmp($tempArray[$arrayData][2],$constantArray['percentage'])==0)
 				{
-					$tempArray[$arrayData][5]=($tempArray[$arrayData][1]/100)*$tempArray[$arrayData][3];
+					if($precision == 0) {
+						$precision = strlen(substr(strrchr($tempArray[$arrayData][4], "."), 1));
+						$precision = $precision > 2 ? 4 : 2;
+					}
+					$tempArray[$arrayData][5]=round(($tempArray[$arrayData][1]/100)*$tempArray[$arrayData][3]*$tempArray[$arrayData][4], $precision);
 				}
 				else
 				{
@@ -998,7 +972,6 @@ class ProductTransformer extends ExceptionMessage
 				break;
 			}
 		}
-		
 		if($discountTypeFlag==0)
 		{
 			return "1";
@@ -1200,7 +1173,7 @@ class ProductTransformer extends ExceptionMessage
 
 
 		//get exception message
-		
+		$precision = 0;
 		for($requestArray=0;$requestArray<count($productArray);$requestArray++)
 		{
 			//check if array is exists
@@ -1278,7 +1251,11 @@ class ProductTransformer extends ExceptionMessage
 					{
 						if(strcmp($tempArray[$arrayElement]['discount_type'],$constantArray['percentage'])==0)
 						{
-							$tempArray[$arrayElement]['discount_value']=($tempArray[$arrayElement]['discount']/100)* $tempArray[$arrayElement]['price'] * $tempArray[$arrayElement]['qty'];
+							if($precision == 0) {
+								$precision = strlen(substr(strrchr($tempArray[$arrayElement]['price'], "."), 1));
+								$precision = $precision > 2 ? 4 : 2;
+							}
+							$tempArray[$arrayElement]['discount_value']=round(($tempArray[$arrayElement]['discount']/100)* $tempArray[$arrayElement]['price'] * $tempArray[$arrayElement]['qty'], $precision);
 						}
 						else
 						{

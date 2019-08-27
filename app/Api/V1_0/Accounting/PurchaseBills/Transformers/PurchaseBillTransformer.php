@@ -104,7 +104,8 @@ class PurchaseBillTransformer
 			$inventoryData = array();
 			for($inventoryArray=0;$inventoryArray<$inventoryCount;$inventoryArray++)
 			{
-				$purchaseBillArray['inventory'][$inventoryArray] = $inventoryData[$inventoryArray] = $request->input()['inventory'][$inventoryArray];
+				$inventoryData[$inventoryArray] = $request->input()['inventory'][$inventoryArray];
+				$purchaseBillArray['inventory'][$inventoryArray] = array_except($inventoryData[$inventoryArray], ['itemizeDetail']);
 				$purchaseBillArray['inventory'][$inventoryArray]['productId'] = array_key_exists('productId',$inventoryData[$inventoryArray])? trim($inventoryData[$inventoryArray]['productId']) : 0;
 				$purchaseBillArray['inventory'][$inventoryArray]['productName'] = array_key_exists('productName',$inventoryData[$inventoryArray])? trim($inventoryData[$inventoryArray]['productName']) : 0;
 				$purchaseBillArray['inventory'][$inventoryArray]['measurementUnit'] = array_key_exists('measurementUnit',$inventoryData[$inventoryArray])? trim($inventoryData[$inventoryArray]['measurementUnit']) : 0;
@@ -132,6 +133,7 @@ class PurchaseBillTransformer
 				if (array_key_exists('itemizeDetail', $inventoryData[$inventoryArray])) {
 					$itemizeDtlJson = trim($inventoryData[$inventoryArray]['itemizeDetail']);
 					$itemizeDtlArray = json_decode($itemizeDtlJson);
+
 					if (count($itemizeDtlArray) > 0) {
 						$itemizeDtlArray = array_map(function($itemizeDtl){
 							$returnItemize = [];

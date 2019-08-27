@@ -316,24 +316,17 @@ class BillProcessor extends BaseProcessor
 		$generalLedgerArray = json_decode($generalLedgerData);
 		$salesTypeEnum = new SalesTypeEnum();
 		$salesTypeEnumArray = $salesTypeEnum->enumArrays();
-		// if(strcmp($request->header()['salestype'][0],$salesTypeEnumArray['retailSales'])==0)
-		// {
-			// get ledger-id of retail_sales as per given company_id
-			// $ledgerIdData = $ledgerModel->getLedgerId($tRequest['company_id'],$request->header()['salestype'][0]);
-			// $decodedLedgerId = json_decode($ledgerIdData);
-		// }
-		// else
-		// {
-			//get ledger-id of whole sales as per given company_id
-			$ledgerIdData = $ledgerModel->getLedgerId($tRequest['company_id'],$salesTypeEnumArray['wholesales']);
-			$decodedLedgerId = json_decode($ledgerIdData);
-		// }
+
+		//get ledger-id of whole sales as per given company_id
+		$ledgerIdData = $ledgerModel->getLedgerId($tRequest['company_id'],$salesTypeEnumArray['wholesales']);
+		$decodedLedgerId = json_decode($ledgerIdData);
+
 		//get the company details from database
 		$companyDetail = new CompanyDetail();
 		$companyDetails = $companyDetail->getCompanyDetails($tRequest['company_id']);
 		//convert total to no-of decimal point
-		$tRequest['total'] = number_format($tRequest['total'],$companyDetails['noOfDecimalPoints'],'.','');	
-		$tRequest['advance'] = number_format($tRequest['advance'],$companyDetails['noOfDecimalPoints'],'.','');	
+		$tRequest['total'] = round($tRequest['total'], $companyDetails['noOfDecimalPoints']);
+		$tRequest['advance'] = round($tRequest['advance'],$companyDetails['noOfDecimalPoints']);	
 
 		$ledgerTaxAcId = $generalLedgerArray[0][0]->ledger_id;
 		$ledgerSaleAcId = $decodedLedgerId[0]->ledger_id;
@@ -341,8 +334,9 @@ class BillProcessor extends BaseProcessor
 		
 		$amountTypeEnum = new AmountTypeEnum();
 		$amountTypeArray = $amountTypeEnum->enumArrays();
-		$ledgerAmount = $tRequest['total']-$tRequest['advance'];		
+		$ledgerAmount = $tRequest['total']-$tRequest['advance'];
 		$discountTotal=0;
+		$precision = 0;
 		for($discountArray=0;$discountArray<count($tRequest[0]);$discountArray++)
 		{
 			if(strcmp($tRequest[0][$discountArray]['discountType'],$constantArray['Flatdiscount'])==0)
@@ -351,20 +345,15 @@ class BillProcessor extends BaseProcessor
 			}
 			else
 			{
-				$discount = ($tRequest[0][$discountArray]['discount']/100)*$tRequest[0][$discountArray]['price'];
+				if($precision == 0) {
+					$precision = strlen(substr(strrchr($tRequest[0][$discountArray]['price'], "."), 1));
+					$precision = $precision > 2 ? 4 : 2;
+				}
+				$discount = round(($tRequest[0][$discountArray]['discount']/100)*$tRequest[0][$discountArray]['price']*$tRequest[0][$discountArray]['qty'], $precision);
 			}	
 			$discountTotal = $discount+$discountTotal;
 		}
 		
-		// if(strcmp($tRequest['total_discounttype'],'flat')==0)
-		// {
-			// $totalDiscount = $tRequest['total_discount'];
-		// }
-		// else
-		// {
-			// $totalDiscount = ($tRequest['total_discount']/100)*$tRequest['total'];
-		// }
-		// $discountTotal = $discountTotal+$totalDiscount;
 		$totalSaleAmount = $discountTotal+$tRequest['total'];
 		$totalDebitAmount = $tRequest['tax']+$tRequest['total'];
 		/**
@@ -477,6 +466,11 @@ class BillProcessor extends BaseProcessor
 			$salesLedgerTax += $totalExpenseTax;
 			$dataArray[0] = array_merge($dataArray[0], $expenseJournalArray);
 		}
+		$dataArray[0][] = [
+			"amount"=> $salesLedgerAmount,
+			"amountType"=> $amountTypeArray['creditType'],
+			"ledgerId"=> $ledgerSaleAcId
+		];
 		if ($salesLedgerTax != 0) 
 		{
 			$dataArray[0][] = [
@@ -485,11 +479,7 @@ class BillProcessor extends BaseProcessor
 				"ledgerId"=>$ledgerTaxAcId,
 			];
 		}
-		$dataArray[0][] = [
-			"amount"=> $salesLedgerAmount,
-			"amountType"=> $amountTypeArray['creditType'],
-			"ledgerId"=> $ledgerSaleAcId
-		];
+		
 		// Staff Commission Calculations
 		/* 
 		* $tRequest[0] Array of inventory data
@@ -992,13 +982,8 @@ class BillProcessor extends BaseProcessor
 		$clientArray = new ClientArray();
 		$clientArrayData = $clientArray->getClientArrayDataForBill();
 		$clientData = array();
-		foreach($clientArrayData as $key => $value)
-		{
-			if(array_key_exists($key,$billTrimData))
-			{
-				$clientData[$value] = $billTrimData[$key];
-			}
-		}	
+		$clientKeys = array_keys($clientArrayData);
+		$clientData = array_only($billTrimData, $clientKeys);
 
 		$contactFlag=0;
 		$clientModel = new ClientModel();
@@ -1239,8 +1224,10 @@ class BillProcessor extends BaseProcessor
 			$amountTypeEnum = new AmountTypeEnum();
 			$amountTypeArray = $amountTypeEnum->enumArrays();
 			$ledgerAmount = $billTrimData['total']-$billTrimData['advance'];
+
 			$discountTotal=0;
-			$inventoryArray = $billTrimData['inventory'];	
+			$precision = 0;
+			$inventoryArray = $billTrimData['inventory'];
 			for($discountArray=0;$discountArray<count($inventoryArray);$discountArray++)
 			{
 				if(strcmp($inventoryArray[$discountArray]['discountType'],"flat")==0)
@@ -1249,9 +1236,26 @@ class BillProcessor extends BaseProcessor
 				}
 				else
 				{
-					$discount = ($inventoryArray[$discountArray]['discount']/100)*$inventoryArray[$discountArray]['price'];
-				}	
-				$discountTotal = $discount+$discountTotal;
+					if($precision == 0) {
+						$precision = strlen(substr(strrchr($inventoryArray[$discountArray]['amount'], "."), 1));
+						if($precision>2){
+							$precision = 4;
+						} else {
+							$precision = strlen(substr(strrchr($inventoryArray[$discountArray]['price'], "."), 1));
+							$precision = $precision > 2 ? 4 : 2;
+						}
+					}
+					$tempQty = $inventoryArray[$discountArray]['qty'];
+					if(array_key_exists('stockFt', $inventoryArray[$discountArray]) && is_numeric($inventoryArray[$discountArray]['stockFt'])) {
+						$tempQty = floatval($inventoryArray[$discountArray]['stockFt']) ? : $tempQty;
+					} elseif(array_key_exists('totalFt', $inventoryArray[$discountArray]) && is_numeric($inventoryArray[$discountArray]['totalFt'])) {
+						$tempQty = floatval($inventoryArray[$discountArray]['totalFt']) ? : $tempQty;
+					} elseif(array_key_exists('realQtyData', $inventoryArray[$discountArray]) && is_numeric($inventoryArray[$discountArray]['realQtyData'])) {
+						$tempQty = floatval($inventoryArray[$discountArray]['realQtyData']) ? : $tempQty;
+					}
+					$discount = round(($inventoryArray[$discountArray]['discount']/100)*$inventoryArray[$discountArray]['price']*$tempQty, $precision);
+				}
+				$discountTotal += $discount;
 			}
 
 			$totalSaleAmount = $discountTotal+$billTrimData['total'];
@@ -1368,6 +1372,11 @@ class BillProcessor extends BaseProcessor
 				$salesLedgerTax += $totalExpenseTax;
 				$dataArray[0] = array_merge($dataArray[0], $expenseJournalArray);
 			}
+			$dataArray[0][] = [
+				'amount'=> $salesLedgerAmount,
+				'amountType' => $amountTypeArray['creditType'],
+				'ledgerId' => $ledgerSaleAcId
+			];
 			if ($salesLedgerTax != 0) 
 			{
 				$dataArray[0][] = [
@@ -1455,6 +1464,7 @@ class BillProcessor extends BaseProcessor
 					$processedData = $journalController->update($journalRequest,$billData[0]->jf_id);
 					if(strcmp($processedData,$msgArray['200'])!=0)
 					{
+						print_r($journalRequest->toArray());
 						return $processedData;
 					}
 				}
@@ -1540,23 +1550,10 @@ class BillProcessor extends BaseProcessor
 		//set bill data into persistable object
 		$billPersistable = array();
 		$clientBillArrayData = $clientArray->getBillClientArrayData();
-		
+		$cilentBillKeys = array_keys($clientBillArrayData);
 		//splice data from trim array
-		for($index=0;$index<count($clientBillArrayData);$index++)
-		{
-			for($innerIndex=0;$innerIndex<count($billTrimData);$innerIndex++)
-			{
-				if(strcmp('inventory',array_keys($billTrimData)[$innerIndex])!=0)
-				{
-					if(strcmp(array_keys($billTrimData)[$innerIndex],array_keys($clientBillArrayData)[$index])==0)
-					{
-						array_splice($billTrimData,$innerIndex,1);
-						break;
-					}
-				}
-			}
-		}
-	
+		$billTrimData = array_except($billTrimData, $cilentBillKeys);
+		
 		for($billArrayData=0;$billArrayData<count($billTrimData);$billArrayData++)
 		{
 			// making an object of persistable

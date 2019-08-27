@@ -14,6 +14,10 @@ use ERP\Http\Requests;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use stdClass;
+
+// Inventory Fix deps
+use ERP\Api\V1_0\Accounting\PurchaseBills\Transformers\PurchaseInventoryTransformer;
+use ERP\Model\Accounting\PurchaseBills\PurchaseInventoryModel;
 /**
  * @author Reema Patel<reema.p@siliconbrain.in>
  */
@@ -21,6 +25,16 @@ class PurchaseBillModel extends Model
 {
 	protected $table = 'purchase_bill';
 	
+	function __construct()
+	{
+		parent::__construct();
+		$exceptions = new ExceptionMessage();
+		$this->messages = $exceptions->messageArrays();
+		$this->constant = new ConstantClass();
+		$this->constantVars = $this->constant->constantVariable();
+		$database = $this->constant->constantDatabase();
+		$this->database = DB::connection($database);
+	}
 	/**
 	 * insert data with document
 	 * @param  array
@@ -30,14 +44,8 @@ class PurchaseBillModel extends Model
 	{
 		$mytime = Carbon\Carbon::now();
 		// $requestInput = $requestData->input();
-
-		//database selection
-		$database = "";
-		$constantDatabase = new ConstantClass();
-		$databaseName = $constantDatabase->constantDatabase();
 		//get exception message
-		$exception = new ExceptionMessage();
-		$exceptionArray = $exception->messageArrays();
+		$exceptionArray = $this->messages;
 		
 		$isPurchaseOrderInsert = array_key_exists("ispurchaseorder",$requestData->header())?"ok":"not";
 		$purchaseData="";
@@ -45,89 +53,83 @@ class PurchaseBillModel extends Model
 		$purchaseExpenseData="";
 		$purchaseExpenseKey="";
 		$decodedJsonExpense = array();
-		for($data=0;$data<count($getData);$data++)
-		{
-			if(strcmp($keyName[$data],'expense')==0)
-			{
-				$decodedJsonExpense = json_decode($getData[$data]);
-			}
-			else
-			{
-				if($data == (count($getData)-1))
-				{
-					$purchaseData = $purchaseData."'".$getData[$data]."'";
-					$keyData =$keyData.$keyName[$data];
-				}
-				else
-				{
-					$purchaseData = $purchaseData."'".$getData[$data]."',";
-					$keyData =$keyData.$keyName[$data].",";
-				}
-			}
+
+		$expenseKey = array_search('expense', $keyName);
+		if($expenseKey >= 0 && in_array('expense', $keyName)) {
+			$decodedJsonExpense = json_decode($getData[$expenseKey]);
+			array_splice($keyName, $expenseKey, 1);
+			array_splice($getData, $expenseKey, 1);
 		}
+		array_push($keyName, 'is_purchaseorder', 'created_at');
+		array_push($getData, $isPurchaseOrderInsert, $mytime);
+		$keyData = implode(',', $keyName);
+		$purchaseData = "?";
+		$purchaseData .= str_repeat(', ?', count($keyName) - 1);
 		//purchase-data save
 		DB::beginTransaction();
-		$purchaseBillResult = DB::connection($databaseName)->statement("insert into purchase_bill(".$keyData.",is_purchaseorder,created_at) 
-		values(".$purchaseData.",'".$isPurchaseOrderInsert."','".$mytime."')");
-		DB::commit();
 
-		//get latest purchase-id from database
-		DB::beginTransaction();
-		$purchaseIdResult = DB::connection($databaseName)->select("SELECT
+		$purchaseBillResult = $this->database->statement("INSERT INTO purchase_bill({$keyData}) 
+		VALUES({$purchaseData});", $getData);
+
+		$purchaseIdResult = $this->database->select("SELECT
 		max(purchase_id) purchase_id
-		FROM purchase_bill where deleted_at='0000-00-00 00:00:00' and is_purchaseorder = '".$isPurchaseOrderInsert."'");
+		FROM purchase_bill WHERE deleted_at='0000-00-00 00:00:00' AND is_purchaseorder = ?;", [$isPurchaseOrderInsert]);
+
 		DB::commit();
 
+		$productArrayKey = array_search('product_array', $keyName);
+		if($productArrayKey >= 0 && in_array('product_array', $keyName)) {
+			$transformer = new PurchaseInventoryTransformer();
+			$trimInv = $transformer->trimInventory($getData[$productArrayKey], $purchaseIdResult[0]->purchase_id);
+
+			$invModel = new PurchaseInventoryModel();
+			$invStatus = $invModel->insertData($trimInv);
+			if(strcmp($invStatus, $exceptionArray['200'])!=0) {
+				return $invStatus;
+			}
+		}
+		$purchaseId = $purchaseIdResult[0]->purchase_id;
 		if(count($decodedJsonExpense)!=0)
 		{
 			$expenseCount = count($decodedJsonExpense);
-			for($expenseData=0;$expenseData<$expenseCount;$expenseData++)
-			{
-				//Insertion in purchase_expense_dtl
-				DB::beginTransaction();
-				$raw = DB::connection($databaseName)->statement("insert into purchase_expense_dtl(
-				expense_name,
-				expense_type,
-				expense_value,
-				expense_tax,
-				expense_operation,
-				purchase_id,
-				expense_id,
-				created_at)
-				values(
-				'".$decodedJsonExpense[$expenseData]->expenseName."',
-				'".$decodedJsonExpense[$expenseData]->expenseType."',
-				'".$decodedJsonExpense[$expenseData]->expenseValue."',
-				'".$decodedJsonExpense[$expenseData]->expenseTax."',
-				'".$decodedJsonExpense[$expenseData]->expenseOperation."',
-				'".$purchaseIdResult[0]->purchase_id."',
-				'".$decodedJsonExpense[$expenseData]->expenseId."',
-				'".$mytime."')");
-				DB::commit();
-			}
+			$valueArray = call_user_func_array('array_merge', array_map(function($br) use($purchaseId, $mytime) {
+						$ar = array($br->expenseName, $br->expenseType, $br->expenseValue, $br->expenseTax, $br->expenseOperation, $purchaseId, $br->expenseId, $mytime);
+						return $ar;
+					}, $decodedJsonExpense));
+			$valueStr = "(?, ?, ?, ?, ?, ?, ?, ?)";
+			$valueStr .= str_repeat(", (?, ?, ?, ?, ?, ?, ?, ?)", $expenseCount - 1);
+			DB::beginTransaction();
+			$this->database->statement("INSERT INTO purchase_expense_dtl(
+			expense_name,
+			expense_type,
+			expense_value,
+			expense_tax,
+			expense_operation,
+			purchase_id,
+			expense_id,
+			created_at)
+			VALUES {$valueStr};", $valueArray);
+			DB::commit();
 		}
-		
 		if(count($documentArray)!=0)
 		{
 			$documentCount = count($documentArray);
 			//document insertion
-			for($documentData=0;$documentData<$documentCount;$documentData++)
-			{
-				DB::beginTransaction();
-				$purchaseBillResult = DB::connection($databaseName)->statement("insert into purchase_doc_dtl
-				(document_name,
-				document_size,
-				document_format,
-				purchase_id,
-				created_at) 
-				values(
-				'".$documentArray[$documentData]['document_name']."',
-				".$documentArray[$documentData]['document_size'].",
-				'".$documentArray[$documentData]['document_format']."',
-				".$purchaseIdResult[0]->purchase_id.",
-				'".$mytime."')");
-				DB::commit();
-			}
+			$valueArray = call_user_func_array('array_merge', array_map(function($br) use($purchaseId, $mytime) {
+					$ar = array($br['document_name'], $br['document_size'], $br['document_format'], $purchaseId, $mytime);
+					return $ar;
+				}, $documentArray));
+			$valueStr = "(?, ?, ?, ?, ?)";
+			$valueStr .= str_repeat(", (?, ?, ?, ?, ?)", $documentCount - 1);
+			DB::beginTransaction();
+			$this->database->statement("INSERT INTO purchase_doc_dtl(
+			document_name,
+			document_size,
+			document_format,
+			purchase_id,
+			created_at)
+			VALUES {$valueStr};", $valueArray);
+			DB::commit();
 		}
 		if($purchaseBillResult==1)
 		{
@@ -157,78 +159,76 @@ class PurchaseBillModel extends Model
 		$mytime = Carbon\Carbon::now();
 		$keyValueString="";
 		$decodedExpenseData = array();
-		for($data=0;$data<count($getData);$data++)
-		{
-			if(strcmp($keyName[$data],'expense')==0)
-			{
-				$decodedExpenseData = json_decode($getData[$data]);
-			}
-			else
-			{
-				$keyValueString=$keyValueString.$keyName[$data]."='".$getData[$data]."',";
-			}
-			
+		$expenseKey = array_search('expense', $keyName);
+		if($expenseKey >= 0 && in_array('expense', $keyName)) {
+			$decodedExpenseData = json_decode($getData[$expenseKey]);
+			array_splice($keyName, $expenseKey, 1);
+			array_splice($getData, $expenseKey, 1);
 		}
+		array_push($keyName, 'updated_at');
+		array_push($getData, $mytime);
+		$keyValueString = implode('= ?, ', $keyName);
+		$keyValueString .= '= ?';
+		array_push($getData, $purchaseId);
 		DB::beginTransaction();
-		$purchaseBillResult = DB::connection($databaseName)->statement("update purchase_bill
-		set ".$keyValueString."updated_at='".$mytime."' where purchase_id='".$purchaseId."'");
+		$purchaseBillResult = $this->database->statement("UPDATE purchase_bill
+		SET {$keyValueString} WHERE purchase_id= ? ;", $getData);
+		$deleteExpenseData = $this->database->statement("UPDATE purchase_expense_dtl SET deleted_at = ? WHERE purchase_id = ?;", [$mytime, $purchaseId]);
 		DB::commit();
-		//delete expense data
-		DB::beginTransaction();
-		$deleteExpenseData = DB::connection($databaseName)->statement("update
-		purchase_expense_dtl set
-		deleted_at = '".$mytime."'
-		where purchase_id = ".$purchaseId);
-		DB::commit();
-		$expenseCount = count($decodedExpenseData);
-		if($expenseCount!=0)
-		{
-			for($expenseData=0;$expenseData<$expenseCount;$expenseData++)
-			{
-				//insert expense data for update expense data
-				DB::beginTransaction();
-				$insertExpenseData = DB::connection($databaseName)->statement("insert into
-				purchase_expense_dtl(
-				expense_type,
-				expense_name,
-				expense_value,
-				expense_tax,
-				expense_operation,
-				purchase_id,
-				expense_id,
-				created_at)
-				values('".$decodedExpenseData[$expenseData]->expenseType."',
-				'".$decodedExpenseData[$expenseData]->expenseName."',
-				'".$decodedExpenseData[$expenseData]->expenseValue."',
-				'".$decodedExpenseData[$expenseData]->expenseTax."',
-				'".$decodedExpenseData[$expenseData]->expenseOperation."',
-				'".$purchaseId."',
-				'".$decodedExpenseData[$expenseData]->expenseId."',
-				'".$mytime."')");
-				DB::commit();
+
+		$productArrayKey = array_search('product_array', $keyName);
+		if($productArrayKey >= 0  && in_array('product_array', $keyName)) {
+			$transformer = new PurchaseInventoryTransformer();
+			$trimInv = $transformer->trimInventory($getData[$productArrayKey], $purchaseId);
+
+			$invModel = new PurchaseInventoryModel();
+			$invModel->deleteData(['purchase_id' => $purchaseId]);
+			$invStatus = $invModel->insertData($trimInv);
+			if(strcmp($invStatus, $exceptionArray['200'])!=0) {
+				return $invStatus;
 			}
+		}
+
+		$expenseCount = count($decodedExpenseData);
+		if($expenseCount!=0) {
+			$valueArray = call_user_func_array('array_merge', array_map(function($br) use($purchaseId, $mytime) {
+						$ar = array($br->expenseName, $br->expenseType, $br->expenseValue, $br->expenseTax, $br->expenseOperation, $purchaseId, $br->expenseId, $mytime);
+						return $ar;
+					}, $decodedExpenseData));
+			$valueStr = "(?, ?, ?, ?, ?, ?, ?, ?)";
+			$valueStr .= str_repeat(", (?, ?, ?, ?, ?, ?, ?, ?)", $expenseCount - 1);
+			DB::beginTransaction();
+			$insertExpenseData = $this->database->statement("INSERT INTO purchase_expense_dtl(
+			expense_name,
+			expense_type,
+			expense_value,
+			expense_tax,
+			expense_operation,
+			purchase_id,
+			expense_id,
+			created_at)
+			VALUES {$valueStr};", $valueArray);
+			DB::commit();
 		}
 	    $documentCount = count($documentArray);
-		if($documentCount!=0)
-		{
+		if($documentCount!=0) {
 			//document insertion
-			for($documentData=0;$documentData<$documentCount;$documentData++)
-			{
-				DB::beginTransaction();
-				$purchaseBillResultDoc = DB::connection($databaseName)->statement("insert into purchase_doc_dtl
-				(document_name,
-				document_size,
-				document_format,
-				purchase_id,
-				created_at) 
-				values(
-				'".$documentArray[$documentData]['document_name']."',
-				".$documentArray[$documentData]['document_size'].",
-				'".$documentArray[$documentData]['document_format']."',
-				".$purchaseId.",
-				'".$mytime."')");
-				DB::commit();
-			}
+			$valueArray = call_user_func_array('array_merge', array_map(function($br) use($purchaseId, $mytime) {
+					$ar = array($br['document_name'], $br['document_size'], $br['document_format'], $purchaseId, $mytime);
+					return $ar;
+				}, $documentArray));
+			$valueStr = "(?, ?, ?, ?, ?)";
+			$valueStr .= str_repeat(", (?, ?, ?, ?, ?)", $documentCount - 1);
+			DB::beginTransaction();
+			$this->database->statement("INSERT INTO purchase_doc_dtl(
+			document_name,
+			document_size,
+			document_format,
+			purchase_id,
+			created_at)
+			VALUES {$valueStr};", $valueArray);
+			DB::commit();
+
 		}
 		if($purchaseBillResult==1)
 		{
@@ -298,7 +298,7 @@ class PurchaseBillModel extends Model
 		//get all the purchase-bill data
 		DB::beginTransaction();
 		DB::statement('SET group_concat_max_len = 1000000');
-		$purchaseIdDataResult = DB::connection($databaseName)->select("
+		$purchaseIdDataResult = $this->database->select("
 		select 
 		p.purchase_id,
 		p.vendor_id,
@@ -404,7 +404,7 @@ class PurchaseBillModel extends Model
 		$databaseName = $constantDatabase->constantDatabase();
 		DB::beginTransaction();
 		DB::statement('SET group_concat_max_len = 1000000');
-		$purchaseData = DB::connection($databaseName)->select("
+		$purchaseData = $this->database->select("
 		select 
 		p.purchase_id,
 		p.vendor_id,
@@ -505,7 +505,7 @@ class PurchaseBillModel extends Model
 		for($purchaseData=0;$purchaseData<count($purchaseArrayData);$purchaseData++)
 		{
 			DB::beginTransaction();
-			$purchaseExpenseResult[$purchaseData] = DB::connection($databaseName)->select("select 
+			$purchaseExpenseResult[$purchaseData] = $this->database->select("select 
 			purchase_expense_id as purchaseExpenseId,
 			expense_id as expenseId,
 			expense_name as expenseName,
@@ -521,7 +521,7 @@ class PurchaseBillModel extends Model
 			$purchaseArrayData[$purchaseData]->expense = $purchaseExpenseResult[$purchaseData];
 			
 			DB::beginTransaction();
-			$documentResult[$purchaseData] = DB::connection($databaseName)->select("select
+			$documentResult[$purchaseData] = $this->database->select("select
 			document_id,
 			purchase_id,
 			document_name,
@@ -579,7 +579,7 @@ class PurchaseBillModel extends Model
 		
 			DB::beginTransaction();
 			DB::statement('SET group_concat_max_len = 1000000');
-			$raw = DB::connection($databaseName)->select("
+			$raw = $this->database->select("
 			select 
 			p.purchase_id,
 			p.vendor_id,
@@ -676,7 +676,7 @@ class PurchaseBillModel extends Model
 		{
 			DB::beginTransaction();
 			DB::statement('SET group_concat_max_len = 1000000');
-			$raw = DB::connection($databaseName)->select("
+			$raw = $this->database->select("
 			select 
 			p.purchase_id,
 			p.vendor_id,
@@ -802,7 +802,7 @@ class PurchaseBillModel extends Model
 		// {
 		// 	$inventoryData = json_decode($productArray);
 		// 	DB::beginTransaction();
-		// 	$getTransactionSummaryData[$productArrayData] = DB::connection($databaseName)->select("select 
+		// 	$getTransactionSummaryData[$productArrayData] = $this->database->select("select 
 		// 	product_trn_summary_id,
 		// 	qty
 		// 	from product_trn_summary
@@ -814,7 +814,7 @@ class PurchaseBillModel extends Model
 		// 		// $qty = $inventoryData[$productArrayData]->qty*(-1);
 		// 		// //insert data
 		// 		// DB::beginTransaction();
-		// 		// $insertionResult[$productArrayData] = DB::connection($databaseName)->statement("insert into 
+		// 		// $insertionResult[$productArrayData] = $this->database->statement("insert into 
 		// 		// product_trn_summary(qty,company_id,branch_id,product_id)
 		// 		// values('".$qty."',
 		// 		// 	   '".$jsonDecodedPurchaseData[0]->company_id."',
@@ -827,7 +827,7 @@ class PurchaseBillModel extends Model
 		// 		$qty = $getTransactionSummaryData[$productArrayData][0]->qty-$inventoryData[$productArrayData]->qty;
 		// 		//update data
 		// 		DB::beginTransaction();
-		// 		$updateResult = DB::connection($databaseName)->statement("update 
+		// 		$updateResult = $this->database->statement("update 
 		// 		product_trn_summary set qty='".$qty."'
 		// 		where product_trn_summary_id='".$getTransactionSummaryData[$productArrayData][0]->product_trn_summary_id."' and
 		// 		deleted_at='0000-00-00 00:00:00'");
@@ -845,7 +845,7 @@ class PurchaseBillModel extends Model
 			{
 				//delete ledgerId_ledger_dtl data as per given ledgerId and jf_id
 				DB::beginTransaction();
-				$deleteLedgerData = DB::connection($databaseName)->statement("update
+				$deleteLedgerData = $this->database->statement("update
 				".$value->ledger_id."_ledger_dtl set
 				deleted_at = '".$mytime."'
 				where jf_id = ".$jsonDecodedPurchaseData[0]->jf_id." and
@@ -855,32 +855,27 @@ class PurchaseBillModel extends Model
 		}
 		//delete journal data
 		DB::beginTransaction();
-		$deleteJournalData = DB::connection($databaseName)->statement("update
+		$deleteJournalData = $this->database->statement("update
 		journal_dtl set
 		deleted_at = '".$mytime."'
 		where jf_id = ".$jsonDecodedPurchaseData[0]->jf_id." and
 		deleted_at='0000-00-00 00:00:00'");
-		DB::commit();
-		//delete product_trn data
-		DB::beginTransaction();
-		$deleteProductTrnData = DB::connection($databaseName)->statement("update
+		$deleteProductTrnData = $this->database->statement("update
 		product_trn set
 		deleted_at = '".$mytime."'
 		where jf_id = ".$jsonDecodedPurchaseData[0]->jf_id." and
 		deleted_at='0000-00-00 00:00:00'");
-		DB::commit();
-		//delete purchase-bill data 
-		DB::beginTransaction();
-		$deleteBillData = DB::connection($databaseName)->statement("update
+		$deleteBillData = $this->database->statement("update
 		purchase_bill set
 		deleted_at = '".$mytime."'
 		where purchase_id = ".$purchaseId." and
 		deleted_at='0000-00-00 00:00:00'");
-		DB::commit();
-
-		//delete purchase-expense-bill data 
-		DB::beginTransaction();
-		$deleteBillData = DB::connection($databaseName)->statement("update
+		$deleteBillData = $this->database->statement("update
+		purchase_inventory_dtl set
+		deleted_at = '".$mytime."'
+		where purchase_id = ".$purchaseId." and
+		deleted_at='0000-00-00 00:00:00'");
+		$deleteBillData = $this->database->statement("update
 		purchase_expense_dtl set
 		deleted_at = '".$mytime."'
 		where purchase_id = ".$purchaseId." and

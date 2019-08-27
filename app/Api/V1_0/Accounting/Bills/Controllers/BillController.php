@@ -117,7 +117,6 @@ class BillController extends BaseController implements ContainerInterface
 			return $authenticationResult;
 		}
 	}
-
 	/**
 	 * get the specified resource
 	 * @param  Request object[Request $request] and companyId

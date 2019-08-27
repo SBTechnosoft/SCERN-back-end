@@ -89,6 +89,7 @@ class PurchaseBillProcessor extends BaseProcessor
 
 				//seprate inventory from other data
 				$inventoryData['inventory'] = $tRequest['inventory'];
+
 				$inventoryData['billNumber'] = $tRequest['billNumber'];
 				$inventoryData['transactionType'] = 'purchase_tax';
 				$inventoryData['companyId'] = $tRequest['companyId'];
@@ -344,14 +345,41 @@ class PurchaseBillProcessor extends BaseProcessor
 		// total discount calculation
 		$finalTotalDiscount=0;
 		$inventoryCount = count($trimRequest['inventory']);
+		$precision = 0;
 		for($discountArray=0;$discountArray<$inventoryCount;$discountArray++)
 		{
-			if (@$trimRequest['inventory'][$discountArray]['discountType'])
+			if (array_key_exists('discountType', $trimRequest['inventory'][$discountArray]))
 			{
-				$discount = strcmp($trimRequest['inventory'][$discountArray]['discountType'],$constantArray['Flatdiscount'])==0
-						? $trimRequest['inventory'][$discountArray]['discount'] 
-						: ($trimRequest['inventory'][$discountArray]['discount']/100)*
-						($trimRequest['inventory'][$discountArray]['price']*$trimRequest['inventory'][$discountArray]['qty']);
+				if(strcmp($trimRequest['inventory'][$discountArray]['discountType'],$constantArray['Flatdiscount'])==0) {
+					$discount = $trimRequest['inventory'][$discountArray]['discount'];
+				} else {
+					if($precision == 0) {
+						$precision = strlen(substr(strrchr($trimRequest['inventory'][$discountArray]['amount'], "."), 1));
+						if($precision>2){
+							$precision = 4;
+						} else {
+							$precision = strlen(substr(strrchr($trimRequest['inventory'][$discountArray]['price'], "."), 1));
+							$precision = $precision > 2 ? 4 : 2;
+						}
+					}
+					$tempQty = $trimRequest['inventory'][$discountArray]['qty'];
+
+					if(array_key_exists('stockFt', $trimRequest['inventory'][$discountArray]) && is_numeric($trimRequest['inventory'][$discountArray]['stockFt'])) {
+
+						$tempQty = floatval($trimRequest['inventory'][$discountArray]['stockFt']) ? : $tempQty;
+
+					} elseif(array_key_exists('totalFt', $trimRequest['inventory'][$discountArray]) && is_numeric($trimRequest['inventory'][$discountArray]['totalFt'])) {
+
+						$tempQty = floatval($trimRequest['inventory'][$discountArray]['totalFt']) ? : $tempQty;
+
+					} elseif(array_key_exists('realQtyData', $trimRequest['inventory'][$discountArray]) && is_numeric($trimRequest['inventory'][$discountArray]['realQtyData'])) {
+
+						$tempQty = floatval($trimRequest['inventory'][$discountArray]['realQtyData']) ? : $tempQty;
+
+					}
+
+					$discount = round(($trimRequest['inventory'][$discountArray]['discount']/100)*$trimRequest['inventory'][$discountArray]['price']*$tempQty, $precision);
+				}
 			}
 			else
 			{
@@ -361,10 +389,6 @@ class PurchaseBillProcessor extends BaseProcessor
 			$finalTotalDiscount = $discount+$finalTotalDiscount;
 		}
 		$grandTotal = $trimRequest['total']+$trimRequest['extraCharge'];
-
-		// $totalDiscount = strcmp($trimRequest['totalDiscounttype'],'flat')==0 
-						// ? $trimRequest['totalDiscount'] : (($trimRequest['totalDiscount']/100)*$grandTotal);
-		// $finalTotalDiscount = $totalDiscount+$discountTotal;
 
 		$ledgerId = $trimRequest['vendorId'];
 		$actualTotal  = $trimRequest['total'] - $trimRequest['tax'];
@@ -529,6 +553,7 @@ class PurchaseBillProcessor extends BaseProcessor
 				$processedData = $journalController->update($journalRequest,$jsonDecodedJfId);
 				if(strcmp($processedData,$exceptionArray['200'])!=0)
 				{
+					print_r($journalRequest->toArray());
 					return $processedData;
 				}
 			}

@@ -61,8 +61,6 @@ class BillService
 		//only data insertion
 		if(is_object($billArray))
 		{
-			// print_r($billArray);
-			// exit;
 
 			$productArray = $billArray->getProductArray();
 			$paymentMode = $billArray->getPaymentMode();
