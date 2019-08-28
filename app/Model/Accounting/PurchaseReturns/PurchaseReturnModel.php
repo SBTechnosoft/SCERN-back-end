@@ -6,12 +6,29 @@ use DB;
 use Carbon;
 use ERP\Exceptions\ExceptionMessage;
 use ERP\Entities\Constants\ConstantClass;
+// Inventory Deps
+use ERP\Api\V1_0\Accounting\PurchaseReturns\Transformers\PurchaseReturnInventoryTransformer;
+use ERP\Model\Accounting\PurchaseReturns\PurchaseReturnInventoryModel;
 /**
- * @author Reema Patel<reema.p@siliconbrain.in>
+ * @author Hiren Faldu<hiren.f@siliconbrain.in>
  */
 class PurchaseReturnModel extends Model
 {
 	protected $table = 'purchase_return';
+
+	function __construct()
+	{
+		parent::__construct();
+
+		$exceptions = new ExceptionMessage();
+		$this->messages = $exceptions->messageArrays();
+		$this->constant = new ConstantClass();
+		$this->constantVars = $this->constant->constantVariable();
+		$database = $this->constant->constantDatabase();
+		$this->database = DB::connection($database);
+	}
+
+
 	/**
 	 * insert data with document
 	 * @param  array
@@ -20,11 +37,7 @@ class PurchaseReturnModel extends Model
 	public function insertData($insertData, $requestData)
 	{
 		$mytime = Carbon\Carbon::now();
-		$database = "";
-		$constantDatabase = new ConstantClass();
-		$databaseName = $constantDatabase->constantDatabase();
-		$exception = new ExceptionMessage();
-		$exceptionArray = $exception->messageArrays();
+		$exceptionArray = $this->messages;
 		$requestInput = $requestData->input();
 		$insertKeyStr = "";
 		$insertValueStr = "";
@@ -43,8 +56,15 @@ class PurchaseReturnModel extends Model
 		$insertValueStr .= ",?,?";
 		array_push($valueArray, $mytime, $mytime);
 		DB::beginTransaction();
-
-		$raw = DB::connection($databaseName)->statement("INSERT INTO `purchase_return` ($insertKeyStr) VALUES ($insertValueStr);", $valueArray);
+		$raw = $this->database->statement("INSERT INTO {$this->table} ($insertKeyStr) VALUES ($insertValueStr);", $valueArray);
+		$returnId = $this->database->select("SELECT max(purchase_return_id) as return_id FROM {$this->table};");
+		if(array_key_exists('product_array', $insertData)) {
+			$returnId = $returnId[0]->return_id;
+			$transformer = new PurchaseReturnInventoryTransformer();
+			$trimInv = $transformer->trimInventory($insertData['product_array'], $returnId);
+			$invModel = new PurchaseReturnInventoryModel();
+			$status = $invModel->insertData($trimInv);
+		}
 		DB::commit();
 		if ($raw==1) {
 			return $exceptionArray['200'];

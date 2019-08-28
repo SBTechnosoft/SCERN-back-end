@@ -167,7 +167,7 @@ class PurchaseBillProcessor extends BaseProcessor
 					for($data=0;$data<count($purchaseValue);$data++)
 					{
 						//set the data in persistable object
-						$purchaseBillPersistable = new PurchaseBillPersistable();	
+						$purchaseBillPersistable = new PurchaseBillPersistable();
 						$conversion= preg_replace('/(?<!\ )[A-Z]/', '_$0', $keyName[$data]);
 						$lowerCase = strtolower($conversion);
 						$str = ucfirst($keyName[$data]);
@@ -463,12 +463,12 @@ class PurchaseBillProcessor extends BaseProcessor
 				"ledgerId"=>$taxLedgerId,
 			];
 		}
-
-		$dataArray[0][]=[
+		array_unshift($dataArray[0], [
 			"amount"=> $purchaseLedgerAmount,
 			"amountType"=> $amountTypeArray['debitType'],
 			"ledgerId"=> $purchaseLedgerId
-		];
+		]);
+
 		// New Journal Logic Fixing Ends
 		$journalController = new JournalController(new Container());
 		if(strcmp($stringOperation,'insert')==0)

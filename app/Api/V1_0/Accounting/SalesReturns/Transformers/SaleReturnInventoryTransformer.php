@@ -1,17 +1,17 @@
 <?php
-namespace ERP\Api\V1_0\Accounting\Bills\Transformers;
+namespace ERP\Api\V1_0\Accounting\SalesReturns\Transformers;
 
 use Carbon;
 /**
  * @author Hiren Faldu<hiren.f@siliconbrain.in>
  */
-class SaleInventoryTransformer
+class SaleReturnInventoryTransformer
 {
 	/**
 	 * @param Request Object
 	 * @return array/error message
 	 */
-	public function trimInventory($inventoryJson, $saleId)
+	public function trimInventory($inventoryJson, $returnId)
 	{
 		$inventory = json_decode($inventoryJson, true);
 		$inventory = $inventory['inventory'];
@@ -19,7 +19,7 @@ class SaleInventoryTransformer
 		foreach ($inventory as $inv_record) {
 			// $inv_record;
 			$single = array();
-			$single['sale_id'] = trim($saleId);
+			$single['sale_return_id'] = trim($returnId);
 			$single['product_id'] = trim($inv_record['productId']);
 			$single['product_name'] = trim($inv_record['productName']);
 			$single['color'] = array_key_exists('color', $inv_record) ? trim($inv_record['color']) : '';

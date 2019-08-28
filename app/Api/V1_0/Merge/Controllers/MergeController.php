@@ -134,6 +134,7 @@ class MergeController extends BaseController implements ContainerInterface
 	 */
 	public function mergeLedgers($companyId)
 	{
+		return '404';
 		$constantClass = new ConstantClass();
 		$constantArray = $constantClass->constantVariable();
 		
@@ -144,6 +145,13 @@ class MergeController extends BaseController implements ContainerInterface
 		// Step 1 Create Ledgers for expenses
 		$mergeService = new MergeService();
 		$status = $mergeService->mergeLedgers($companyId);
+		return $status;
+	}
+
+	public function fixInventory($inventoryType)
+	{
+		$mergeService = new MergeService();
+		$status = $mergeService->fixInventory($inventoryType);
 		return $status;
 	}
 }
