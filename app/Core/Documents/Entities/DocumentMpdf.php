@@ -238,7 +238,7 @@ class DocumentMpdf extends CurrencyToWordConversion
 				$marginPrice[$productArray] = $marginPrice[$productArray]+$decodedData[$productArray]->wholesaleMarginFlat;
 				$calcQty = $decodedArray->inventory[$productArray]->qty;
 				if ($setting_measureType == $measureTypesConstants['unit']) {
-					$calcQty = $calcQty * $decodedArray->inventory[$productArray]->totalFt;
+					$calcQty = $decodedArray->inventory[$productArray]->totalFt;
 				}
 				$totalPrice[$productArray] = $decodedArray->inventory[$productArray]->price* $calcQty;
 				
