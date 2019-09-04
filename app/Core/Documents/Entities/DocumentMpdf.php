@@ -82,7 +82,6 @@ class DocumentMpdf extends CurrencyToWordConversion
 				$stIndex++;
 			}
 		/* End Setting */
-
 		if(array_key_exists("operation",$headerData) && strcmp($headerData['operation'][0],'preprint')==0)
 		{
 			$printHtmlBody = json_decode($blankTemplateData)[0]->templateBody;
@@ -237,8 +236,11 @@ class DocumentMpdf extends CurrencyToWordConversion
 				
 				$marginPrice[$productArray] = ($decodedData[$productArray]->wholesaleMargin/100)*$decodedArray->inventory[$productArray]->price;
 				$marginPrice[$productArray] = $marginPrice[$productArray]+$decodedData[$productArray]->wholesaleMarginFlat;
-				
-				$totalPrice[$productArray] = $decodedArray->inventory[$productArray]->price*$decodedArray->inventory[$productArray]->qty;
+				$calcQty = $decodedArray->inventory[$productArray]->qty;
+				if ($setting_measureType == $measureTypesConstants['unit']) {
+					$calcQty = $calcQty * $decodedArray->inventory[$productArray]->totalFt;
+				}
+				$totalPrice[$productArray] = $decodedArray->inventory[$productArray]->price* $calcQty;
 				
 				$discountValue[$productArray] = strcmp($decodedArray->inventory[$productArray]->discountType,"flat")==0
 												? $decodedArray->inventory[$productArray]->discount
@@ -276,12 +278,15 @@ class DocumentMpdf extends CurrencyToWordConversion
 				$totalAdditionalTax=$totalAdditionalTax+$additionalTaxValue[$productArray]+$vatValue[$productArray];
 				$totalQty=$totalQty+$decodedArray->inventory[$productArray]->qty;
 				// convert (number_format)as per company's selected decimal points
+
 				$totalPrice[$productArray] = number_format($totalPrice[$productArray],$decodedBillData->company->noOfDecimalPoints);
 				$total[$productArray] = number_format($total[$productArray],$decodedBillData->company->noOfDecimalPoints);
 				$rate = number_format($decodedArray->inventory[$productArray]->price,$decodedBillData->company->noOfDecimalPoints);
 				$discountValue[$productArray] = number_format($this->checkValue($discountValue[$productArray]),$decodedBillData->company->noOfDecimalPoints);
 				$amount[$productArray] = number_format($decodedArray->inventory[$productArray]->amount,$decodedBillData->company->noOfDecimalPoints);
-				$mainPrice = $decodedArray->inventory[$productArray]->price * $decodedArray->inventory[$productArray]->qty;
+				
+				$mainPrice = $decodedArray->inventory[$productArray]->price * $calcQty;
+
 				$mainPrice = number_format($mainPrice,$decodedBillData->company->noOfDecimalPoints);
 				$finalVatValue1 = number_format($finalVatValue,$decodedBillData->company->noOfDecimalPoints);
 				$cgst = $this->checkValue($decodedArray->inventory[$productArray]->cgstPercentage);
@@ -421,7 +426,7 @@ class DocumentMpdf extends CurrencyToWordConversion
 							<td  style='font-size: 12px; height: ".$finalProductBlankSpace."cm; text-align:center; padding:0 0 0 0;border-right: 1px solid rgba(0, 0, 0, .3);' ></td></tr>";
 				}
 				$index++;
-			}    
+			}
 		}
 		$totalTaxableAmount =0;
 		$totalCgst =0;
@@ -669,6 +674,11 @@ class DocumentMpdf extends CurrencyToWordConversion
 					$pathArray = array();
 					$pathArray['documentPath'] = $documentPathName;
 					$pathArray['preprintDocumentPath'] = $documentPreprintPathName;
+				}
+				else
+				{
+					$pathArray = array();
+					$pathArray['documentPath'] = $documentPathName;
 				}
 			}
 			else

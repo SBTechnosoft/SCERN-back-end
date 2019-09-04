@@ -90,7 +90,7 @@ class DocumentController extends BaseController implements ContainerInterface
 			{
 				//get sales data as per given saleId
 				$documentProcessor = new DocumentProcessor();
-				$documentService= new DocumentService();	
+				$documentService= new DocumentService();
 				$processedData = $documentProcessor->createPersistableData($request);
 				$serviceData = $documentService->getSaleData($processedData['saleId'],$request->header());
 				return $serviceData;
