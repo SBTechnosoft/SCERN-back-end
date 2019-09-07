@@ -1,4 +1,4 @@
-##### Creates Bill
+##### Report Builder
 
 ##### `GET /reports/report-builder/groups/`
 + Header

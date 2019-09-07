@@ -1,3 +1,4 @@
+
 ##### Standard ReportGroup Object
 			{
 				"rbGroupCategory": String,
